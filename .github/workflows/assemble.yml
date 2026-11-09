@@ -40,7 +40,7 @@ jobs:
           gh release download "${{ inputs.kit_tag }}" -R "$GITHUB_REPOSITORY" -D $WORK -p "visuals.zip" -p "kit.enc"
           unzip -q -o $WORK/visuals.zip -d $WORK/visuals
           openssl enc -d -aes-256-cbc -pbkdf2 -iter 200000 -in $WORK/kit.enc -out $WORK/kit.tar -pass env:KIT_KEY
-          tar -xf $WORK/kit.tar -C $WORK
+          (cd $WORK && tar -xf kit.tar)
           ls $WORK/narration $WORK/visuals
         env:
           KIT_KEY: ${{ secrets.KIT_KEY }}
