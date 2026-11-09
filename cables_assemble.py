@@ -116,7 +116,7 @@ class Film:
             have = len(list(frames.glob("f_*.png")))
             n = int((d + 0.2) * FPS / 2) + 2
             first = int(min(start, max(0, have - n)))      # move the in-point back rather than run out of frames
-            inp = ["-framerate", str(FPS), "-start_number", str(first + 1), "-i", frames / "f_%04d.png", "-frames:v", str(n)]
+            inp = ["-framerate", str(FPS), "-start_number", str(first + 1), "-i", frames / "f_%04d.png"]
             vf = (f"setpts=2*PTS,minterpolate=fps={FPS}:mi_mode=mci:mc_mode=aobmc:vsbmc=1,scale={W}:{H}:flags=lanczos,"
                   f"tpad=stop_mode=clone:stop_duration={d:.2f}")            # a shot longer than the render holds its last frame
         elif kind == "vis":
