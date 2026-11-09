@@ -177,7 +177,7 @@ def crosssection():
     world((0.004, 0.009, 0.02), 1.0)
     end = sc.frame_end
     layers = [  # name, outer radius (m), colour, roughness, metallic, how far its cut end steps back (m)
-        ("sheath", 0.0105, (0.004, 0.004, 0.005), 0.42, 0.0, 0.00),
+        ("sheath", 0.0105, (0.002, 0.002, 0.0025), 0.55, 0.0, 0.00),
         ("copper", 0.0068, (0.80, 0.42, 0.22), 0.25, 1.0, 0.022),
         ("strength_wires", 0.0062, (0.55, 0.56, 0.58), 0.3, 1.0, 0.044),
         ("steel_tube", 0.0024, (0.62, 0.63, 0.65), 0.22, 1.0, 0.066),
@@ -188,7 +188,7 @@ def crosssection():
         m = mat(name, col, rough=rough, metal=metal, coat=0.0)
         if name == "sheath":             # keep it black: weak, tight specular instead of a broad grey sheen (v1 read white)
             bsdf = m.node_tree.nodes["Principled BSDF"]
-            bsdf.inputs["Specular IOR Level"].default_value = 0.12
+            bsdf.inputs["Specular IOR Level"].default_value = 0.06
         if name == "strength_wires":     # a ring of steel wires around the tube, not a solid layer
             n = 18
             for k in range(n):
@@ -228,7 +228,7 @@ def crosssection():
             b.inputs["Emission Strength"].default_value = 0.0; b.inputs["Emission Strength"].keyframe_insert("default_value", frame=int(0.6 * end))
             b.inputs["Emission Strength"].default_value = 1.2; b.inputs["Emission Strength"].keyframe_insert("default_value", frame=end)
     # studio lighting: a cool key, a warm rim, a soft top
-    for loc, energy, col, size in [((0.25, -0.25, 0.2), 25, (0.8, 0.9, 1.0), 0.3), ((-0.3, 0.3, 0.12), 18, (1.0, 0.7, 0.45), 0.2), ((0, 0, 0.5), 10, (0.7, 0.85, 1.0), 0.6)]:
+    for loc, energy, col, size in [((0.25, -0.25, 0.2), 7, (0.8, 0.9, 1.0), 0.3), ((-0.3, 0.3, 0.12), 6, (1.0, 0.7, 0.45), 0.2), ((0, 0, 0.5), 2.5, (0.7, 0.85, 1.0), 0.6)]:
         bpy.ops.object.light_add(type="AREA", location=loc)
         l = bpy.context.object; l.data.energy = energy; l.data.color = col; l.data.size = size
         l.constraints.new("TRACK_TO").target = root
@@ -289,7 +289,7 @@ def pulses():
         ramp = nt.nodes.new("ShaderNodeValToRGB"); el = ramp.color_ramp.elements
         el[0].position, el[0].color = 0.80, (0, 0, 0, 1)
         el[1].position, el[1].color = 0.97, (1, 1, 1, 1)
-        gain = nt.nodes.new("ShaderNodeMath"); gain.operation = "MULTIPLY"; gain.inputs[1].default_value = 6.0
+        gain = nt.nodes.new("ShaderNodeMath"); gain.operation = "MULTIPLY"; gain.inputs[1].default_value = 22.0
         sep = nt.nodes.new("ShaderNodeSeparateColor")
         nt.links.new(tc.outputs["Object"], mp.inputs["Vector"]); nt.links.new(mp.outputs["Vector"], wave.inputs["Vector"])
         nt.links.new(wave.outputs["Fac"], ramp.inputs["Fac"]); nt.links.new(ramp.outputs["Color"], sep.inputs["Color"])
@@ -306,7 +306,7 @@ def pulses():
         bpy.ops.object.light_add(type="AREA", location=loc)
         l = bpy.context.object; l.data.energy = energy; l.data.color = col; l.data.size = size
         l.rotation_euler = (Vector((0, 0, 0)) - Vector(loc)).to_track_quat("-Z", "Y").to_euler()
-    cam_d = bpy.data.cameras.new("cam"); cam_d.lens = 85; cam_d.dof.use_dof = True; cam_d.dof.aperture_fstop = 5.6
+    cam_d = bpy.data.cameras.new("cam"); cam_d.lens = 85; cam_d.dof.use_dof = True; cam_d.dof.aperture_fstop = 11
     cam = bpy.data.objects.new("cam", cam_d); sc.collection.objects.link(cam); sc.camera = cam
     aim = bpy.data.objects.new("aim", None); sc.collection.objects.link(aim); cam_d.dof.focus_object = aim
     tr = cam.constraints.new("TRACK_TO"); tr.target = aim; tr.track_axis = "TRACK_NEGATIVE_Z"; tr.up_axis = "UP_Y"

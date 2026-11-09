@@ -138,7 +138,7 @@
     {
      "kind": "clip",
      "src": "clip_iss_e_europe_se_asia_night.ogv",
-     "in": 28,
+     "in": 5,
      "w": 1.0,
      "credit": "NASA, ISS Expedition 29 crew",
      "caption": ""
@@ -349,7 +349,7 @@
     {
      "kind": "clip",
      "src": "clip_ifremer_travelling_seamon_est.webm",
-     "in": 20,
+     "in": 122,
      "w": 1.0,
      "credit": "Ifremer, CC BY 4.0",
      "caption": "",
@@ -358,25 +358,26 @@
     {
      "kind": "clip",
      "src": "clip_ifremer_poisson_fonds.webm",
-     "in": 10,
+     "in": 58,
      "w": 1.0,
      "credit": "Ifremer, CC BY 4.0",
-     "caption": ""
+     "caption": "",
+     "vf": "crop=iw*0.80:ih*0.74:iw*0.10:ih*0.15"
     },
     {
      "kind": "clip",
      "src": "clip_noaa_bathynomus.webm",
-     "in": 5,
+     "in": 15,
      "w": 1.0,
      "credit": "NOAA Office of Ocean Exploration",
      "caption": ""
     },
     {
      "kind": "clip",
-     "src": "clip_ifremer_momarsat_ep1.webm",
-     "in": 40,
+     "src": "clip_ifremer_fond_abyssal.webm",
+     "in": 20,
      "w": 1.0,
-     "credit": "Ifremer / Théo Tanguy, CC BY 4.0",
+     "credit": "Ifremer, CC BY 4.0",
      "caption": ""
     }
    ]
@@ -388,11 +389,13 @@
    "shots": [
     {
      "kind": "clip",
-     "src": "clip_iss_e_europe_se_asia_night.ogv",
+     "src": "clip_nasa_blackmarble_globe.webm",
      "in": 40,
      "w": 0.8,
-     "credit": "NASA, ISS Expedition 29 crew",
-     "caption": ""
+     "credit": "NASA Goddard Space Flight Center",
+     "caption": "",
+     "grade": "eq=gamma=1.35:brightness=0.03:saturation=1.2",
+     "vf": "crop=iw*0.7:ih*0.7"
     },
     {
      "kind": "vis",
@@ -476,10 +479,11 @@
     {
      "kind": "clip",
      "src": "clip_ifremer_poisson_fonds.webm",
-     "in": 40,
+     "in": 70,
      "w": 1.0,
      "credit": "Ifremer, CC BY 4.0",
-     "caption": ""
+     "caption": "",
+     "vf": "crop=iw*0.80:ih*0.74:iw*0.10:ih*0.15"
     },
     {
      "kind": "3d",
@@ -530,7 +534,8 @@
      "in": 60,
      "w": 1.0,
      "credit": "Ifremer / Stéphane Lesbats, CC BY 4.0",
-     "caption": ""
+     "caption": "",
+     "vf": "crop=iw*0.86:ih*0.86:0:ih*0.14"
     },
     {
      "kind": "clip",
@@ -545,7 +550,7 @@
     {
      "kind": "clip",
      "src": "clip_ifremer_rov_arm.webm",
-     "in": 30,
+     "in": 130,
      "w": 1.0,
      "credit": "Ifremer, CC BY 4.0",
      "caption": ""
@@ -617,7 +622,7 @@
     {
      "kind": "clip",
      "src": "clip_iss_e_europe_se_asia_night.ogv",
-     "in": 20,
+     "in": 13,
      "w": 0.9,
      "credit": "NASA, ISS Expedition 29 crew",
      "caption": ""
@@ -632,18 +637,20 @@
     {
      "kind": "clip",
      "src": "clip_ifremer_auv_ulyx.webm",
-     "in": 150,
+     "in": 228,
      "w": 1.0,
      "credit": "Ifremer / Stéphane Lesbats, CC BY 4.0",
-     "caption": ""
+     "caption": "",
+     "vf": "crop=iw*0.86:ih*0.86:0:ih*0.14"
     },
     {
      "kind": "clip",
-     "src": "clip_ifremer_nautile_id.webm",
+     "src": "clip_ifremer_rov_launch.webm",
      "in": 30,
      "w": 1.0,
      "credit": "Ifremer / Stéphane Lesbats, CC BY 4.0",
-     "caption": ""
+     "caption": "",
+     "vf": "crop=iw*0.84:ih*0.84:0:ih*0.16"
     },
     {
      "kind": "clip",
@@ -688,7 +695,7 @@
     {
      "kind": "card",
      "w": 1,
-     "text": "THE HIDDEN INTERNET\n\nNarration: synthetic voice (ElevenLabs)\n\nFootage: NASA Goddard Space Flight Center; NASA Scientific Visualization Studio; ISS Expedition 29 crew;\nNOAA Office of Ocean Exploration; Ifremer (CC BY 4.0), including Stéphane Lesbats and Théo Tanguy;\nThe Voice Beneath the Sea (1956), Bell System / Western Electric, public domain\n\nMusic: Kevin MacLeod (incompetech.com): The Descent (CC BY 4.0), Lightless Dawn, Floating Cities (CC BY 3.0)\n\n3D reconstructions, maps and charts: The Wider World. Maps: Natural Earth. Cable routes are schematic.\nSources for every figure are listed in the description."
+     "text": "THE HIDDEN INTERNET\n\nNarration: synthetic voice (ElevenLabs)\n\nFootage: NASA Goddard Space Flight Center; NASA Scientific Visualization Studio; ISS Expedition 29 crew;\nNOAA Office of Ocean Exploration; Ifremer (CC BY 4.0), including Stéphane Lesbats;\nThe Voice Beneath the Sea (1956), Bell System / Western Electric, public domain\n\nMusic: Kevin MacLeod (incompetech.com): The Descent (CC BY 4.0), Lightless Dawn, Floating Cities (CC BY 3.0)\n\n3D reconstructions, maps and charts: The Wider World. Maps: Natural Earth. Cable routes are schematic.\nSources for every figure are listed in the description."
     }
    ]
   }
