@@ -1,0 +1,112 @@
+name: assemble-fast
+on:
+  workflow_dispatch:
+    inputs:
+      frames_tag:
+        default: cables-3d-v3
+      kit_tag:
+        default: cables-kit-v1
+      out_tag:
+        default: cables-film-v1
+      parts:
+        default: '5'
+permissions:
+  contents: write
+env:
+  WORK: D:/w
+  PYTHONUTF8: '1'
+jobs:
+  plan:
+    runs-on: ubuntu-latest
+    outputs:
+      parts: ${{ steps.p.outputs.parts }}
+    steps:
+      - id: p
+        run: python3 -c "import json;print('parts='+json.dumps(list(range(int('${{ inputs.parts }}')))))" >> "$GITHUB_OUTPUT"
+  part:
+    needs: plan
+    runs-on: windows-latest
+    timeout-minutes: 300
+    strategy:
+      fail-fast: true
+      matrix:
+        part: ${{ fromJson(needs.plan.outputs.parts) }}
+    defaults:
+      run:
+        shell: bash
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: pip install -q imageio-ffmpeg
+      - uses: actions/cache@v4
+        with:
+          path: D:/w/clips
+          key: clips-${{ hashFiles('media.json') }}
+      - name: media
+        run: python fetch_media.py "$WORK" clips
+      - name: frames, visuals, kit
+        env:
+          KIT_KEY: ${{ secrets.KIT_KEY }}
+        run: |
+          mkdir -p $WORK/3d $WORK/visuals $WORK/z
+          gh release download "${{ inputs.frames_tag }}" -R "$GITHUB_REPOSITORY" -D $WORK/z -p "*.zip"
+          for z in $WORK/z/*.zip; do b=$(basename $z .zip); shot=${b%_*}; mkdir -p $WORK/3d/${shot}_v3; unzip -q -o $z -d $WORK/3d/${shot}_v3; done
+          rm -rf $WORK/z
+          gh release download "${{ inputs.kit_tag }}" -R "$GITHUB_REPOSITORY" -D $WORK -p "visuals.zip" -p "kit.enc"
+          unzip -q -o $WORK/visuals.zip -d $WORK/visuals
+          openssl enc -d -aes-256-cbc -pbkdf2 -iter 200000 -in $WORK/kit.enc -out $WORK/kit.tar -pass env:KIT_KEY
+          (cd $WORK && tar -xf kit.tar)
+      - name: render scenes
+        env:
+          YTG_X264_THREADS: '4'
+        run: |
+          python cables_assemble.py shotlist.json "$WORK" --part ${{ matrix.part }}/${{ inputs.parts }}
+          mkdir -p scenes && cp $WORK/segments/scene_*.mp4 scenes/
+      - uses: actions/upload-artifact@v4
+        with:
+          name: scenes-${{ matrix.part }}
+          path: scenes/
+          retention-days: 1
+          compression-level: 0
+  join:
+    needs: part
+    runs-on: windows-latest
+    defaults:
+      run:
+        shell: bash
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: pip install -q imageio-ffmpeg
+      - run: python fetch_media.py "$WORK" music
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: scenes-*
+          merge-multiple: true
+          path: D:/w/segments
+      - name: kit
+        env:
+          KIT_KEY: ${{ secrets.KIT_KEY }}
+        run: |
+          gh release download "${{ inputs.kit_tag }}" -R "$GITHUB_REPOSITORY" -D $WORK -p "kit.enc"
+          openssl enc -d -aes-256-cbc -pbkdf2 -iter 200000 -in $WORK/kit.enc -out $WORK/kit.tar -pass env:KIT_KEY
+          (cd $WORK && tar -xf kit.tar)
+          ls $WORK/segments | wc -l
+      - name: join and mix
+        run: python cables_assemble.py shotlist.json "$WORK" --join-only
+      - name: publish (encrypted)
+        env:
+          KIT_KEY: ${{ secrets.KIT_KEY }}
+        run: |
+          openssl enc -aes-256-cbc -pbkdf2 -iter 200000 -salt -in $WORK/out/the_hidden_internet.mp4 -out film.enc -pass env:KIT_KEY
+          cp $WORK/out/timeline.json timeline.json
+          gh release view "${{ inputs.out_tag }}" -R "$GITHUB_REPOSITORY" || gh release create "${{ inputs.out_tag }}" -R "$GITHUB_REPOSITORY" --title "${{ inputs.out_tag }}" --notes "Encrypted build output."
+          gh release upload "${{ inputs.out_tag }}" film.enc timeline.json --clobber -R "$GITHUB_REPOSITORY"

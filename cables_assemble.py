@@ -169,26 +169,46 @@ class Film:
             t += length
         return scenes, t
 
-    def build(self):
+    def scene_file(self, si: int, sc: dict, n_scenes: int) -> Path:
+        out = self.seg_dir / f"scene_{sc['id']}.mp4"
+        want = sc["length"] + (0 if si == n_scenes - 1 else XS)
+        if not (out.exists() and abs(duration(out) - want) < 0.1):
+            shots = sc["shots"]
+            wsum = sum(s.get("w", 1) for s in shots)
+            parts = []
+            for k, shot in enumerate(shots):
+                t_i = want * shot.get("w", 1) / wsum
+                d = t_i + (XF if k < len(shots) - 1 else 0)
+                seg = self.segment(f"{sc['id']}_{k:02d}", shot, d, drift=1 if (si + k) % 2 else -1)
+                parts.append((seg, t_i))
+            self.xfade_chain(parts, out, XF, f"scene {sc['id']}")
+        print(f"scene {sc['id']}: {sc['length']:.1f}s", flush=True)
+        return out
+
+    @staticmethod
+    def split(scenes, k: int):
+        """Scenes -> k groups of similar work (3D shots cost about 3x footage: motion interpolation), largest first."""
+        cost = [(sc["length"] * (1 + 2 * sum(s["kind"] == "3d" for s in sc["shots"]) / len(sc["shots"])), i) for i, sc in enumerate(scenes)]
+        groups, load = [[] for _ in range(k)], [0.0] * k
+        for c, i in sorted(cost, reverse=True):
+            j = load.index(min(load)); groups[j].append(i); load[j] += c
+        return [sorted(g) for g in groups]
+
+    def build(self, part: int | None = None, parts: int = 1, join: bool = True):
+        """part/parts: render only this share of the scenes (parallel runners); join: put the scene files together."""
         scenes, total = self.plan()
         print(f"{len(scenes)} scenes, {total / 60:.2f} min", flush=True)
+        mine = self.split(scenes, parts)[part] if part is not None else range(len(scenes))
+        for si in mine:
+            self.scene_file(si, scenes[si], len(scenes))
+        if not join:
+            return
         scene_files = []
         for si, sc in enumerate(scenes):
             out = self.seg_dir / f"scene_{sc['id']}.mp4"
-            last_scene = si == len(scenes) - 1
-            want = sc["length"] + (0 if last_scene else XS)
-            if not (out.exists() and abs(duration(out) - want) < 0.1):
-                shots = sc["shots"]
-                wsum = sum(s.get("w", 1) for s in shots)
-                parts = []
-                for k, shot in enumerate(shots):
-                    t_i = want * shot.get("w", 1) / wsum
-                    d = t_i + (XF if k < len(shots) - 1 else 0)
-                    seg = self.segment(f"{sc['id']}_{k:02d}", shot, d, drift=1 if (si + k) % 2 else -1)
-                    parts.append((seg, t_i))
-                self.xfade_chain(parts, out, XF, f"scene {sc['id']}")
+            if not out.exists():
+                raise SystemExit(f"missing {out.name}: render its part first")
             scene_files.append((out, sc["length"]))
-            print(f"scene {sc['id']}: {sc['length']:.1f}s", flush=True)
         picture = self.out / "picture.mp4"
         self.xfade_chain_batched(scene_files, picture)
         audio = self.mix(scenes, total)
@@ -244,4 +264,12 @@ class Film:
 
 
 if __name__ == "__main__":
-    Film(Path(sys.argv[1]), Path(sys.argv[2])).build()
+    # cables_assemble.py <shotlist> <work> [--part i/k] [--join-only]
+    f = Film(Path(sys.argv[1]), Path(sys.argv[2]))
+    if "--part" in sys.argv:
+        i, k = map(int, sys.argv[sys.argv.index("--part") + 1].split("/"))
+        f.build(part=i, parts=k, join=False)
+    elif "--join-only" in sys.argv:
+        f.build(part=0, parts=1, join=True)        # every scene file is already present, so this only joins and mixes
+    else:
+        f.build()

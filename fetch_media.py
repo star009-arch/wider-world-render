@@ -14,8 +14,14 @@ def sha1(p):
     return h.hexdigest()
 
 
+only = sys.argv[2] if len(sys.argv) > 2 else None          # e.g. "music": fetch one folder only
 for m in json.load(open(Path(__file__).parent / "media.json")):
+    if only and m["dir"] != only:
+        continue
     dest = work / m["dir"] / m["name"]
+    if dest.exists() and "sha1" in m and sha1(dest) == m["sha1"]:
+        print(f"cached {m['name']}", flush=True)
+        continue
     dest.parent.mkdir(parents=True, exist_ok=True)
     if "archive" in m:
         item, fname = m["archive"]
