@@ -1,0 +1,25 @@
+name: sheets
+on: workflow_dispatch
+permissions:
+  contents: write
+jobs:
+  sheets:
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v4
+      - run: sudo apt-get install -y -qq ffmpeg >/dev/null
+      - run: python3 fetch_media.py w
+      - name: contact sheets
+        run: |
+          mkdir sheets
+          for f in w/clips/*; do
+            b=$(basename "$f"); d=$(ffprobe -v error -show_entries format=duration -of csv=p=0 "$f" | cut -d. -f1)
+            n=$([ "$d" -gt 300 ] && echo 30 || echo 12); tile=$([ "$d" -gt 300 ] && echo 6x5 || echo 4x3)
+            step=$(python3 -c "print(max($d/$n,0.5))")
+            ffmpeg -v error -y -i "$f" -vf "fps=1/$step,scale=400:-2,drawtext=text='%{pts\:hms}':x=6:y=6:fontsize=18:fontcolor=yellow:box=1:boxcolor=black@0.6,tile=$tile" -frames:v 1 -q:v 4 "sheets/${b%.*}.jpg" || echo "failed $b"
+          done
+          zip -q -j sheets.zip sheets/*.jpg
+          gh release view sheets -R "$GITHUB_REPOSITORY" || gh release create sheets -R "$GITHUB_REPOSITORY" --title sheets --notes "Contact sheets of public footage."
+          gh release upload sheets sheets.zip --clobber -R "$GITHUB_REPOSITORY"
