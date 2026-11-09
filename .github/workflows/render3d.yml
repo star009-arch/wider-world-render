@@ -1,0 +1,76 @@
+name: render-3d
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: release tag that receives the frames
+        default: cables-3d-v3
+      shots:
+        description: 'JSON list of [shot, seconds_to_render, samples]'
+        default: '[["seabed",5,24],["seabed_wide",5,24],["crosssection",5,28],["pulses",4,28],["repeater",5,24],["seabed_pullback",5,24]]'
+      chunk:
+        description: frames per job
+        default: '12'
+      res:
+        default: 1920x1080
+permissions:
+  contents: write
+jobs:
+  plan:
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.m.outputs.matrix }}
+    steps:
+      - id: m
+        run: |
+          python3 - <<'EOF' >> "$GITHUB_OUTPUT"
+          import json, os
+          shots = json.loads('''${{ inputs.shots }}'''); c = int('${{ inputs.chunk }}')
+          inc = []
+          for shot, sec, samples in shots:
+              n = int(sec * 24)
+              for s in range(1, n + 1, c):
+                  inc.append({"shot": shot, "sec": sec, "samples": samples, "start": s, "end": min(n, s + c - 1)})
+          print("matrix=" + json.dumps({"include": inc}))
+          EOF
+      - env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release view "${{ inputs.tag }}" -R "${{ github.repository }}" || gh release create "${{ inputs.tag }}" -R "${{ github.repository }}" --title "${{ inputs.tag }}" --notes "Rendered frames (3D reconstructions for The Wider World)."
+  render:
+    needs: plan
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    strategy:
+      fail-fast: false
+      max-parallel: 20
+      matrix: ${{ fromJson(needs.plan.outputs.matrix) }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/cache@v4
+        with:
+          path: blender
+          key: blender-4.2.9-linux-x64
+      - name: blender
+        run: |
+          if [ ! -x blender/blender ]; then
+            curl -sSLo b.tar.xz https://mirrors.ocf.berkeley.edu/blender/release/Blender4.2/blender-4.2.9-linux-x64.tar.xz
+            echo "dfbc127a7d28f9c2175b23bf9d6701b2855f31eedfb391f9a6e60adb24572846  b.tar.xz" | sha256sum -c -
+            mkdir blender && tar -xf b.tar.xz -C blender --strip-components=1 && rm b.tar.xz
+          fi
+          sudo apt-get install -y -qq libxi6 libxxf86vm1 libxfixes3 libxrender1 libgl1 libxkbcommon0 libsm6 >/dev/null
+      - name: render
+        env:
+          YTG_THREADS: '4'
+          YTG_FRAME_START: ${{ matrix.start }}
+          YTG_FRAME_END: ${{ matrix.end }}
+        run: |
+          blender/blender -b --factory-startup -P blender_cables.py -- ${{ matrix.shot }} out ${{ matrix.sec }} ${{ matrix.samples }} 0 ${{ inputs.res }} 2>&1 | grep -E "Fra:|Saved|Error|Traceback" | grep -v "Rendering" | tail -40
+          ls out | wc -l
+          test "$(ls out/f_*.png | wc -l)" -eq "$(( ${{ matrix.end }} - ${{ matrix.start }} + 1 ))"
+      - name: publish
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          name="${{ matrix.shot }}_$(printf %04d ${{ matrix.start }}).zip"
+          (cd out && zip -q -0 "../$name" f_*.png)
+          gh release upload "${{ inputs.tag }}" "$name" --clobber -R "${{ github.repository }}"
