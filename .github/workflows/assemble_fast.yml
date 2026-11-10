@@ -9,7 +9,7 @@ on:
       out_tag:
         default: cables-film-v1
       parts:
-        default: '5'
+        default: '10'
       scenes_run_id:
         description: reuse the scene files of an earlier run (join only)
         default: ''
@@ -46,12 +46,6 @@ jobs:
         with:
           python-version: '3.11'
       - run: pip install -q imageio-ffmpeg
-      - uses: actions/cache@v4
-        with:
-          path: D:/w/clips
-          key: clips-${{ hashFiles('media.json') }}
-      - name: media
-        run: python fetch_media.py "$WORK" clips
       - name: frames, visuals, kit
         env:
           KIT_KEY: ${{ secrets.KIT_KEY }}
@@ -64,6 +58,11 @@ jobs:
           unzip -q -o $WORK/visuals.zip -d $WORK/visuals
           openssl enc -d -aes-256-cbc -pbkdf2 -iter 200000 -in $WORK/kit.enc -out $WORK/kit.tar -pass env:KIT_KEY
           (cd $WORK && tar -xf kit.tar)
+      - name: media (only this part's clips)
+        run: |
+          need=$(python cables_assemble.py shotlist.json "$WORK" --needs ${{ matrix.part }}/${{ inputs.parts }} | tail -1)
+          echo "clips: $need"
+          python fetch_media.py "$WORK" clips "$need"
       - name: render scenes
         env:
           YTG_X264_THREADS: '4'

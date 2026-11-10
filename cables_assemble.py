@@ -238,7 +238,7 @@ class Film:
                 prev = f"v{i}"
             print(f"join: {len(parts)} scenes, one pass", flush=True)
             run([*ins, "-filter_complex", ";".join(fc), "-map", f"[{prev}]", "-r", FPS, "-c:v", "libx264",
-                 "-preset", os.environ.get("YTG_JOIN_PRESET", "fast"), "-crf", "17", "-threads", "0", "-pix_fmt", "yuv420p", out], "picture")
+                 "-preset", os.environ.get("YTG_JOIN_PRESET", "medium"), "-crf", "17", "-threads", "0", "-pix_fmt", "yuv420p", out], "picture")
             return
         return self._xfade_chain_batched_old(parts, out)
 
@@ -291,7 +291,12 @@ class Film:
 if __name__ == "__main__":
     # cables_assemble.py <shotlist> <work> [--part i/k] [--join-only]
     f = Film(Path(sys.argv[1]), Path(sys.argv[2]))
-    if "--part" in sys.argv:
+    if "--needs" in sys.argv:              # which clip files a part uses (so each runner downloads only those)
+        i, k = map(int, sys.argv[sys.argv.index("--needs") + 1].split("/"))
+        scenes, _ = f.plan()                # the same timing (from the narration) and split that --part uses
+        group = Film.split(scenes, k)[i]
+        print(" ".join(sorted({sh["src"] for gi in group for sh in scenes[gi]["shots"] if sh["kind"] == "clip"})))
+    elif "--part" in sys.argv:
         i, k = map(int, sys.argv[sys.argv.index("--part") + 1].split("/"))
         f.build(part=i, parts=k, join=False)
     elif "--join-only" in sys.argv:

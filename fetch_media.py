@@ -15,8 +15,11 @@ def sha1(p):
 
 
 only = sys.argv[2] if len(sys.argv) > 2 else None          # e.g. "music": fetch one folder only
+names = set(sys.argv[3].split()) if len(sys.argv) > 3 else None   # only these files (a part's own clips)
 for m in json.load(open(Path(__file__).parent / "media.json")):
     if only and m["dir"] != only:
+        continue
+    if names is not None and m["name"] not in names:
         continue
     dest = work / m["dir"] / m["name"]
     if dest.exists() and "sha1" in m and sha1(dest) == m["sha1"]:
