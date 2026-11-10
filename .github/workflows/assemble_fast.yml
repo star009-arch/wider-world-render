@@ -14,7 +14,10 @@ on:
         description: reuse the scene files of an earlier run (join only)
         default: ''
       only:
-        description: render only these scene ids, comma-separated (use with parts=1)
+        description: render only these scene ids, comma-separated
+        default: ''
+      base_runs:
+        description: earlier run ids whose scene files fill in the scenes not rendered here (oldest first, comma-separated)
         default: ''
 permissions:
   contents: write
@@ -78,7 +81,7 @@ jobs:
         with:
           name: scenes-${{ matrix.part }}
           path: scenes/
-          retention-days: 1
+          retention-days: 7
           compression-level: 0
   join:
     needs: part
@@ -97,13 +100,15 @@ jobs:
           python-version: '3.11'
       - run: pip install -q imageio-ffmpeg
       - run: python fetch_media.py "$WORK" music
-      - uses: actions/download-artifact@v4
-        with:
-          pattern: scenes-*
-          merge-multiple: true
-          path: D:/w/segments
-          run-id: ${{ inputs.scenes_run_id || github.run_id }}
-          github-token: ${{ github.token }}
+      - name: scene files (base runs first, then this run's new scenes on top)
+        run: |
+          mkdir -p $WORK/segments
+          for r in $(echo "${{ inputs.base_runs }}" | tr ',' ' ') ${{ inputs.scenes_run_id || github.run_id }}; do
+            rm -rf dl && gh run download "$r" -R "$GITHUB_REPOSITORY" -p "scenes-*" -D dl
+            find dl -name "scene_*.mp4" -exec cp -f {} $WORK/segments/ \;
+            echo "run $r: $(find dl -name 'scene_*.mp4' | wc -l) scene files"
+          done
+          ls $WORK/segments | wc -l
       - name: kit
         env:
           KIT_KEY: ${{ secrets.KIT_KEY }}
