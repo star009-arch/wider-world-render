@@ -217,6 +217,7 @@ class Film:
             scene_files.append((out, sc["length"]))
         picture = self.out / "picture.mp4"
         self.xfade_chain_batched(scene_files, picture)
+        print("picture done; mixing", flush=True)
         audio = self.mix(scenes, total)
         final = self.out / "the_hidden_internet.mp4"
         run(["-i", picture, "-i", audio, "-map", "0:v", "-map", "1:a", "-c:v", "copy", "-c:a", "aac", "-b:a", "192k",
@@ -226,6 +227,22 @@ class Film:
         print(f"final: {final} {duration(final):.2f}s (planned {total:.2f}s)", flush=True)
 
     def xfade_chain_batched(self, parts, out: Path):
+        """One pass over all scenes (the old batch-then-final route encoded the film twice and stalled on a runner)."""
+        if len(parts) <= 24:
+            ins, fc, prev, off = [], [], "0:v", 0.0
+            for f, _ in parts:
+                ins += ["-i", f]
+            for i in range(1, len(parts)):
+                off += parts[i - 1][1]
+                fc.append(f"[{prev}][{i}:v]xfade=transition=fade:duration={XS}:offset={off:.3f}[v{i}]")
+                prev = f"v{i}"
+            print(f"join: {len(parts)} scenes, one pass", flush=True)
+            run([*ins, "-filter_complex", ";".join(fc), "-map", f"[{prev}]", "-r", FPS, "-c:v", "libx264",
+                 "-preset", os.environ.get("YTG_JOIN_PRESET", "fast"), "-crf", "17", "-threads", "0", "-pix_fmt", "yuv420p", out], "picture")
+            return
+        return self._xfade_chain_batched_old(parts, out)
+
+    def _xfade_chain_batched_old(self, parts, out: Path):
         """Scenes dissolve into each other; done in batches of 6 so one ffmpeg never decodes 20 streams at once."""
         batch, k = [], 0
         while len(parts) > 6:

@@ -10,6 +10,9 @@ on:
         default: cables-film-v1
       parts:
         default: '5'
+      scenes_run_id:
+        description: reuse the scene files of an earlier run (join only)
+        default: ''
 permissions:
   contents: write
 env:
@@ -25,6 +28,7 @@ jobs:
         run: python3 -c "import json;print('parts='+json.dumps(list(range(int('${{ inputs.parts }}')))))" >> "$GITHUB_OUTPUT"
   part:
     needs: plan
+    if: inputs.scenes_run_id == ''
     runs-on: windows-latest
     timeout-minutes: 300
     strategy:
@@ -74,7 +78,9 @@ jobs:
           compression-level: 0
   join:
     needs: part
+    if: always() && (needs.part.result == 'success' || needs.part.result == 'skipped')
     runs-on: windows-latest
+    timeout-minutes: 90
     defaults:
       run:
         shell: bash
@@ -92,6 +98,8 @@ jobs:
           pattern: scenes-*
           merge-multiple: true
           path: D:/w/segments
+          run-id: ${{ inputs.scenes_run_id || github.run_id }}
+          github-token: ${{ github.token }}
       - name: kit
         env:
           KIT_KEY: ${{ secrets.KIT_KEY }}
