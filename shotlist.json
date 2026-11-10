@@ -37,7 +37,8 @@
      "w": 3.4,
      "credit": "",
      "caption": "",
-     "source": "Ifremer, CC BY 4.0"
+     "source": "Ifremer, CC BY 4.0",
+     "vf": "crop=iw*0.80:ih*0.74:iw*0.10:ih*0.16"
     },
     {
      "kind": "vis",
@@ -77,7 +78,7 @@
      "caption": "",
      "source": "McNeil B, Lowry D, Larson S, Griffing D (2016), PLOS ONE, CC BY 4.0",
      "aspect": "4:3",
-     "grade": "hqdn3d=2:2:5:5,colorchannelmixer=rr=0.95:gg=0.78:bb=1.12,eq=saturation=0.85:contrast=1.06"
+     "grade": "hqdn3d=2:2:5:5,colorchannelmixer=rr=1.0:gg=0.62:gb=0.22:bb=1.0:bg=0.38,eq=saturation=0.8:contrast=1.08:gamma=0.95"
     },
     {
      "kind": "3d",
@@ -421,7 +422,8 @@
      "w": 1.0,
      "credit": "",
      "caption": "",
-     "source": "Ifremer, CC BY 4.0"
+     "source": "Ifremer, CC BY 4.0",
+     "vf": "crop=iw*0.80:ih*0.74:iw*0.10:ih*0.16"
     }
    ]
   },
@@ -514,7 +516,8 @@
      "w": 1.0,
      "credit": "",
      "caption": "",
-     "source": "Ifremer, CC BY 4.0"
+     "source": "Ifremer, CC BY 4.0",
+     "vf": "crop=iw*0.80:ih*0.74:iw*0.10:ih*0.16"
     }
    ]
   },

@@ -223,8 +223,9 @@ class Film:
         print(f"{len(scenes)} scenes, {total / 60:.2f} min", flush=True)
         mine = self.split(scenes, parts)[part] if part is not None else range(len(scenes))
         only = [x for x in os.environ.get("YTG_ONLY", "").split(",") if x]   # re-render just these scene ids (the rest are reused)
-        if only:
-            mine = [si for si in range(len(scenes)) if scenes[si]["id"] in only] if part in (None, 0) else []
+        if only:                           # the chosen scenes, spread over the parallel runners
+            sel = [si for si in range(len(scenes)) if scenes[si]["id"] in only]
+            mine = [sel[j] for j in self.split([scenes[si] for si in sel], parts)[part]] if part is not None else sel
         for si in mine:
             self.scene_file(si, scenes[si], len(scenes))
         if not join:
@@ -316,7 +317,13 @@ class Film:
         n = len(labels)
         fc.append("".join(labels) + f"amix=inputs={n}:normalize=0,apad,atrim=0:{total:.3f},"
                   # voice levelling: the AI voice tails off by 10-15 dB at the end of some lines (owner heard it at 5:05)
-                  "dynaudnorm=f=150:g=13:m=8:p=0.9,acompressor=threshold=-24dB:ratio=2.5:attack=8:release=150:makeup=2,asplit=2[nar][key]")
+                  "dynaudnorm=f=150:g=13:m=8:p=0.9,acompressor=threshold=-24dB:ratio=2.5:attack=8:release=150:makeup=2[nbus]")
+        # pass 1: the narration bus goes to its own file. One graph that asplit the voice into the final mix AND the
+        # music ducker stalled ~26 s before the end on every machine (2026-11-10); reading the file twice avoids it.
+        nbus = self.out / "narration_bus.wav"
+        run([*ins, "-filter_complex", ";".join(fc), "-map", "[nbus]", "-t", f"{total:.3f}", "-c:a", "pcm_s16le", nbus], "narration bus")
+        ins = ["-i", nbus, "-i", nbus]
+        fc = ["[0:a]anull[nar]", "[1:a]anull[key]"]
         # music: the tracks in order, each trimmed to its slot, cross-faded, ducked under the voice
         mus = []
         for j, m in enumerate(self.cfg["music"]):
@@ -345,7 +352,8 @@ if __name__ == "__main__":
         group = Film.split(scenes, k)[i]
         only = [x for x in os.environ.get("YTG_ONLY", "").split(",") if x]
         if only:
-            group = [si for si in range(len(scenes)) if scenes[si]["id"] in only] if i == 0 else []
+            sel = [si for si in range(len(scenes)) if scenes[si]["id"] in only]
+            group = [sel[j] for j in Film.split([scenes[si] for si in sel], k)[i]]
         print(" ".join(sorted({sh["src"] for gi in group for sh in scenes[gi]["shots"] if sh["kind"] == "clip"})))
     elif "--part" in sys.argv:
         i, k = map(int, sys.argv[sys.argv.index("--part") + 1].split("/"))
