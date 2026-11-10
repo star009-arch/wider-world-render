@@ -20,7 +20,7 @@ import sys
 from pathlib import Path
 
 W, H, FPS = 1920, 1080, 24
-XF, XS = 0.5, 0.8
+XF, XS = 0.5, 0.75                                  # XS is 18 frames: scene cuts land exactly on frames
 FONT = os.environ.get("YTG_FONT", "C:/Windows/Fonts/segoeui.ttf")
 FONT_B = os.environ.get("YTG_FONT_B", "C:/Windows/Fonts/segoeuib.ttf")
 FONT_L = os.environ.get("YTG_FONT_L", "C:/Windows/Fonts/segoeuil.ttf")
@@ -150,10 +150,15 @@ class Film:
             padded.replace(out)
         return out
 
-    def xfade_chain(self, parts, out: Path, xf: float, what: str):
-        """parts: [(file, on-screen seconds)]; every part but the last carries xf extra seconds that the next dissolves over."""
+    def xfade_chain(self, parts, out: Path, xf: float, what: str, keyframes=None):
+        """parts: [(file, on-screen seconds)]; every part but the last carries xf extra seconds that the next dissolves over.
+        keyframes: times (s) that must start a new GOP, so the fast join can cut there without re-encoding."""
+        kf = ["-force_key_frames", ",".join(f"{t:.4f}" for t in keyframes)] if keyframes else []
         if len(parts) == 1:
-            run(["-i", parts[0][0], "-c", "copy", out], what); return
+            if not kf:
+                run(["-i", parts[0][0], "-c", "copy", out], what); return
+            run(["-i", parts[0][0], "-r", FPS, "-c:v", "libx264", "-preset", "medium", "-crf", "16", "-threads", THREADS,
+                 "-pix_fmt", "yuv420p", *kf, out], what); return
         ins, fc, prev, off = [], [], "0:v", 0.0
         for f, _ in parts:
             ins += ["-i", f]
@@ -162,7 +167,7 @@ class Film:
             fc.append(f"[{prev}][{i}:v]xfade=transition=fade:duration={xf}:offset={off:.3f}[v{i}]")
             prev = f"v{i}"
         run([*ins, "-filter_complex", ";".join(fc), "-map", f"[{prev}]", "-r", FPS, "-c:v", "libx264", "-preset", "medium", "-crf", "16",
-             "-threads", THREADS, "-pix_fmt", "yuv420p", out], what)
+             "-threads", THREADS, "-pix_fmt", "yuv420p", *kf, out], what)
 
     # ------------------------------------------------------------------------------------------------------- build
     def plan(self):
@@ -171,6 +176,7 @@ class Film:
             nar = self.narration(sc["id"])
             nd = duration(nar) if nar else 0.0
             length = sc.get("length") or (sc.get("lead", 0.7) + nd + sc.get("tail", 1.0))
+            length = round(length * FPS) / FPS                      # whole frames, so every scene cut is frame-exact
             scenes.append(dict(sc, start=t, length=length, narr=str(nar) if nar else None, narr_dur=nd))
             t += length
         return scenes, t
@@ -187,7 +193,8 @@ class Film:
                 d = t_i + (XF if k < len(shots) - 1 else 0)
                 seg = self.segment(f"{sc['id']}_{k:02d}", shot, d, drift=1 if (si + k) % 2 else -1)
                 parts.append((seg, t_i))
-            self.xfade_chain(parts, out, XF, f"scene {sc['id']}")
+            kf = ([XS] if si > 0 else []) + ([sc["length"]] if si < n_scenes - 1 else [])
+            self.xfade_chain(parts, out, XF, f"scene {sc['id']}", keyframes=kf)
         print(f"scene {sc['id']}: {sc['length']:.1f}s", flush=True)
         return out
 
@@ -216,7 +223,10 @@ class Film:
                 raise SystemExit(f"missing {out.name}: render its part first")
             scene_files.append((out, sc["length"]))
         picture = self.out / "picture.mp4"
-        self.xfade_chain_batched(scene_files, picture)
+        if os.environ.get("YTG_JOIN") == "chain":
+            self.xfade_chain_batched(scene_files, picture)
+        else:
+            self.fast_join(scene_files, picture)
         print("picture done; mixing", flush=True)
         audio = self.mix(scenes, total)
         final = self.out / "the_hidden_internet.mp4"
@@ -225,6 +235,30 @@ class Film:
         (self.out / "timeline.json").write_text(json.dumps([{k: sc[k] for k in ("id", "start", "length", "narr_dur")} | {"narr_at": sc["start"] + sc.get("lead", 0.7)}
                                                             for sc in scenes], indent=1), encoding="utf-8")
         print(f"final: {final} {duration(final):.2f}s (planned {total:.2f}s)", flush=True)
+
+    def fast_join(self, scene_files, out: Path):
+        """Same picture as the full dissolve chain, without re-encoding the film: each scene's body is cut out by stream copy
+        at keyframes placed at XS and at its length, only the 0.75 s dissolves between scenes are encoded, then everything
+        is concatenated. Measured: ~35 min (chain) -> a few minutes."""
+        pieces, n = [], len(scene_files)
+        enc = ["-r", FPS, "-c:v", "libx264", "-preset", "medium", "-crf", "16", "-threads", THREADS, "-pix_fmt", "yuv420p"]
+        for k, (f, L) in enumerate(scene_files):
+            start = XS if k > 0 else 0.0
+            body = self.seg_dir / f"body_{k:02d}.mp4"
+            nframes = round(L * FPS) - round(start * FPS)          # exact frame count: time-based cuts kept one extra frame
+            run(["-ss", f"{start:.4f}", "-i", f, "-frames:v", str(nframes), "-map", "0:v", "-c", "copy", "-avoid_negative_ts", "make_zero", body], f"body {k}")
+            pieces.append(body)
+            if k < n - 1:
+                bnd = self.seg_dir / f"dissolve_{k:02d}.mp4"
+                run(["-ss", f"{L:.4f}", "-t", f"{XS:.4f}", "-i", f, "-t", f"{XS:.4f}", "-i", scene_files[k + 1][0], "-filter_complex",
+                     f"[0:v]setpts=PTS-STARTPTS,fps={FPS}[a];[1:v]setpts=PTS-STARTPTS,fps={FPS}[b];[a][b]xfade=transition=fade:duration={XS}:offset=0,format=yuv420p[v]",
+                     "-map", "[v]", "-frames:v", str(round(XS * FPS)), *enc, bnd], f"dissolve {k}")
+                pieces.append(bnd)
+        lst = self.seg_dir / "join.txt"
+        lst.write_text("".join(f"file '{p.as_posix()}'" + chr(10) for p in pieces), encoding="utf-8")
+        run(["-f", "concat", "-safe", "0", "-i", lst, "-c", "copy", out], "concat")
+        want = sum(L for _, L in scene_files)
+        print(f"join: {len(pieces)} pieces, {duration(out):.2f}s (planned {want:.2f}s)", flush=True)
 
     def xfade_chain_batched(self, parts, out: Path):
         """One pass over all scenes (the old batch-then-final route encoded the film twice and stalled on a runner)."""
