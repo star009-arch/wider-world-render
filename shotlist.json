@@ -101,7 +101,7 @@
     {
      "kind": "clip",
      "src": "clip_bell1956_voice_beneath_the_sea.mov",
-     "in": 450,
+     "in": 404,
      "w": 1.0,
      "credit": "The Voice Beneath the Sea (1956), Bell System / Western Electric, public domain",
      "caption": "Archive film, 1956: a cable comes ashore",
@@ -180,10 +180,10 @@
     {
      "kind": "clip",
      "src": "clip_bell1956_voice_beneath_the_sea.mov",
-     "in": 300,
+     "in": 260,
      "w": 1.0,
      "credit": "The Voice Beneath the Sea (1956), Bell System / Western Electric, public domain",
-     "caption": "Archive film, 1956: making the cable",
+     "caption": "Archive film, 1956",
      "aspect": "4:3",
      "grade": "eq=contrast=1.04:saturation=0.9"
     },
@@ -211,20 +211,20 @@
     {
      "kind": "clip",
      "src": "clip_bell1956_voice_beneath_the_sea.mov",
-     "in": 276,
+     "in": 231,
      "w": 1.0,
      "credit": "The Voice Beneath the Sea (1956), Bell System / Western Electric, public domain",
-     "caption": "Archive film, 1956: building repeaters",
+     "caption": "Archive film, 1956: assembling cable equipment",
      "aspect": "4:3",
      "grade": "eq=contrast=1.04:saturation=0.9"
     },
     {
      "kind": "clip",
      "src": "clip_bell1956_voice_beneath_the_sea.mov",
-     "in": 330,
+     "in": 288,
      "w": 1.0,
      "credit": "The Voice Beneath the Sea (1956), Bell System / Western Electric, public domain",
-     "caption": "Archive film, 1956: building repeaters",
+     "caption": "Archive film, 1956: assembling cable equipment",
      "aspect": "4:3",
      "grade": "eq=contrast=1.04:saturation=0.9"
     },
@@ -252,7 +252,7 @@
     {
      "kind": "clip",
      "src": "clip_bell1956_voice_beneath_the_sea.mov",
-     "in": 93,
+     "in": 115,
      "w": 1.0,
      "credit": "The Voice Beneath the Sea (1956), Bell System / Western Electric, public domain",
      "caption": "Archive film, 1956",
@@ -268,10 +268,10 @@
     {
      "kind": "clip",
      "src": "clip_bell1956_voice_beneath_the_sea.mov",
-     "in": 602,
+     "in": 547,
      "w": 1.0,
      "credit": "The Voice Beneath the Sea (1956), Bell System / Western Electric, public domain",
-     "caption": "Archive film, 1956: the first telephone cable route",
+     "caption": "Archive film, 1956: the first transatlantic telephone cable route",
      "aspect": "4:3",
      "grade": "eq=contrast=1.04:saturation=0.9"
     }
@@ -285,7 +285,7 @@
     {
      "kind": "clip",
      "src": "clip_bell1956_voice_beneath_the_sea.mov",
-     "in": 418,
+     "in": 375,
      "w": 1.0,
      "credit": "The Voice Beneath the Sea (1956), Bell System / Western Electric, public domain",
      "caption": "Archive film, 1956: a cable ship",
@@ -295,7 +295,17 @@
     {
      "kind": "clip",
      "src": "clip_bell1956_voice_beneath_the_sea.mov",
-     "in": 477,
+     "in": 432,
+     "w": 1.0,
+     "credit": "The Voice Beneath the Sea (1956), Bell System / Western Electric, public domain",
+     "caption": "Archive film, 1956: cable coiled in the ship's tank",
+     "aspect": "4:3",
+     "grade": "eq=contrast=1.04:saturation=0.9"
+    },
+    {
+     "kind": "clip",
+     "src": "clip_bell1956_voice_beneath_the_sea.mov",
+     "in": 519,
      "w": 1.0,
      "credit": "The Voice Beneath the Sea (1956), Bell System / Western Electric, public domain",
      "caption": "Archive film, 1956",
@@ -305,27 +315,17 @@
     {
      "kind": "clip",
      "src": "clip_bell1956_voice_beneath_the_sea.mov",
-     "in": 754,
+     "in": 605,
      "w": 1.0,
      "credit": "The Voice Beneath the Sea (1956), Bell System / Western Electric, public domain",
-     "caption": "Archive film, 1956",
+     "caption": "Archive film, 1956: the cable runs into the sea",
      "aspect": "4:3",
      "grade": "eq=contrast=1.04:saturation=0.9"
     },
     {
      "kind": "clip",
      "src": "clip_bell1956_voice_beneath_the_sea.mov",
-     "in": 777,
-     "w": 1.0,
-     "credit": "The Voice Beneath the Sea (1956), Bell System / Western Electric, public domain",
-     "caption": "Archive film, 1956",
-     "aspect": "4:3",
-     "grade": "eq=contrast=1.04:saturation=0.9"
-    },
-    {
-     "kind": "clip",
-     "src": "clip_bell1956_voice_beneath_the_sea.mov",
-     "in": 456,
+     "in": 404,
      "w": 1.0,
      "credit": "The Voice Beneath the Sea (1956), Bell System / Western Electric, public domain",
      "caption": "Archive film, 1956: landing the shore end",
@@ -442,7 +442,7 @@
     {
      "kind": "clip",
      "src": "clip_bell1956_voice_beneath_the_sea.mov",
-     "in": 790,
+     "in": 634,
      "w": 1.0,
      "credit": "The Voice Beneath the Sea (1956), Bell System / Western Electric, public domain",
      "caption": "Archive film, 1956",
@@ -540,10 +540,10 @@
     {
      "kind": "clip",
      "src": "clip_bell1956_voice_beneath_the_sea.mov",
-     "in": 754,
+     "in": 721,
      "w": 1.0,
      "credit": "The Voice Beneath the Sea (1956), Bell System / Western Electric, public domain",
-     "caption": "Archive film, 1956: hauling a cable aboard",
+     "caption": "Archive film, 1956: handling the cable",
      "aspect": "4:3",
      "grade": "eq=contrast=1.04:saturation=0.9"
     },
@@ -558,20 +558,20 @@
     {
      "kind": "clip",
      "src": "clip_bell1956_voice_beneath_the_sea.mov",
-     "in": 838,
+     "in": 750,
      "w": 1.1,
      "credit": "The Voice Beneath the Sea (1956), Bell System / Western Electric, public domain",
-     "caption": "Archive film, 1956: splicing a cable",
+     "caption": "Archive film, 1956",
      "aspect": "4:3",
      "grade": "eq=contrast=1.04:saturation=0.9"
     },
     {
      "kind": "clip",
      "src": "clip_bell1956_voice_beneath_the_sea.mov",
-     "in": 808,
+     "in": 461,
      "w": 0.8,
      "credit": "The Voice Beneath the Sea (1956), Bell System / Western Electric, public domain",
-     "caption": "Archive film, 1956: the final splice logged",
+     "caption": "Archive film, 1956",
      "aspect": "4:3",
      "grade": "eq=contrast=1.04:saturation=0.9"
     },

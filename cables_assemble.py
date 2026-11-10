@@ -132,7 +132,7 @@ class Film:
         else:
             raise SystemExit(f"unknown shot kind {kind}")
         grade = shot.get("grade", "")
-        vf = vf + (("," + grade) if grade else "") + ",format=yuv420p" + self.overlay(shot, d)
+        vf = vf + (("," + grade) if grade else "") + ",setsar=1,format=yuv420p" + self.overlay(shot, d)
         if ";" in vf or "[" in vf:
             args = [*inp, "-filter_complex", f"[0:v]{vf}[v]", "-map", "[v]"]
         else:
