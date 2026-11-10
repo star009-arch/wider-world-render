@@ -243,7 +243,9 @@ class Film:
                 fc.append(f"[{i}:a]aformat=sample_rates=48000:channel_layouts=stereo,adelay={at}|{at}[n{i}]")
                 labels.append(f"[n{i}]")
         n = len(labels)
-        fc.append("".join(labels) + f"amix=inputs={n}:normalize=0,apad,atrim=0:{total:.3f},asplit=2[nar][key]")
+        fc.append("".join(labels) + f"amix=inputs={n}:normalize=0,apad,atrim=0:{total:.3f},"
+                  # voice levelling: the AI voice tails off by 10-15 dB at the end of some lines (owner heard it at 5:05)
+                  "dynaudnorm=f=150:g=13:m=8:p=0.9,acompressor=threshold=-24dB:ratio=2.5:attack=8:release=150:makeup=2,asplit=2[nar][key]")
         # music: the tracks in order, each trimmed to its slot, cross-faded, ducked under the voice
         mus = []
         for j, m in enumerate(self.cfg["music"]):

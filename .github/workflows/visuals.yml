@@ -1,0 +1,57 @@
+name: visuals
+on:
+  workflow_dispatch:
+    inputs:
+      kit_tag:
+        default: cables-kit-v1
+permissions:
+  contents: write
+jobs:
+  plan:
+    runs-on: ubuntu-latest
+    outputs:
+      names: ${{ steps.n.outputs.names }}
+    steps:
+      - uses: actions/checkout@v4
+      - id: n
+        run: python3 -c "import re,json;s=open('scripts/cables_visuals.py').read();b=s[s.index('ALL = {'):];print('names='+json.dumps(re.findall(r'\"((?:map|chart)_[a-z0-9_]+)\":',b)))" >> "$GITHUB_OUTPUT"
+  render:
+    needs: plan
+    runs-on: windows-latest
+    strategy:
+      fail-fast: true
+      matrix:
+        name: ${{ fromJson(needs.plan.outputs.names) }}
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: pip install -q imageio-ffmpeg pyshp pillow numpy
+      - env:
+          YTG_CABLES_VISUALS: out
+          YTG_X264_THREADS: '4'
+        run: python scripts/cables_visuals.py ${{ matrix.name }}
+      - uses: actions/upload-artifact@v4
+        with:
+          name: vis-${{ matrix.name }}
+          path: out/*.mp4
+          retention-days: 1
+          compression-level: 0
+  publish:
+    needs: render
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: vis-*
+          merge-multiple: true
+          path: vis
+      - run: |
+          ls vis; (cd vis && zip -q -0 ../visuals.zip *.mp4)
+          gh release upload "${{ inputs.kit_tag }}" visuals.zip --clobber -R "$GITHUB_REPOSITORY"

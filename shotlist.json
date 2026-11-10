@@ -10,8 +10,9 @@
      "src": "clip_nasa_blackmarble_globe.webm",
      "in": 4,
      "w": 1.1,
-     "credit": "NASA Goddard Space Flight Center",
+     "credit": "",
      "caption": "",
+     "source": "NASA Goddard Space Flight Center",
      "grade": "eq=gamma=1.35:brightness=0.03:saturation=1.2",
      "vf": "crop=iw*0.7:ih*0.7"
     },
@@ -20,8 +21,9 @@
      "src": "clip_ifremer_seamon_west.webm",
      "in": 35,
      "w": 1.0,
-     "credit": "Ifremer, CC BY 4.0",
+     "credit": "",
      "caption": "",
+     "source": "Ifremer, CC BY 4.0",
      "vf": "crop=iw*0.80:ih*0.74:iw*0.10:ih*0.15"
     },
     {
@@ -32,20 +34,20 @@
      "credit": "3D reconstruction"
     },
     {
-     "kind": "clip",
-     "src": "clip_iss_e_europe_se_asia_night.ogv",
-     "in": 10,
+     "kind": "3d",
+     "src": "seabed_wide_v3",
+     "in": 30,
      "w": 0.9,
-     "credit": "NASA, ISS Expedition 29 crew",
-     "caption": ""
+     "credit": "3D reconstruction"
     },
     {
      "kind": "clip",
      "src": "clip_ifremer_fond_abyssal.webm",
      "in": 8,
      "w": 0.9,
-     "credit": "Ifremer, CC BY 4.0",
-     "caption": ""
+     "credit": "",
+     "caption": "",
+     "source": "Ifremer, CC BY 4.0"
     },
     {
      "kind": "3d",
@@ -81,8 +83,9 @@
      "src": "clip_nasa_blackmarble_globe.webm",
      "in": 70,
      "w": 1.0,
-     "credit": "NASA Goddard Space Flight Center",
+     "credit": "",
      "caption": "",
+     "source": "NASA Goddard Space Flight Center",
      "grade": "eq=gamma=1.35:brightness=0.03:saturation=1.2",
      "vf": "crop=iw*0.7:ih*0.7"
     },
@@ -103,10 +106,11 @@
      "src": "clip_bell1956_voice_beneath_the_sea.mov",
      "in": 404,
      "w": 1.0,
-     "credit": "The Voice Beneath the Sea (1956), Bell System / Western Electric, public domain",
-     "caption": "Archive film, 1956",
+     "credit": "Archive film, 1956",
+     "caption": "",
+     "source": "The Voice Beneath the Sea (1956), Bell System / Western Electric, public domain",
      "aspect": "4:3",
-     "grade": "eq=contrast=1.04:saturation=0.9"
+     "grade": "hqdn3d=3.5:3:7:7,colorlevels=rimin=0.05:gimin=0.05:bimin=0.05:rimax=0.95:gimax=0.95:bimax=0.95,eq=contrast=1.10:saturation=1.30:gamma=0.96,unsharp=5:5:0.7:5:5:0"
     }
    ]
   },
@@ -137,11 +141,14 @@
    "shots": [
     {
      "kind": "clip",
-     "src": "clip_iss_e_europe_se_asia_night.ogv",
-     "in": 5,
+     "src": "clip_nasa_blackmarble_globe.webm",
+     "in": 90,
      "w": 1.0,
-     "credit": "NASA, ISS Expedition 29 crew",
-     "caption": ""
+     "credit": "",
+     "caption": "",
+     "source": "NASA Goddard Space Flight Center",
+     "grade": "eq=gamma=1.35:brightness=0.03:saturation=1.2",
+     "vf": "crop=iw*0.7:ih*0.7"
     },
     {
      "kind": "vis",
@@ -178,14 +185,11 @@
      "credit": "3D reconstruction"
     },
     {
-     "kind": "clip",
-     "src": "clip_bell1956_voice_beneath_the_sea.mov",
-     "in": 260,
+     "kind": "3d",
+     "src": "seabed_wide_v3",
+     "in": 60,
      "w": 1.0,
-     "credit": "The Voice Beneath the Sea (1956), Bell System / Western Electric, public domain",
-     "caption": "Archive film, 1956",
-     "aspect": "4:3",
-     "grade": "eq=contrast=1.04:saturation=0.9"
+     "credit": "3D reconstruction"
     },
     {
      "kind": "3d",
@@ -213,20 +217,18 @@
      "src": "clip_bell1956_voice_beneath_the_sea.mov",
      "in": 231,
      "w": 1.0,
-     "credit": "The Voice Beneath the Sea (1956), Bell System / Western Electric, public domain",
-     "caption": "Archive film, 1956",
+     "credit": "Archive film, 1956",
+     "caption": "",
+     "source": "The Voice Beneath the Sea (1956), Bell System / Western Electric, public domain",
      "aspect": "4:3",
-     "grade": "eq=contrast=1.04:saturation=0.9"
+     "grade": "hqdn3d=3.5:3:7:7,colorlevels=rimin=0.05:gimin=0.05:bimin=0.05:rimax=0.95:gimax=0.95:bimax=0.95,eq=contrast=1.10:saturation=1.30:gamma=0.96,unsharp=5:5:0.7:5:5:0"
     },
     {
-     "kind": "clip",
-     "src": "clip_bell1956_voice_beneath_the_sea.mov",
-     "in": 288,
+     "kind": "3d",
+     "src": "repeater_v3",
+     "in": 30,
      "w": 1.0,
-     "credit": "The Voice Beneath the Sea (1956), Bell System / Western Electric, public domain",
-     "caption": "Archive film, 1956",
-     "aspect": "4:3",
-     "grade": "eq=contrast=1.04:saturation=0.9"
+     "credit": "3D reconstruction"
     },
     {
      "kind": "3d",
@@ -254,10 +256,11 @@
      "src": "clip_bell1956_voice_beneath_the_sea.mov",
      "in": 115,
      "w": 1.0,
-     "credit": "The Voice Beneath the Sea (1956), Bell System / Western Electric, public domain",
-     "caption": "Archive film, 1956",
+     "credit": "Archive film, 1956",
+     "caption": "",
+     "source": "The Voice Beneath the Sea (1956), Bell System / Western Electric, public domain",
      "aspect": "4:3",
-     "grade": "eq=contrast=1.04:saturation=0.9"
+     "grade": "hqdn3d=3.5:3:7:7,colorlevels=rimin=0.05:gimin=0.05:bimin=0.05:rimax=0.95:gimax=0.95:bimax=0.95,eq=contrast=1.10:saturation=1.30:gamma=0.96,unsharp=5:5:0.7:5:5:0"
     },
     {
      "kind": "vis",
@@ -270,10 +273,11 @@
      "src": "clip_bell1956_voice_beneath_the_sea.mov",
      "in": 547,
      "w": 1.0,
-     "credit": "The Voice Beneath the Sea (1956), Bell System / Western Electric, public domain",
-     "caption": "Archive film, 1956",
+     "credit": "Archive film, 1956",
+     "caption": "",
+     "source": "The Voice Beneath the Sea (1956), Bell System / Western Electric, public domain",
      "aspect": "4:3",
-     "grade": "eq=contrast=1.04:saturation=0.9"
+     "grade": "hqdn3d=3.5:3:7:7,colorlevels=rimin=0.05:gimin=0.05:bimin=0.05:rimax=0.95:gimax=0.95:bimax=0.95,eq=contrast=1.10:saturation=1.30:gamma=0.96,unsharp=5:5:0.7:5:5:0"
     }
    ]
   },
@@ -287,50 +291,55 @@
      "src": "clip_bell1956_voice_beneath_the_sea.mov",
      "in": 375,
      "w": 1.0,
-     "credit": "The Voice Beneath the Sea (1956), Bell System / Western Electric, public domain",
-     "caption": "Archive film, 1956",
+     "credit": "Archive film, 1956",
+     "caption": "",
+     "source": "The Voice Beneath the Sea (1956), Bell System / Western Electric, public domain",
      "aspect": "4:3",
-     "grade": "eq=contrast=1.04:saturation=0.9"
+     "grade": "hqdn3d=3.5:3:7:7,colorlevels=rimin=0.05:gimin=0.05:bimin=0.05:rimax=0.95:gimax=0.95:bimax=0.95,eq=contrast=1.10:saturation=1.30:gamma=0.96,unsharp=5:5:0.7:5:5:0"
     },
     {
      "kind": "clip",
      "src": "clip_bell1956_voice_beneath_the_sea.mov",
      "in": 432,
      "w": 1.0,
-     "credit": "The Voice Beneath the Sea (1956), Bell System / Western Electric, public domain",
-     "caption": "Archive film, 1956",
+     "credit": "Archive film, 1956",
+     "caption": "",
+     "source": "The Voice Beneath the Sea (1956), Bell System / Western Electric, public domain",
      "aspect": "4:3",
-     "grade": "eq=contrast=1.04:saturation=0.9"
+     "grade": "hqdn3d=3.5:3:7:7,colorlevels=rimin=0.05:gimin=0.05:bimin=0.05:rimax=0.95:gimax=0.95:bimax=0.95,eq=contrast=1.10:saturation=1.30:gamma=0.96,unsharp=5:5:0.7:5:5:0"
     },
     {
      "kind": "clip",
      "src": "clip_bell1956_voice_beneath_the_sea.mov",
      "in": 519,
      "w": 1.0,
-     "credit": "The Voice Beneath the Sea (1956), Bell System / Western Electric, public domain",
-     "caption": "Archive film, 1956",
+     "credit": "Archive film, 1956",
+     "caption": "",
+     "source": "The Voice Beneath the Sea (1956), Bell System / Western Electric, public domain",
      "aspect": "4:3",
-     "grade": "eq=contrast=1.04:saturation=0.9"
+     "grade": "hqdn3d=3.5:3:7:7,colorlevels=rimin=0.05:gimin=0.05:bimin=0.05:rimax=0.95:gimax=0.95:bimax=0.95,eq=contrast=1.10:saturation=1.30:gamma=0.96,unsharp=5:5:0.7:5:5:0"
     },
     {
      "kind": "clip",
      "src": "clip_bell1956_voice_beneath_the_sea.mov",
      "in": 605,
      "w": 1.0,
-     "credit": "The Voice Beneath the Sea (1956), Bell System / Western Electric, public domain",
-     "caption": "Archive film, 1956",
+     "credit": "Archive film, 1956",
+     "caption": "",
+     "source": "The Voice Beneath the Sea (1956), Bell System / Western Electric, public domain",
      "aspect": "4:3",
-     "grade": "eq=contrast=1.04:saturation=0.9"
+     "grade": "hqdn3d=3.5:3:7:7,colorlevels=rimin=0.05:gimin=0.05:bimin=0.05:rimax=0.95:gimax=0.95:bimax=0.95,eq=contrast=1.10:saturation=1.30:gamma=0.96,unsharp=5:5:0.7:5:5:0"
     },
     {
      "kind": "clip",
      "src": "clip_bell1956_voice_beneath_the_sea.mov",
      "in": 404,
      "w": 1.0,
-     "credit": "The Voice Beneath the Sea (1956), Bell System / Western Electric, public domain",
-     "caption": "Archive film, 1956",
+     "credit": "Archive film, 1956",
+     "caption": "",
+     "source": "The Voice Beneath the Sea (1956), Bell System / Western Electric, public domain",
      "aspect": "4:3",
-     "grade": "eq=contrast=1.04:saturation=0.9"
+     "grade": "hqdn3d=3.5:3:7:7,colorlevels=rimin=0.05:gimin=0.05:bimin=0.05:rimax=0.95:gimax=0.95:bimax=0.95,eq=contrast=1.10:saturation=1.30:gamma=0.96,unsharp=5:5:0.7:5:5:0"
     },
     {
      "kind": "3d",
@@ -351,8 +360,9 @@
      "src": "clip_ifremer_travelling_seamon_est.webm",
      "in": 122,
      "w": 1.0,
-     "credit": "Ifremer, CC BY 4.0",
+     "credit": "",
      "caption": "",
+     "source": "Ifremer, CC BY 4.0",
      "vf": "crop=iw*0.80:ih*0.74:iw*0.10:ih*0.15"
     },
     {
@@ -360,8 +370,9 @@
      "src": "clip_ifremer_poisson_fonds.webm",
      "in": 58,
      "w": 1.0,
-     "credit": "Ifremer, CC BY 4.0",
+     "credit": "",
      "caption": "",
+     "source": "Ifremer, CC BY 4.0",
      "vf": "crop=iw*0.80:ih*0.74:iw*0.10:ih*0.15"
     },
     {
@@ -369,16 +380,18 @@
      "src": "clip_noaa_bathynomus.webm",
      "in": 15,
      "w": 1.0,
-     "credit": "NOAA Office of Ocean Exploration",
-     "caption": ""
+     "credit": "",
+     "caption": "",
+     "source": "NOAA Office of Ocean Exploration"
     },
     {
      "kind": "clip",
      "src": "clip_ifremer_fond_abyssal.webm",
      "in": 20,
      "w": 1.0,
-     "credit": "Ifremer, CC BY 4.0",
-     "caption": ""
+     "credit": "",
+     "caption": "",
+     "source": "Ifremer, CC BY 4.0"
     }
    ]
   },
@@ -392,8 +405,9 @@
      "src": "clip_nasa_blackmarble_globe.webm",
      "in": 40,
      "w": 0.8,
-     "credit": "NASA Goddard Space Flight Center",
+     "credit": "",
      "caption": "",
+     "source": "NASA Goddard Space Flight Center",
      "grade": "eq=gamma=1.35:brightness=0.03:saturation=1.2",
      "vf": "crop=iw*0.7:ih*0.7"
     },
@@ -414,8 +428,9 @@
      "src": "clip_nasa_blackmarble_globe.webm",
      "in": 110,
      "w": 0.8,
-     "credit": "NASA Goddard Space Flight Center",
+     "credit": "",
      "caption": "",
+     "source": "NASA Goddard Space Flight Center",
      "grade": "eq=gamma=1.35:brightness=0.03:saturation=1.2",
      "vf": "crop=iw*0.7:ih*0.7"
     }
@@ -444,10 +459,11 @@
      "src": "clip_bell1956_voice_beneath_the_sea.mov",
      "in": 634,
      "w": 1.0,
-     "credit": "The Voice Beneath the Sea (1956), Bell System / Western Electric, public domain",
-     "caption": "Archive film, 1956",
+     "credit": "Archive film, 1956",
+     "caption": "",
+     "source": "The Voice Beneath the Sea (1956), Bell System / Western Electric, public domain",
      "aspect": "4:3",
-     "grade": "eq=contrast=1.04:saturation=0.9"
+     "grade": "hqdn3d=3.5:3:7:7,colorlevels=rimin=0.05:gimin=0.05:bimin=0.05:rimax=0.95:gimax=0.95:bimax=0.95,eq=contrast=1.10:saturation=1.30:gamma=0.96,unsharp=5:5:0.7:5:5:0"
     },
     {
      "kind": "vis",
@@ -466,8 +482,9 @@
      "src": "clip_ifremer_fond_abyssal.webm",
      "in": 30,
      "w": 1.0,
-     "credit": "Ifremer, CC BY 4.0",
-     "caption": ""
+     "credit": "",
+     "caption": "",
+     "source": "Ifremer, CC BY 4.0"
     }
    ]
   },
@@ -481,8 +498,9 @@
      "src": "clip_ifremer_poisson_fonds.webm",
      "in": 70,
      "w": 1.0,
-     "credit": "Ifremer, CC BY 4.0",
+     "credit": "",
      "caption": "",
+     "source": "Ifremer, CC BY 4.0",
      "vf": "crop=iw*0.80:ih*0.74:iw*0.10:ih*0.15"
     },
     {
@@ -503,8 +521,9 @@
      "src": "clip_noaa_bathynomus.webm",
      "in": 30,
      "w": 0.9,
-     "credit": "NOAA Office of Ocean Exploration",
-     "caption": ""
+     "credit": "",
+     "caption": "",
+     "source": "NOAA Office of Ocean Exploration"
     }
    ]
   },
@@ -518,8 +537,9 @@
      "src": "clip_ifremer_rov_launch.webm",
      "in": 66,
      "w": 1.0,
-     "credit": "Ifremer / Stéphane Lesbats, CC BY 4.0",
+     "credit": "",
      "caption": "",
+     "source": "Ifremer / Stéphane Lesbats, CC BY 4.0",
      "vf": "crop=iw*0.84:ih*0.84:0:ih*0.16"
     },
     {
@@ -533,8 +553,9 @@
      "src": "clip_ifremer_auv_ulyx.webm",
      "in": 60,
      "w": 1.0,
-     "credit": "Ifremer / Stéphane Lesbats, CC BY 4.0",
+     "credit": "",
      "caption": "",
+     "source": "Ifremer / Stéphane Lesbats, CC BY 4.0",
      "vf": "crop=iw*0.86:ih*0.86:0:ih*0.14"
     },
     {
@@ -542,46 +563,49 @@
      "src": "clip_bell1956_voice_beneath_the_sea.mov",
      "in": 721,
      "w": 1.0,
-     "credit": "The Voice Beneath the Sea (1956), Bell System / Western Electric, public domain",
-     "caption": "Archive film, 1956",
+     "credit": "Archive film, 1956",
+     "caption": "",
+     "source": "The Voice Beneath the Sea (1956), Bell System / Western Electric, public domain",
      "aspect": "4:3",
-     "grade": "eq=contrast=1.04:saturation=0.9"
+     "grade": "hqdn3d=3.5:3:7:7,colorlevels=rimin=0.05:gimin=0.05:bimin=0.05:rimax=0.95:gimax=0.95:bimax=0.95,eq=contrast=1.10:saturation=1.30:gamma=0.96,unsharp=5:5:0.7:5:5:0"
     },
     {
      "kind": "clip",
      "src": "clip_ifremer_rov_arm.webm",
      "in": 130,
      "w": 1.0,
-     "credit": "Ifremer, CC BY 4.0",
-     "caption": ""
+     "credit": "",
+     "caption": "",
+     "source": "Ifremer, CC BY 4.0"
     },
     {
      "kind": "clip",
      "src": "clip_bell1956_voice_beneath_the_sea.mov",
      "in": 750,
      "w": 1.1,
-     "credit": "The Voice Beneath the Sea (1956), Bell System / Western Electric, public domain",
-     "caption": "Archive film, 1956",
+     "credit": "Archive film, 1956",
+     "caption": "",
+     "source": "The Voice Beneath the Sea (1956), Bell System / Western Electric, public domain",
      "aspect": "4:3",
-     "grade": "eq=contrast=1.04:saturation=0.9"
+     "grade": "hqdn3d=3.5:3:7:7,colorlevels=rimin=0.05:gimin=0.05:bimin=0.05:rimax=0.95:gimax=0.95:bimax=0.95,eq=contrast=1.10:saturation=1.30:gamma=0.96,unsharp=5:5:0.7:5:5:0"
     },
     {
      "kind": "clip",
-     "src": "clip_bell1956_voice_beneath_the_sea.mov",
-     "in": 461,
+     "src": "clip_ifremer_rov_arm.webm",
+     "in": 60,
      "w": 0.8,
-     "credit": "The Voice Beneath the Sea (1956), Bell System / Western Electric, public domain",
-     "caption": "Archive film, 1956",
-     "aspect": "4:3",
-     "grade": "eq=contrast=1.04:saturation=0.9"
+     "credit": "",
+     "caption": "",
+     "source": "Ifremer, CC BY 4.0"
     },
     {
      "kind": "clip",
      "src": "clip_ifremer_rov_launch.webm",
      "in": 100,
      "w": 1.0,
-     "credit": "Ifremer / Stéphane Lesbats, CC BY 4.0",
+     "credit": "",
      "caption": "",
+     "source": "Ifremer / Stéphane Lesbats, CC BY 4.0",
      "vf": "crop=iw*0.84:ih*0.84:0:ih*0.16"
     }
    ]
@@ -609,8 +633,9 @@
      "src": "clip_nasa_india_nightlights.webm",
      "in": 0,
      "w": 0.8,
-     "credit": "NASA Scientific Visualization Studio",
+     "credit": "",
      "caption": "",
+     "source": "NASA Scientific Visualization Studio",
      "vf": "setpts=2.4*PTS"
     },
     {
@@ -620,12 +645,11 @@
      "w": 2.0
     },
     {
-     "kind": "clip",
-     "src": "clip_iss_e_europe_se_asia_night.ogv",
-     "in": 13,
+     "kind": "3d",
+     "src": "seabed_v3",
+     "in": 40,
      "w": 0.9,
-     "credit": "NASA, ISS Expedition 29 crew",
-     "caption": ""
+     "credit": "3D reconstruction"
     }
    ]
   },
@@ -639,8 +663,9 @@
      "src": "clip_ifremer_auv_ulyx.webm",
      "in": 228,
      "w": 1.0,
-     "credit": "Ifremer / Stéphane Lesbats, CC BY 4.0",
+     "credit": "",
      "caption": "",
+     "source": "Ifremer / Stéphane Lesbats, CC BY 4.0",
      "vf": "crop=iw*0.86:ih*0.86:0:ih*0.14"
     },
     {
@@ -648,8 +673,9 @@
      "src": "clip_ifremer_rov_launch.webm",
      "in": 30,
      "w": 1.0,
-     "credit": "Ifremer / Stéphane Lesbats, CC BY 4.0",
+     "credit": "",
      "caption": "",
+     "source": "Ifremer / Stéphane Lesbats, CC BY 4.0",
      "vf": "crop=iw*0.84:ih*0.84:0:ih*0.16"
     },
     {
@@ -657,8 +683,9 @@
      "src": "clip_nasa_blackmarble_globe.webm",
      "in": 30,
      "w": 1.0,
-     "credit": "NASA Goddard Space Flight Center",
+     "credit": "",
      "caption": "",
+     "source": "NASA Goddard Space Flight Center",
      "grade": "eq=gamma=1.35:brightness=0.03:saturation=1.2",
      "vf": "crop=iw*0.7:ih*0.7"
     }
@@ -681,8 +708,9 @@
      "src": "clip_nasa_blackmarble_globe.webm",
      "in": 120,
      "w": 0.9,
-     "credit": "NASA Goddard Space Flight Center",
+     "credit": "",
      "caption": "",
+     "source": "NASA Goddard Space Flight Center",
      "grade": "eq=gamma=1.35:brightness=0.03:saturation=1.2",
      "vf": "crop=iw*0.7:ih*0.7"
     }
@@ -690,12 +718,16 @@
   },
   {
    "id": "s15",
-   "length": 16.0,
+   "length": 18.0,
    "shots": [
     {
-     "kind": "card",
+     "kind": "3d",
+     "src": "seabed_wide_v3",
+     "in": 60,
      "w": 1,
-     "text": "THE HIDDEN INTERNET\n\nNarration: synthetic voice (ElevenLabs)\n\nFootage: NASA Goddard Space Flight Center; NASA Scientific Visualization Studio; ISS Expedition 29 crew;\nNOAA Office of Ocean Exploration; Ifremer (CC BY 4.0), including Stéphane Lesbats;\nThe Voice Beneath the Sea (1956), Bell System / Western Electric, public domain\n\nMusic: Kevin MacLeod (incompetech.com): The Descent (CC BY 4.0), Lightless Dawn, Floating Cities (CC BY 3.0)\n\n3D reconstructions, maps and charts: The Wider World. Maps: Natural Earth. Cable routes are schematic.\nSources for every figure are listed in the description."
+     "credit": "",
+     "title": "THE WIDER WORLD",
+     "subtitle": "Sources and credits are in the description"
     }
    ]
   }
