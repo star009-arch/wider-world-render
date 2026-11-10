@@ -1,0 +1,837 @@
+{
+ "out_name": "svalbard",
+ "scenes": [
+  {
+   "id": "s01",
+   "lead": 0.6,
+   "tail": 1.0,
+   "shots": [
+    {
+     "kind": "vis",
+     "src": "map_svalbard_cables",
+     "in": 3,
+     "w": 5.0
+    },
+    {
+     "kind": "3d",
+     "src": "seabed_v3",
+     "in": 0,
+     "w": 4.0,
+     "credit": "3D reconstruction"
+    },
+    {
+     "kind": "clip",
+     "src": "clip_nasa_land_ice_aerial.mp4",
+     "in": 40,
+     "w": 4.5,
+     "credit": "",
+     "caption": ""
+    },
+    {
+     "kind": "clip",
+     "src": "clip_nasa_seed_vault_exterior.mp4",
+     "in": 100,
+     "w": 3.2,
+     "credit": "",
+     "caption": ""
+    },
+    {
+     "kind": "vis",
+     "src": "diagram_archive_film",
+     "in": 2,
+     "w": 3.2
+    },
+    {
+     "kind": "still",
+     "src": "still_svalsat_rostad_01.jpg",
+     "in": 0,
+     "w": 3.6,
+     "credit": "",
+     "focus": [
+      0.5,
+      0.45
+     ]
+    },
+    {
+     "kind": "3d",
+     "src": "seabed_wide_v3",
+     "in": 30,
+     "w": 5.0,
+     "credit": "3D reconstruction"
+    },
+    {
+     "kind": "clip",
+     "src": "clip_nasa_longyearbyen_windy_snow.mp4",
+     "in": 140,
+     "w": 6.5,
+     "credit": "",
+     "caption": ""
+    }
+   ]
+  },
+  {
+   "id": "s02",
+   "length": 6.5,
+   "shots": [
+    {
+     "kind": "clip",
+     "src": "clip_nasa_seed_vault_exterior.mp4",
+     "in": 36,
+     "w": 1,
+     "credit": "",
+     "caption": "",
+     "title": "THE ARCTIC ISLAND",
+     "subtitle": "that backs up civilization"
+    }
+   ]
+  },
+  {
+   "id": "s03",
+   "lead": 0.6,
+   "tail": 1.0,
+   "shots": [
+    {
+     "kind": "vis",
+     "src": "map_svalbard_location",
+     "in": 0,
+     "w": 8.0
+    },
+    {
+     "kind": "still",
+     "src": "still_longyearbyen_from_plane.jpg",
+     "in": 0,
+     "w": 5.0,
+     "credit": "",
+     "focus": [
+      0.5,
+      0.5
+     ]
+    },
+    {
+     "kind": "still",
+     "src": "still_longyearbyen_moon_noon_1425.jpg",
+     "in": 0,
+     "w": 5.5,
+     "credit": "",
+     "focus": [
+      0.4,
+      0.4
+     ]
+    },
+    {
+     "kind": "still",
+     "src": "still_aurora_smith_4.jpg",
+     "in": 0,
+     "w": 5.0,
+     "credit": "",
+     "move": "drift"
+    },
+    {
+     "kind": "clip",
+     "src": "clip_nasa_mountain_timelapse.mp4",
+     "in": 5,
+     "w": 5.0,
+     "credit": "",
+     "caption": ""
+    },
+    {
+     "kind": "still",
+     "src": "still_esa_svalbard_mosaic_2024.jpg",
+     "in": 0,
+     "w": 6.0,
+     "credit": "",
+     "zoom": 1.15,
+     "focus": [
+      0.45,
+      0.55
+     ]
+    },
+    {
+     "kind": "still",
+     "src": "still_high_moon_adventdalen.jpg",
+     "in": 0,
+     "w": 5.5,
+     "credit": "",
+     "focus": [
+      0.5,
+      0.3
+     ]
+    },
+    {
+     "kind": "still",
+     "src": "still_gruve7_rostad.jpg",
+     "in": 0,
+     "w": 5.5,
+     "credit": "",
+     "focus": [
+      0.5,
+      0.5
+     ]
+    },
+    {
+     "kind": "still",
+     "src": "still_cablecar_buckets_1386.jpg",
+     "in": 0,
+     "w": 5.0,
+     "credit": "",
+     "focus": [
+      0.4,
+      0.5
+     ]
+    },
+    {
+     "kind": "clip",
+     "src": "clip_nasa_longyearbyen_windy_snow.mp4",
+     "in": 50,
+     "w": 5.0,
+     "credit": "",
+     "caption": ""
+    },
+    {
+     "kind": "clip",
+     "src": "clip_nasa_svalbard_sunset_snow.mp4",
+     "in": 0,
+     "w": 6.0,
+     "credit": "",
+     "caption": ""
+    }
+   ]
+  },
+  {
+   "id": "s04",
+   "lead": 0.6,
+   "tail": 1.0,
+   "shots": [
+    {
+     "kind": "clip",
+     "src": "clip_nasa_seed_vault_exterior.mp4",
+     "in": 18,
+     "w": 6.0,
+     "credit": "",
+     "caption": ""
+    },
+    {
+     "kind": "still",
+     "src": "still_vault_entrance_2008.jpg",
+     "in": 0,
+     "w": 6.0,
+     "credit": "",
+     "focus": [
+      0.5,
+      0.45
+     ]
+    },
+    {
+     "kind": "still",
+     "src": "still_vault_dusk_ramone.jpg",
+     "in": 0,
+     "w": 7.0,
+     "credit": "",
+     "focus": [
+      0.5,
+      0.35
+     ]
+    },
+    {
+     "kind": "clip",
+     "src": "clip_nasa_seed_vault_exterior.mp4",
+     "in": 40,
+     "w": 5.0,
+     "credit": "",
+     "caption": ""
+    },
+    {
+     "kind": "vis",
+     "src": "diagram_vault",
+     "in": 0,
+     "w": 13.0
+    },
+    {
+     "kind": "still",
+     "src": "still_vault_tunnel_endresen.jpg",
+     "in": 0,
+     "w": 5.0,
+     "credit": "",
+     "focus": [
+      0.5,
+      0.55
+     ]
+    },
+    {
+     "kind": "still",
+     "src": "still_vault_door_endresen.jpg",
+     "in": 0,
+     "w": 5.0,
+     "credit": "",
+     "focus": [
+      0.5,
+      0.5
+     ]
+    },
+    {
+     "kind": "still",
+     "src": "still_vault_inside_endresen.jpg",
+     "in": 0,
+     "w": 6.0,
+     "credit": "",
+     "aspect": "fit"
+    },
+    {
+     "kind": "vis",
+     "src": "chart_seed_samples",
+     "in": 0,
+     "w": 8.0
+    },
+    {
+     "kind": "still",
+     "src": "still_vault_storage_containers.jpg",
+     "in": 0,
+     "w": 6.0,
+     "credit": "",
+     "aspect": "fit"
+    },
+    {
+     "kind": "still",
+     "src": "still_vault_aluminium_bags.jpg",
+     "in": 0,
+     "w": 6.0,
+     "credit": "",
+     "aspect": "fit"
+    },
+    {
+     "kind": "clip",
+     "src": "clip_nasa_seed_vault_exterior.mp4",
+     "in": 90,
+     "w": 6.0,
+     "credit": "",
+     "caption": ""
+    },
+    {
+     "kind": "still",
+     "src": "still_vault_exterior_2012_169.jpg",
+     "in": 0,
+     "w": 5.0,
+     "credit": "",
+     "move": "drift"
+    },
+    {
+     "kind": "still",
+     "src": "still_vault_exterior_tefre.jpg",
+     "in": 0,
+     "w": 6.0,
+     "credit": "",
+     "focus": [
+      0.5,
+      0.5
+     ]
+    },
+    {
+     "kind": "clip",
+     "src": "clip_nasa_seed_vault_exterior.mp4",
+     "in": 110,
+     "w": 6.0,
+     "credit": "",
+     "caption": ""
+    },
+    {
+     "kind": "still",
+     "src": "still_vault_exterior_mulder_169.jpg",
+     "in": 0,
+     "w": 6.0,
+     "credit": "",
+     "move": "drift"
+    }
+   ]
+  },
+  {
+   "id": "s05",
+   "lead": 0.6,
+   "tail": 1.0,
+   "shots": [
+    {
+     "kind": "vis",
+     "src": "map_aleppo_withdrawal",
+     "in": 0,
+     "w": 14.0
+    },
+    {
+     "kind": "still",
+     "src": "still_vault_tunnel_backman.jpg",
+     "in": 0,
+     "w": 6.0,
+     "credit": "",
+     "focus": [
+      0.5,
+      0.5
+     ]
+    },
+    {
+     "kind": "clip",
+     "src": "clip_nasa_mountain_timelapse.mp4",
+     "in": 20,
+     "w": 6.0,
+     "credit": "",
+     "caption": ""
+    },
+    {
+     "kind": "still",
+     "src": "still_vault_exterior_smith.jpg",
+     "in": 0,
+     "w": 6.0,
+     "credit": "",
+     "focus": [
+      0.5,
+      0.5
+     ]
+    },
+    {
+     "kind": "clip",
+     "src": "clip_nasa_seed_vault_exterior.mp4",
+     "in": 60,
+     "w": 6.0,
+     "credit": "",
+     "caption": ""
+    },
+    {
+     "kind": "clip",
+     "src": "clip_nasa_seed_vault_exterior.mp4",
+     "in": 125,
+     "w": 9.0,
+     "credit": "",
+     "caption": ""
+    }
+   ]
+  },
+  {
+   "id": "s06",
+   "lead": 0.6,
+   "tail": 1.0,
+   "shots": [
+    {
+     "kind": "clip",
+     "src": "clip_nasa_seed_vault_exterior.mp4",
+     "in": 48,
+     "w": 4.5,
+     "credit": "",
+     "caption": ""
+    },
+    {
+     "kind": "clip",
+     "src": "clip_nasa_longyearbyen_windy_snow.mp4",
+     "in": 30,
+     "w": 6.0,
+     "credit": "",
+     "caption": ""
+    },
+    {
+     "kind": "still",
+     "src": "still_vault_tunnel_endresen.jpg",
+     "in": 0,
+     "w": 5.5,
+     "credit": "",
+     "focus": [
+      0.6,
+      0.6
+     ]
+    },
+    {
+     "kind": "clip",
+     "src": "clip_nasa_glacier_edge.mp4",
+     "in": 5,
+     "w": 6.0,
+     "credit": "",
+     "caption": ""
+    },
+    {
+     "kind": "vis",
+     "src": "chart_warming",
+     "in": 0,
+     "w": 8.0
+    },
+    {
+     "kind": "clip",
+     "src": "clip_nasa_icesat2_svalbard.mp4",
+     "in": 0,
+     "w": 6.0,
+     "credit": "",
+     "caption": ""
+    }
+   ]
+  },
+  {
+   "id": "s07",
+   "lead": 0.6,
+   "tail": 1.0,
+   "shots": [
+    {
+     "kind": "still",
+     "src": "still_cablecar_buckets_1380.jpg",
+     "in": 0,
+     "w": 6.0,
+     "credit": "",
+     "focus": [
+      0.5,
+      0.5
+     ]
+    },
+    {
+     "kind": "vis",
+     "src": "diagram_archive_film",
+     "in": 0,
+     "w": 14.0
+    },
+    {
+     "kind": "clip",
+     "src": "clip_nasa_longyearbyen_windy_snow.mp4",
+     "in": 60,
+     "w": 5.0,
+     "credit": "",
+     "caption": ""
+    },
+    {
+     "kind": "vis",
+     "src": "chart_code_vault",
+     "in": 0,
+     "w": 9.0
+    },
+    {
+     "kind": "still",
+     "src": "still_cablecar_buckets_1383.jpg",
+     "in": 0,
+     "w": 5.0,
+     "credit": "",
+     "move": "drift"
+    },
+    {
+     "kind": "still",
+     "src": "still_aurora_peaks_1229.jpg",
+     "in": 0,
+     "w": 6.0,
+     "credit": "",
+     "focus": [
+      0.5,
+      0.4
+     ]
+    }
+   ]
+  },
+  {
+   "id": "s08",
+   "lead": 0.6,
+   "tail": 1.0,
+   "shots": [
+    {
+     "kind": "still",
+     "src": "still_svalsat_rostad_02.jpg",
+     "in": 0,
+     "w": 6.0,
+     "credit": "",
+     "focus": [
+      0.5,
+      0.5
+     ]
+    },
+    {
+     "kind": "still",
+     "src": "still_svalsat_noaa_post0266.jpg",
+     "in": 0,
+     "w": 5.0,
+     "credit": "",
+     "focus": [
+      0.5,
+      0.5
+     ]
+    },
+    {
+     "kind": "clip",
+     "src": "clip_nasa_polar_orbits_noaa21.mp4",
+     "in": 0,
+     "w": 8.0,
+     "credit": "",
+     "caption": ""
+    },
+    {
+     "kind": "vis",
+     "src": "chart_passes",
+     "in": 0,
+     "w": 7.0
+    },
+    {
+     "kind": "clip",
+     "src": "clip_nasa_jpss_orbit_swaths.mp4",
+     "in": 10,
+     "w": 7.0,
+     "credit": "",
+     "caption": ""
+    },
+    {
+     "kind": "still",
+     "src": "still_svalsat_sentinel2_overhead.jpg",
+     "in": 0,
+     "w": 6.0,
+     "credit": "",
+     "zoom": 1.15,
+     "focus": [
+      0.5,
+      0.5
+     ]
+    },
+    {
+     "kind": "still",
+     "src": "still_svalsat_rostad_05.jpg",
+     "in": 0,
+     "w": 6.0,
+     "credit": "",
+     "move": "drift"
+    },
+    {
+     "kind": "still",
+     "src": "still_svalsat_rostad_04.jpg",
+     "in": 0,
+     "w": 6.0,
+     "credit": "",
+     "focus": [
+      0.5,
+      0.6
+     ]
+    }
+   ]
+  },
+  {
+   "id": "s09",
+   "lead": 0.6,
+   "tail": 1.0,
+   "shots": [
+    {
+     "kind": "still",
+     "src": "still_svalsat_rostad_03.jpg",
+     "in": 0,
+     "w": 5.0,
+     "credit": "",
+     "focus": [
+      0.5,
+      0.5
+     ]
+    },
+    {
+     "kind": "vis",
+     "src": "map_svalbard_cables",
+     "in": 0,
+     "w": 12.0
+    },
+    {
+     "kind": "still",
+     "src": "still_cableship_ile_de_brehat.jpg",
+     "in": 0,
+     "w": 6.0,
+     "credit": "",
+     "focus": [
+      0.5,
+      0.5
+     ]
+    },
+    {
+     "kind": "3d",
+     "src": "seabed_v3",
+     "in": 30,
+     "w": 6.0,
+     "credit": "3D reconstruction"
+    },
+    {
+     "kind": "still",
+     "src": "still_cableship_cable_innovator.jpg",
+     "in": 0,
+     "w": 5.0,
+     "credit": "",
+     "move": "drift"
+    },
+    {
+     "kind": "clip",
+     "src": "clip_nasa_p3_landing_dusk.mp4",
+     "in": 15,
+     "w": 6.0,
+     "credit": "",
+     "caption": ""
+    },
+    {
+     "kind": "3d",
+     "src": "seabed_wide_v3",
+     "in": 60,
+     "w": 7.0,
+     "credit": "3D reconstruction"
+    },
+    {
+     "kind": "still",
+     "src": "still_aurora_smith_2.jpg",
+     "in": 0,
+     "w": 6.0,
+     "credit": "",
+     "focus": [
+      0.5,
+      0.5
+     ]
+    },
+    {
+     "kind": "clip",
+     "src": "clip_nasa_sea_ice_broken.mp4",
+     "in": 10,
+     "w": 6.0,
+     "credit": "",
+     "caption": ""
+    },
+    {
+     "kind": "vis",
+     "src": "chart_trawler",
+     "in": 0,
+     "w": 9.0
+    },
+    {
+     "kind": "3d",
+     "src": "crosssection_v3",
+     "in": 60,
+     "w": 5.0,
+     "credit": "3D reconstruction"
+    }
+   ]
+  },
+  {
+   "id": "s10",
+   "lead": 0.6,
+   "tail": 1.0,
+   "shots": [
+    {
+     "kind": "clip",
+     "src": "clip_nasa_sea_ice_broken.mp4",
+     "in": 40,
+     "w": 7.0,
+     "credit": "",
+     "caption": ""
+    },
+    {
+     "kind": "3d",
+     "src": "seabed_pullback_v3",
+     "in": 0,
+     "w": 7.0,
+     "credit": "3D reconstruction"
+    },
+    {
+     "kind": "still",
+     "src": "still_high_moon_adventdalen.jpg",
+     "in": 0,
+     "w": 6.0,
+     "credit": "",
+     "move": "drift"
+    },
+    {
+     "kind": "still",
+     "src": "still_aurora_smith_3.jpg",
+     "in": 0,
+     "w": 6.0,
+     "credit": "",
+     "focus": [
+      0.5,
+      0.5
+     ]
+    },
+    {
+     "kind": "clip",
+     "src": "clip_nasa_mountain_timelapse.mp4",
+     "in": 25,
+     "w": 6.0,
+     "credit": "",
+     "caption": ""
+    },
+    {
+     "kind": "vis",
+     "src": "map_arctic_way",
+     "in": 0,
+     "w": 14.0
+    }
+   ]
+  },
+  {
+   "id": "s11",
+   "lead": 0.6,
+   "tail": 3.0,
+   "shots": [
+    {
+     "kind": "clip",
+     "src": "clip_nasa_seed_vault_exterior.mp4",
+     "in": 120,
+     "w": 6.0,
+     "credit": "",
+     "caption": ""
+    },
+    {
+     "kind": "vis",
+     "src": "diagram_archive_film",
+     "in": 6,
+     "w": 5.0
+    },
+    {
+     "kind": "clip",
+     "src": "clip_nasa_polar_orbit_noaa20.mp4",
+     "in": 10,
+     "w": 6.0,
+     "credit": "",
+     "caption": ""
+    },
+    {
+     "kind": "vis",
+     "src": "map_svalbard_cables",
+     "in": 8,
+     "w": 6.0
+    },
+    {
+     "kind": "3d",
+     "src": "seabed_wide_v3",
+     "in": 90,
+     "w": 8.0,
+     "credit": "3D reconstruction"
+    }
+   ]
+  },
+  {
+   "id": "s12",
+   "length": 14.0,
+   "shots": [
+    {
+     "kind": "still",
+     "src": "still_aurora_peaks_1229.jpg",
+     "in": 0,
+     "w": 1,
+     "credit": "",
+     "focus": [
+      0.5,
+      0.45
+     ],
+     "title": "THE WIDER WORLD",
+     "subtitle": "Sources and credits are in the description"
+    }
+   ]
+  }
+ ],
+ "music": [
+  {
+   "file": "music_descent.ogg",
+   "from": 0.0,
+   "until": 220.0,
+   "in": 0.6,
+   "db": -19
+  },
+  {
+   "file": "music_lightless_dawn.mp3",
+   "from": 218.0,
+   "until": 470.0,
+   "in": 0.0,
+   "db": -20
+  },
+  {
+   "file": "music_floating_cities.mp3",
+   "from": 468.0,
+   "until": 9999.0,
+   "in": 0.0,
+   "db": -20
+  }
+ ]
+}

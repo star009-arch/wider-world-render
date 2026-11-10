@@ -16,6 +16,12 @@ on:
       only:
         description: render only these scene ids, comma-separated
         default: ''
+      shotlist:
+        description: shot list file in the repo root
+        default: shotlist.json
+      media:
+        description: media manifest in the repo root
+        default: media.json
       base_runs:
         description: earlier run ids whose scene files fill in the scenes not rendered here (oldest first, comma-separated)
         default: ''
@@ -47,6 +53,7 @@ jobs:
     env:
       GH_TOKEN: ${{ github.token }}
       YTG_ONLY: ${{ inputs.only }}
+      YTG_MEDIA: ${{ inputs.media }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -68,14 +75,14 @@ jobs:
           if [ -d visuals_override ]; then cp visuals_override/*.mp4 $WORK/visuals/; fi
       - name: media (only this part's clips)
         run: |
-          need=$(python cables_assemble.py shotlist.json "$WORK" --needs ${{ matrix.part }}/${{ inputs.parts }} | tail -1)
+          need=$(python cables_assemble.py ${{ inputs.shotlist }} "$WORK" --needs ${{ matrix.part }}/${{ inputs.parts }} | tail -1)
           echo "clips: $need"
-          python fetch_media.py "$WORK" clips "$need"
+          python fetch_media.py "$WORK" any "$need"
       - name: render scenes
         env:
           YTG_X264_THREADS: '4'
         run: |
-          python cables_assemble.py shotlist.json "$WORK" --part ${{ matrix.part }}/${{ inputs.parts }}
+          python cables_assemble.py ${{ inputs.shotlist }} "$WORK" --part ${{ matrix.part }}/${{ inputs.parts }}
           mkdir -p scenes && cp $WORK/segments/scene_*.mp4 scenes/ 2>/dev/null || true
       - uses: actions/upload-artifact@v4
         with:
@@ -121,12 +128,13 @@ jobs:
         timeout-minutes: 25
         env:
           YTG_VERBOSE: '1'
-        run: python cables_assemble.py shotlist.json "$WORK" --join-only
+        run: python cables_assemble.py ${{ inputs.shotlist }} "$WORK" --join-only
       - name: publish (encrypted)
         env:
           KIT_KEY: ${{ secrets.KIT_KEY }}
         run: |
-          openssl enc -aes-256-cbc -pbkdf2 -iter 200000 -salt -in $WORK/out/the_hidden_internet.mp4 -out film.enc -pass env:KIT_KEY
+          F=$(python -c "import json;print(json.load(open('${{ inputs.shotlist }}')).get('out_name','the_hidden_internet'))")
+          openssl enc -aes-256-cbc -pbkdf2 -iter 200000 -salt -in $WORK/out/$F.mp4 -out film.enc -pass env:KIT_KEY
           cp $WORK/out/timeline.json timeline.json
           gh release view "${{ inputs.out_tag }}" -R "$GITHUB_REPOSITORY" || gh release create "${{ inputs.out_tag }}" -R "$GITHUB_REPOSITORY" --title "${{ inputs.out_tag }}" --notes "Encrypted build output."
           gh release upload "${{ inputs.out_tag }}" film.enc timeline.json --clobber -R "$GITHUB_REPOSITORY"

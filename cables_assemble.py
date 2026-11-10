@@ -132,6 +132,24 @@ class Film:
         elif kind == "vis":
             inp = ["-ss", f"{start:.2f}", "-t", f"{d + 0.2:.3f}", "-i", self.work / "visuals" / f"{src}.mp4"]
             vf = f"fps={FPS},scale={W}:{H},tpad=stop_mode=clone:stop_duration={d:.2f}"
+        elif kind == "still":
+            # a photograph with a slow camera move: "push" (default) eases in towards the focus point, "drift" slides sideways.
+            # aspect "fit" keeps the whole picture (portrait or odd shapes) on a blurred copy of itself, like the archive film
+            inp = ["-loop", "1", "-framerate", str(FPS), "-t", f"{d + 0.2:.3f}", "-i", self.work / "stills" / src]
+            fx, fy = shot.get("focus", (0.5, 0.5))
+            if shot.get("aspect") == "fit":
+                vf = (f"fps={FPS},split[a][b];[a]scale={W}:{H}:force_original_aspect_ratio=increase,crop={W}:{H},boxblur=30:2,"
+                      f"eq=brightness=-0.12[bg];[b]scale=-2:{H}:force_original_aspect_ratio=decrease[fg];[bg][fg]overlay=(W-w)/2:(H-h)/2")
+            elif shot.get("move", "push") == "drift":
+                vf = f"fps={FPS},scale={W}:{H}:force_original_aspect_ratio=increase,crop={W}:{H},{pan}"
+            else:
+                # eased push-in to `zoom`; zoompan on a 2x copy keeps the sub-pixel steps invisible (no jitter)
+                z, n = float(shot.get("zoom", 1.10)), max(1, int((d + 0.2) * FPS))
+                zexp = f"1+({z:.3f}-1)*(0.5-0.5*cos(PI*on/{n}))"
+                vf = (f"scale={2 * W}:{2 * H}:force_original_aspect_ratio=increase,crop={2 * W}:{2 * H},"
+                      f"zoompan=z='{zexp}':x='(iw-iw/zoom)*{fx}':y='(ih-ih/zoom)*{fy}':d=1:s={W}x{H}:fps={FPS}")
+                inp = ["-loop", "1", "-framerate", "1", "-t", f"{d + 0.2:.3f}", "-i", self.work / "stills" / src]
+                inp[3] = str(FPS)
         elif kind == "card":
             inp = ["-f", "lavfi", "-t", f"{d + 0.2:.3f}", "-i", f"color=c=0x081520:s={W}x{H}:r={FPS}"]
             vf = "null"
@@ -244,7 +262,7 @@ class Film:
             self.fast_join(scene_files, picture)
         print("picture done; mixing", flush=True)
         audio = self.mix(scenes, total)
-        final = self.out / "the_hidden_internet.mp4"
+        final = self.out / f"{self.cfg.get('out_name', 'the_hidden_internet')}.mp4"
         run(["-i", picture, "-i", audio, "-map", "0:v", "-map", "1:a", "-c:v", "copy", "-c:a", "aac", "-b:a", "192k",
              "-t", f"{total:.3f}", "-movflags", "+faststart", final], "mux")
         (self.out / "timeline.json").write_text(json.dumps([{k: sc[k] for k in ("id", "start", "length", "narr_dur")} | {"narr_at": sc["start"] + sc.get("lead", 0.7)}
@@ -354,7 +372,7 @@ if __name__ == "__main__":
         if only:
             sel = [si for si in range(len(scenes)) if scenes[si]["id"] in only]
             group = [sel[j] for j in Film.split([scenes[si] for si in sel], k)[i]]
-        print(" ".join(sorted({sh["src"] for gi in group for sh in scenes[gi]["shots"] if sh["kind"] == "clip"})))
+        print(" ".join(sorted({sh["src"] for gi in group for sh in scenes[gi]["shots"] if sh["kind"] in ("clip", "still")})))
     elif "--part" in sys.argv:
         i, k = map(int, sys.argv[sys.argv.index("--part") + 1].split("/"))
         f.build(part=i, parts=k, join=False)

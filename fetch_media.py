@@ -1,5 +1,5 @@
 """Download the film's public-domain / CC BY media listed in media.json into <work>/<dir>/<name>, checking SHA-1."""
-import hashlib, json, sys, time, urllib.request
+import hashlib, json, os, sys, time, urllib.request
 from pathlib import Path
 
 UA = {"User-Agent": "TheWiderWorldDocumentaryBot/1.0 (https://www.youtube.com/@TheWiderWorldDocs)"}
@@ -14,9 +14,12 @@ def sha1(p):
     return h.hexdigest()
 
 
-only = sys.argv[2] if len(sys.argv) > 2 else None          # e.g. "music": fetch one folder only
+only = sys.argv[2] if len(sys.argv) > 2 else None          # e.g. "music": fetch one folder only; "any" = every folder
+if only == "any":
+    only = None
 names = set(sys.argv[3].split()) if len(sys.argv) > 3 else None   # only these files (a part's own clips)
-for m in json.load(open(Path(__file__).parent / "media.json")):
+MEDIA = os.environ.get("YTG_MEDIA", "media.json")          # one manifest per film (svalbard_media.json, ...)
+for m in json.load(open(Path(__file__).parent / MEDIA)):
     if only and m["dir"] != only:
         continue
     if names is not None and m["name"] not in names:
