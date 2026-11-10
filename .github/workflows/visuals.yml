@@ -4,6 +4,9 @@ on:
     inputs:
       kit_tag:
         default: cables-kit-v1
+      script:
+        description: visuals script in scripts/ (cables_visuals.py, svalbard_visuals.py)
+        default: cables_visuals.py
 permissions:
   contents: write
 jobs:
@@ -14,7 +17,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - id: n
-        run: python3 -c "import re,json;s=open('scripts/cables_visuals.py').read();b=s[s.index('ALL = {'):];print('names='+json.dumps(re.findall(r'\"((?:map|chart)_[a-z0-9_]+)\":',b)))" >> "$GITHUB_OUTPUT"
+        run: python3 -c "import re,json;s=open('scripts/${{ inputs.script }}').read();b=s[s.index('ALL = {'):];print('names='+json.dumps(re.findall(r'\"((?:map|chart|diagram)_[a-z0-9_]+)\":',b)))" >> "$GITHUB_OUTPUT"
   render:
     needs: plan
     runs-on: windows-latest
@@ -34,7 +37,7 @@ jobs:
       - env:
           YTG_CABLES_VISUALS: out
           YTG_X264_THREADS: '4'
-        run: python scripts/cables_visuals.py ${{ matrix.name }}
+        run: python scripts/${{ inputs.script }} ${{ matrix.name }}
       - uses: actions/upload-artifact@v4
         with:
           name: vis-${{ matrix.name }}
@@ -54,4 +57,5 @@ jobs:
           path: vis
       - run: |
           ls vis; (cd vis && zip -q -0 ../visuals.zip *.mp4)
+          gh release view "${{ inputs.kit_tag }}" -R "$GITHUB_REPOSITORY" >/dev/null 2>&1 || gh release create "${{ inputs.kit_tag }}" -R "$GITHUB_REPOSITORY" --title "${{ inputs.kit_tag }}" --notes "Render kit."
           gh release upload "${{ inputs.kit_tag }}" visuals.zip --clobber -R "$GITHUB_REPOSITORY"
