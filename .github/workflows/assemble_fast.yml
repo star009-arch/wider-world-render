@@ -108,6 +108,9 @@ jobs:
           (cd $WORK && tar -xf kit.tar)
           ls $WORK/segments | wc -l
       - name: join and mix
+        timeout-minutes: 25
+        env:
+          YTG_VERBOSE: '1'
         run: python cables_assemble.py shotlist.json "$WORK" --join-only
       - name: publish (encrypted)
         env:

@@ -35,14 +35,24 @@ def ffmpeg() -> str:
         return "ffmpeg"
 
 
-def run(args, what=""):
-    r = subprocess.run([ffmpeg(), "-hide_banner", "-loglevel", "error", "-y", *map(str, args)], capture_output=True, text=True)
+def run(args, what="", timeout=1800):
+    """ffmpeg with no stdin (on CI runners an inherited stdin can make ffmpeg wait for keyboard input) and a time limit,
+    so a stall fails with a clear message instead of hanging the job."""
+    import time as _t
+    t0 = _t.time()
+    try:
+        r = subprocess.run([ffmpeg(), "-hide_banner", "-nostdin", "-loglevel", "error", "-y", *map(str, args)], capture_output=True, text=True,
+                           stdin=subprocess.DEVNULL, timeout=timeout)
+    except subprocess.TimeoutExpired:
+        raise SystemExit(f"ffmpeg timed out after {timeout}s ({what})")
     if r.returncode:
         raise SystemExit(f"ffmpeg failed ({what}): {r.stderr[-2000:]}")
+    if os.environ.get("YTG_VERBOSE"):
+        print(f"  {what}: {_t.time() - t0:.1f}s", flush=True)
 
 
 def duration(p: Path) -> float:
-    r = subprocess.run([ffmpeg(), "-hide_banner", "-i", str(p)], capture_output=True, text=True)
+    r = subprocess.run([ffmpeg(), "-hide_banner", "-nostdin", "-i", str(p)], capture_output=True, text=True, stdin=subprocess.DEVNULL, timeout=120)
     m = re.search(r"Duration: (\d+):(\d+):([\d.]+)", r.stderr)
     return int(m.group(1)) * 3600 + int(m.group(2)) * 60 + float(m.group(3)) if m else 0.0
 
@@ -216,6 +226,7 @@ class Film:
             self.scene_file(si, scenes[si], len(scenes))
         if not join:
             return
+        print("join: checking scene files", flush=True)
         scene_files = []
         for si, sc in enumerate(scenes):
             out = self.seg_dir / f"scene_{sc['id']}.mp4"
