@@ -13,6 +13,9 @@ on:
       scenes_run_id:
         description: reuse the scene files of an earlier run (join only)
         default: ''
+      only:
+        description: render only these scene ids, comma-separated (use with parts=1)
+        default: ''
 permissions:
   contents: write
 env:
@@ -40,6 +43,7 @@ jobs:
         shell: bash
     env:
       GH_TOKEN: ${{ github.token }}
+      YTG_ONLY: ${{ inputs.only }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -58,6 +62,7 @@ jobs:
           unzip -q -o $WORK/visuals.zip -d $WORK/visuals
           openssl enc -d -aes-256-cbc -pbkdf2 -iter 200000 -in $WORK/kit.enc -out $WORK/kit.tar -pass env:KIT_KEY
           (cd $WORK && tar -xf kit.tar)
+          if [ -d visuals_override ]; then cp visuals_override/*.mp4 $WORK/visuals/; fi
       - name: media (only this part's clips)
         run: |
           need=$(python cables_assemble.py shotlist.json "$WORK" --needs ${{ matrix.part }}/${{ inputs.parts }} | tail -1)
@@ -68,7 +73,7 @@ jobs:
           YTG_X264_THREADS: '4'
         run: |
           python cables_assemble.py shotlist.json "$WORK" --part ${{ matrix.part }}/${{ inputs.parts }}
-          mkdir -p scenes && cp $WORK/segments/scene_*.mp4 scenes/
+          mkdir -p scenes && cp $WORK/segments/scene_*.mp4 scenes/ 2>/dev/null || true
       - uses: actions/upload-artifact@v4
         with:
           name: scenes-${{ matrix.part }}

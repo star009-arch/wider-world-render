@@ -114,5 +114,11 @@
    "200436_The_Voice_Beneath_the_Sea",
    "200436_The_Voice_Beneath_the_Sea_master.intros.mov"
   ]
+ },
+ {
+  "dir": "clips",
+  "name": "clip_plos_sixgill_shark.ogv",
+  "url": "https://upload.wikimedia.org/wikipedia/commons/3/38/Feeding-Behavior-of-Subadult-Sixgill-Sharks-%28Hexanchus-griseus%29-at-a-Bait-Station-pone.0156730.s002.ogv",
+  "sha1": "156f422d2fcd5be3ca9d02fb99fa7e020bd4d7c5"
  }
 ]

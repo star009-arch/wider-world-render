@@ -222,6 +222,9 @@ class Film:
         scenes, total = self.plan()
         print(f"{len(scenes)} scenes, {total / 60:.2f} min", flush=True)
         mine = self.split(scenes, parts)[part] if part is not None else range(len(scenes))
+        only = [x for x in os.environ.get("YTG_ONLY", "").split(",") if x]   # re-render just these scene ids (the rest are reused)
+        if only:
+            mine = [si for si in range(len(scenes)) if scenes[si]["id"] in only] if part in (None, 0) else []
         for si in mine:
             self.scene_file(si, scenes[si], len(scenes))
         if not join:
@@ -340,6 +343,9 @@ if __name__ == "__main__":
         i, k = map(int, sys.argv[sys.argv.index("--needs") + 1].split("/"))
         scenes, _ = f.plan()                # the same timing (from the narration) and split that --part uses
         group = Film.split(scenes, k)[i]
+        only = [x for x in os.environ.get("YTG_ONLY", "").split(",") if x]
+        if only:
+            group = [si for si in range(len(scenes)) if scenes[si]["id"] in only] if i == 0 else []
         print(" ".join(sorted({sh["src"] for gi in group for sh in scenes[gi]["shots"] if sh["kind"] == "clip"})))
     elif "--part" in sys.argv:
         i, k = map(int, sys.argv[sys.argv.index("--part") + 1].split("/"))

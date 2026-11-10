@@ -6,10 +6,17 @@
    "tail": 0.8,
    "shots": [
     {
+     "kind": "3d",
+     "src": "seabed_v3",
+     "in": 0,
+     "w": 5.9,
+     "credit": "3D reconstruction"
+    },
+    {
      "kind": "clip",
      "src": "clip_nasa_blackmarble_globe.webm",
      "in": 4,
-     "w": 1.1,
+     "w": 3.7,
      "credit": "",
      "caption": "",
      "source": "NASA Goddard Space Flight Center",
@@ -17,43 +24,66 @@
      "vf": "crop=iw*0.7:ih*0.7"
     },
     {
-     "kind": "clip",
-     "src": "clip_ifremer_seamon_west.webm",
-     "in": 35,
-     "w": 1.0,
-     "credit": "",
-     "caption": "",
-     "source": "Ifremer, CC BY 4.0",
-     "vf": "crop=iw*0.80:ih*0.74:iw*0.10:ih*0.15"
-    },
-    {
      "kind": "3d",
-     "src": "seabed_v3",
-     "in": 0,
-     "w": 1.2,
-     "credit": "3D reconstruction"
-    },
-    {
-     "kind": "3d",
-     "src": "seabed_wide_v3",
-     "in": 30,
-     "w": 0.9,
+     "src": "crosssection_v3",
+     "in": 60,
+     "w": 3.6,
      "credit": "3D reconstruction"
     },
     {
      "kind": "clip",
      "src": "clip_ifremer_fond_abyssal.webm",
      "in": 8,
-     "w": 0.9,
+     "w": 3.4,
      "credit": "",
      "caption": "",
      "source": "Ifremer, CC BY 4.0"
     },
     {
+     "kind": "vis",
+     "src": "map_world_routes",
+     "in": 0,
+     "w": 6.2
+    },
+    {
+     "kind": "vis",
+     "src": "chart_faults_year",
+     "in": 0,
+     "w": 4.6
+    },
+    {
+     "kind": "clip",
+     "src": "clip_bell1956_voice_beneath_the_sea.mov",
+     "in": 551,
+     "w": 3.7,
+     "credit": "Archive film, 1956",
+     "caption": "",
+     "source": "The Voice Beneath the Sea (1956), Bell System / Western Electric, public domain",
+     "aspect": "4:3",
+     "grade": "hqdn3d=3.5:3:7:7,colorlevels=rimin=0.05:gimin=0.05:bimin=0.05:rimax=0.95:gimax=0.95:bimax=0.95,eq=contrast=1.10:saturation=1.30:gamma=0.96,unsharp=5:5:0.7:5:5:0"
+    },
+    {
+     "kind": "vis",
+     "src": "map_incidents",
+     "in": 1.2,
+     "w": 2.6
+    },
+    {
+     "kind": "clip",
+     "src": "clip_plos_sixgill_shark.ogv",
+     "in": 75,
+     "w": 4.8,
+     "credit": "",
+     "caption": "",
+     "source": "McNeil B, Lowry D, Larson S, Griffing D (2016), PLOS ONE, CC BY 4.0",
+     "aspect": "4:3",
+     "grade": "hqdn3d=2:2:5:5,colorchannelmixer=rr=0.95:gg=0.78:bb=1.12,eq=saturation=0.85:contrast=1.06"
+    },
+    {
      "kind": "3d",
-     "src": "crosssection_v3",
-     "in": 60,
-     "w": 1.0,
+     "src": "seabed_wide_v3",
+     "in": 30,
+     "w": 6.95,
      "credit": "3D reconstruction"
     }
    ]
@@ -718,7 +748,8 @@
   },
   {
    "id": "s15",
-   "length": 18.0,
+   "lead": 0.6,
+   "length": 19.2,
    "shots": [
     {
      "kind": "3d",
@@ -726,8 +757,8 @@
      "in": 60,
      "w": 1,
      "credit": "",
-     "title": "THE WIDER WORLD",
-     "subtitle": "Sources and credits are in the description"
+     "title": "NEXT ON THE WIDER WORLD",
+     "subtitle": "The Arctic island that backs up civilization"
     }
    ]
   }
