@@ -328,7 +328,7 @@ class Film:
         idx = len(ins) // 2
         ins += ["-f", "lavfi", "-t", f"{total:.3f}", "-i", "anoisesrc=color=brown:amplitude=0.5:sample_rate=48000"]
         fc.append(f"[{idx}:a]lowpass=f=300,highpass=f=40,volume=-33dB,aformat=channel_layouts=stereo,afade=t=in:d=3,afade=t=out:st={total - 3:.2f}:d=3[amb]")
-        fc.append("[nar][musd][amb]amix=inputs=3:normalize=0,loudnorm=I=-14:TP=-1.5:LRA=11,aresample=48000[aout]")
+        fc.append("[nar][musd][amb]amix=inputs=3:normalize=0,loudnorm=I=-14:TP=-1.5:LRA=11,aresample=48000,alimiter=limit=0.79:attack=5:release=50:level=false[aout]")
         run([*ins, "-filter_complex", ";".join(fc), "-map", "[aout]", "-t", f"{total:.3f}", "-c:a", "pcm_s16le", out], "mix")
         return out
 
