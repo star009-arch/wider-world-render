@@ -140,8 +140,14 @@ class Film:
         run([*args, "-t", f"{d:.3f}", "-an", "-r", FPS, "-c:v", "libx264", "-preset", "medium", "-crf", "16", "-threads", THREADS,
              "-pix_fmt", "yuv420p", out], f"segment {key}")
         got = duration(out)
-        if got < d - 0.1:
-            raise SystemExit(f"segment {key} is {got:.2f}s, wanted {d:.2f}s (source too short at in={start}?)")
+        if got < d - 0.04:
+            if got < d - 1.5:
+                raise SystemExit(f"segment {key} is {got:.2f}s, wanted {d:.2f}s (source too short at in={start}?)")
+            # a fraction short (the last interpolated frames of a 3D shot): hold the last frame to the exact length
+            padded = out.with_name(out.stem + "_pad.mp4")
+            run(["-i", out, "-vf", f"tpad=stop_mode=clone:stop_duration={d - got + 0.2:.2f}", "-t", f"{d:.3f}", "-an", "-r", FPS,
+                 "-c:v", "libx264", "-preset", "medium", "-crf", "16", "-threads", THREADS, "-pix_fmt", "yuv420p", padded], f"pad {key}")
+            padded.replace(out)
         return out
 
     def xfade_chain(self, parts, out: Path, xf: float, what: str):
