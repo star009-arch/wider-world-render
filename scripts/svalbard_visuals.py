@@ -43,14 +43,14 @@ def svalbard_location(name="map_svalbard_location", dur=12.0):
             d.text((x + 40, y + 46), "78° N", font=font(44, "b"), fill=HILITE[:7] + f"{a:02x}")
         if t > 4.0:
             a = int(255 * min(1, (t - 4.0) / 0.8))
-            d.text((W / 2, H - 120), "Roughly halfway between mainland Norway and the North Pole", font=font(36),
+            d.text((W / 2, 110), "Roughly halfway between mainland Norway and the North Pole", font=font(36),
                    fill=TEXT[:7] + f"{a:02x}", anchor="mm")
         chrome(d, "", "", t, dur)
     render(name, dur, fn, base, zoom=(1.0, 1.08))
 
 
 def aleppo_withdrawal(name="map_aleppo_withdrawal", dur=14.0):
-    fr = Frame((-16, 24, 48, 80))
+    fr = Frame((-16, 24, 48, 86))
     base = basemap(fr)
     r_leb = [LYR, (20.0, 60.0), (30.0, 45.0), LEBANON]
     r_mor = [LYR, (5.0, 60.0), (-6.0, 45.0), MOROCCO]
@@ -68,7 +68,7 @@ def aleppo_withdrawal(name="map_aleppo_withdrawal", dur=14.0):
             pin(d, f, *MOROCCO, "Morocco", min(1, (t - 4.0) / 0.6), side="l")
         if t > 5.5:
             a = int(255 * min(1, (t - 5.5) / 0.6))
-            d.text((W / 2, H - 140), "September 2015: more than 38,000 samples withdrawn", font=font(40, "b"),
+            d.text((W / 2, 110), "September 2015: more than 38,000 samples withdrawn", font=font(40, "b"),
                    fill=TEXT[:7] + f"{a:02x}", anchor="mm")
         chrome(d, "", "Routes simplified", t, dur)
     render(name, dur, fn, base, zoom=(1.0, 1.05))
@@ -136,12 +136,12 @@ def vault_section(name="diagram_vault", dur=14.0):
             for i in range(3):                                    # three halls
                 x0 = 1080 + i * 150
                 d.rectangle([x0, ey - 70, x0 + 120, ey + 30], outline=HILITE[:7] + f"{b:02x}", width=5, fill="#1d4c6e" + f"{b // 2:02x}")
-            d.text((1305, ey - 120), "three halls, −18 °C", font=font(40, "b"), fill=TEXT[:7] + f"{b:02x}", anchor="mm")
+            d.text((1305, ey - 120), "three halls, −18 °C", font=font(50, "b"), fill=TEXT[:7] + f"{b:02x}", anchor="mm")
         if t > 4.5:
             b = int(255 * min(1, (t - 4.5) / 0.6))
-            d.text((800, ey + 70), "tunnel: more than 100 m into the rock", font=font(32), fill="#c9d6e2" + f"{b:02x}", anchor="mm")
+            d.text((800, ey + 70), "tunnel: more than 100 m into the rock", font=font(40, "b"), fill="#c9d6e2" + f"{b:02x}", anchor="mm")
             d.line([(ex, ey + 40), (ex, sea_y)], fill="#9fb3c6" + f"{b:02x}", width=2)
-            d.text((ex - 20, (ey + sea_y) / 2 + 20), "about 130 m\nabove sea level", font=font(28), fill="#c9d6e2" + f"{b:02x}", anchor="rm")
+            d.text((ex - 20, (ey + sea_y) / 2 + 20), "about 130 m\nabove sea level", font=font(38, "b"), fill="#c9d6e2" + f"{b:02x}", anchor="rm")
         if t > 6.0:
             b = int(255 * min(1, (t - 6.0) / 0.8))
             d.text((W / 2, 120), "If the power fails, the permafrost keeps the seeds frozen", font=font(40, "b"),
