@@ -111,14 +111,14 @@ def bricks(name, brick, mortar, scale=6.0):
     m.use_nodes = True
     nt = m.node_tree
     b = nt.nodes["Principled BSDF"]
-    tc = nt.nodes.new("ShaderNodeTexCoord")
+    tc = nt.nodes.new("ShaderNodeNewGeometry")                                  # world position: bricks stay brick-sized
     bt = nt.nodes.new("ShaderNodeTexBrick")
     bt.inputs["Color1"].default_value = (*brick, 1)
     bt.inputs["Color2"].default_value = (*[c * 0.85 for c in brick], 1)
     bt.inputs["Mortar"].default_value = (*mortar, 1)
     bt.inputs["Scale"].default_value = scale
     bt.inputs["Mortar Size"].default_value = 0.015
-    nt.links.new(tc.outputs["Object"], bt.inputs["Vector"])
+    nt.links.new(tc.outputs["Position"], bt.inputs["Vector"])
     nt.links.new(bt.outputs["Color"], b.inputs["Base Color"])
     bp = nt.nodes.new("ShaderNodeBump")
     bp.inputs["Strength"].default_value = 0.4
@@ -313,7 +313,7 @@ def shot_india():
 
 def shot_bengal():
     sc = reset()
-    g, size, bbox = terrain("bengal", 30.0)
+    g, size, bbox = terrain("bengal", 9.0)
     sky(32, 170, 0.7)
     sun(30, 210, 4.0)
     cx, cy = lonlat_to_xy(88.3, 23.2, size, bbox)
@@ -485,7 +485,7 @@ def shot_fort():
     sun(30, 250, 3.5, (1, 0.9, 0.75))
     ground(200, noisy("sand", (0.55, 0.45, 0.3), (0.68, 0.58, 0.4), 0.4, 0.95, 0.2), 4, 0.4, 0.05)
     water_plane((0, 60, 0.1), (200, 30, 1), (0.12, 0.25, 0.3))
-    brick = bricks("brick", (0.55, 0.22, 0.14), (0.75, 0.68, 0.6), 3.0)
+    brick = bricks("brick", (0.5, 0.2, 0.12), (0.72, 0.64, 0.55), 1.4)
     walls_rect(0, 25, 46, 30, 7, 1.6, brick, brick)
     add("cube", (0, 25 - 15.9, 2.6), (2.0, 0.3, 2.6), m=mat("gate", (0.22, 0.13, 0.08), 0.8))                # gate
     for i in range(4):                                                          # warehouses inside
