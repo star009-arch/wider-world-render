@@ -1,0 +1,331 @@
+{
+ "voices": {
+  "atlas": {
+   "id": "IKne3meq5aSn9XLyUdCD",
+   "name": "Charlie",
+   "settings": {
+    "stability": 0.42,
+    "similarity_boost": 0.8,
+    "style": 0.35,
+    "use_speaker_boost": true,
+    "speed": 1.0
+   }
+  },
+  "penny": {
+   "id": "pFZP5JQG7iQjIQuC4Bku",
+   "name": "Lily",
+   "settings": {
+    "stability": 0.5,
+    "similarity_boost": 0.8,
+    "style": 0.3,
+    "use_speaker_boost": true,
+    "speed": 0.97
+   }
+  },
+  "pike": {
+   "id": "TX3LPaxmHKxFdv7VOQHJ",
+   "name": "Liam",
+   "settings": {
+    "stability": 0.3,
+    "similarity_boost": 0.75,
+    "style": 0.55,
+    "use_speaker_boost": true,
+    "speed": 1.08
+   }
+  },
+  "quill": {
+   "id": "onwK4e9ZLuTAKqWW03F9",
+   "name": "Daniel",
+   "settings": {
+    "stability": 0.55,
+    "similarity_boost": 0.8,
+    "style": 0.25,
+    "use_speaker_boost": true,
+    "speed": 0.98
+   }
+  },
+  "zed": {
+   "id": "cgSgspJ2msm6clMCkdW9",
+   "name": "Jessica",
+   "settings": {
+    "stability": 0.42,
+    "similarity_boost": 0.8,
+    "style": 0.45,
+    "use_speaker_boost": true,
+    "speed": 1.02
+   }
+  }
+ },
+ "lines": [
+  {
+   "id": "E01",
+   "who": "penny",
+   "text": "Imagine starting a company to sell spices... and ending up powerful enough to rule millions of people."
+  },
+  {
+   "id": "E02",
+   "who": "atlas",
+   "text": "That sounds impossible."
+  },
+  {
+   "id": "E03",
+   "who": "penny",
+   "text": "It does. But it actually happened. And it all started with a piece of paper."
+  },
+  {
+   "id": "E04",
+   "who": "zed",
+   "text": "It's always a piece of paper."
+  },
+  {
+   "id": "E05",
+   "who": "penny",
+   "text": "I'm Penny, this is Tiny Empires, and this is how a trading company took over India."
+  },
+  {
+   "id": "E06",
+   "who": "penny",
+   "text": "London. The last day of the year sixteen hundred. Queen Elizabeth the First grants a royal charter to a new company of merchants."
+  },
+  {
+   "id": "E07",
+   "who": "quill",
+   "text": "The Governor and Company of Merchants of London, trading into the East Indies. Thirty-first of December, sixteen hundred. Everyone just called it the East India Company."
+  },
+  {
+   "id": "E08",
+   "who": "penny",
+   "text": "The charter gave them a monopoly. No other English merchant could trade east of the Cape of Good Hope."
+  },
+  {
+   "id": "E09",
+   "who": "zed",
+   "text": "A monopoly means no competition. My favourite kind of market."
+  },
+  {
+   "id": "E10",
+   "who": "penny",
+   "text": "Investors put their money into the voyages. If the ships came home full, everyone got rich. If the ships sank..."
+  },
+  {
+   "id": "E11",
+   "who": "pike",
+   "text": "Everyone got wet."
+  },
+  {
+   "id": "E12",
+   "who": "penny",
+   "text": "The prize was spice. Pepper, cloves and nutmeg were worth a fortune in Europe."
+  },
+  {
+   "id": "E13",
+   "who": "atlas",
+   "text": "And the route was brutal. South past Africa, around the Cape of Good Hope, then across the Indian Ocean. Months at sea, each way."
+  },
+  {
+   "id": "E14",
+   "who": "penny",
+   "text": "The first fleet sailed in sixteen-oh-one under James Lancaster, and came home two years later, loaded with pepper."
+  },
+  {
+   "id": "E15",
+   "who": "zed",
+   "text": "Profit!"
+  },
+  {
+   "id": "E16",
+   "who": "penny",
+   "text": "But there was a problem. The Dutch. Their own East India Company, founded in sixteen-oh-two, was bigger, richer, and very good at pushing rivals out of the Spice Islands."
+  },
+  {
+   "id": "E17",
+   "who": "quill",
+   "text": "In sixteen twenty-three, at Amboyna, the Dutch executed ten English traders. After that, the English largely turned away from the islands... and towards India."
+  },
+  {
+   "id": "E18",
+   "who": "penny",
+   "text": "Much of India was ruled by the Mughal Empire, one of the richest and most powerful states in the world. The Company did not arrive as a conqueror. It arrived asking for permission."
+  },
+  {
+   "id": "E19",
+   "who": "atlas",
+   "text": "In sixteen-thirteen, under the emperor Jahangir, the English were allowed to open a trading post at Surat, on India's west coast."
+  },
+  {
+   "id": "E20",
+   "who": "quill",
+   "text": "Then an ambassador, Sir Thomas Roe, spent years at the Mughal court, asking for better terms."
+  },
+  {
+   "id": "E21",
+   "who": "penny",
+   "text": "Slowly, the trading posts multiplied. Madras, in sixteen thirty-nine. Bombay, which came to the English Crown as part of a royal wedding, and was handed to the Company in sixteen sixty-eight. And Calcutta, in Bengal, in sixteen-ninety."
+  },
+  {
+   "id": "E22",
+   "who": "zed",
+   "text": "And the big money moved from spice to cloth. Indian cotton and silk became hugely popular in Britain."
+  },
+  {
+   "id": "E23",
+   "who": "penny",
+   "text": "To protect their warehouses, the Company built forts... and hired soldiers. Many of them Indian sepoys."
+  },
+  {
+   "id": "E24",
+   "who": "pike",
+   "text": "Wait. A shop... with an army?"
+  },
+  {
+   "id": "E25",
+   "who": "penny",
+   "text": "A shop with an army."
+  },
+  {
+   "id": "E26",
+   "who": "penny",
+   "text": "After the emperor Aurangzeb died in seventeen-oh-seven, Mughal power weakened, and regional rulers grew stronger. One of the richest regions was Bengal, ruled by a Nawab."
+  },
+  {
+   "id": "E27",
+   "who": "atlas",
+   "text": "In seventeen fifty-six, a young new Nawab took over. Siraj ud-Daulah."
+  },
+  {
+   "id": "E28",
+   "who": "penny",
+   "text": "Siraj was furious. The Company was strengthening the defences of Calcutta without his permission, and abusing its trading privileges."
+  },
+  {
+   "id": "E29",
+   "who": "quill",
+   "text": "In June seventeen fifty-six, he marched on Calcutta and captured it."
+  },
+  {
+   "id": "E30",
+   "who": "pike",
+   "text": "So... the shop lost?"
+  },
+  {
+   "id": "E31",
+   "who": "penny",
+   "text": "For now."
+  },
+  {
+   "id": "E32",
+   "who": "penny",
+   "text": "The Company sent soldiers from Madras, led by Robert Clive, along with a fleet under Admiral Charles Watson. Clive had started out in India as a clerk, and turned himself into a soldier."
+  },
+  {
+   "id": "E33",
+   "who": "quill",
+   "text": "On the second of January, seventeen fifty-seven, Clive and Admiral Watson took Calcutta back."
+  },
+  {
+   "id": "E34",
+   "who": "penny",
+   "text": "But Clive wanted more than Calcutta. Powerful people in Bengal were unhappy with Siraj. One of his own top army commanders, Mir Jafar. And the wealthy Jagat Seth bankers."
+  },
+  {
+   "id": "E35",
+   "who": "zed",
+   "text": "So a deal was made. Help us defeat the Nawab... and you become the new Nawab."
+  },
+  {
+   "id": "E36",
+   "who": "penny",
+   "text": "In return, Mir Jafar promised huge payments to the Company and its officers. The agreement was signed in secret, in June seventeen fifty-seven."
+  },
+  {
+   "id": "E37",
+   "who": "pike",
+   "text": "Is it normal to plan the result of a battle... before the battle?"
+  },
+  {
+   "id": "E38",
+   "who": "penny",
+   "text": "It is when you've already bought the result."
+  },
+  {
+   "id": "E39",
+   "who": "penny",
+   "text": "Twenty-third of June, seventeen fifty-seven. Plassey. A mango grove beside the river."
+  },
+  {
+   "id": "E40",
+   "who": "atlas",
+   "text": "Clive had about three thousand men, most of them Indian sepoys. The Nawab's army is usually put at around fifty thousand."
+  },
+  {
+   "id": "E41",
+   "who": "penny",
+   "text": "Then the monsoon rain arrived. Clive's gunners covered their powder with tarpaulins. Many of the Nawab's guns fell silent."
+  },
+  {
+   "id": "E42",
+   "who": "pike",
+   "text": "Keep your powder dry. Finally, advice I can follow."
+  },
+  {
+   "id": "E43",
+   "who": "penny",
+   "text": "And Mir Jafar? He kept his troops out of the fight."
+  },
+  {
+   "id": "E44",
+   "who": "quill",
+   "text": "The battle was over by the end of the day. Siraj fled, but he was captured and killed days later."
+  },
+  {
+   "id": "E45",
+   "who": "penny",
+   "text": "Mir Jafar became Nawab. But everyone knew who was really in charge."
+  },
+  {
+   "id": "E46",
+   "who": "zed",
+   "text": "The Company. Now it was collecting money, choosing rulers, and running an army."
+  },
+  {
+   "id": "E47",
+   "who": "penny",
+   "text": "When a later Nawab, Mir Qasim, tried to break free, war followed. In seventeen sixty-four, at Buxar, the Company defeated the combined armies of Mir Qasim, the ruler of Awadh, and the Mughal emperor."
+  },
+  {
+   "id": "E48",
+   "who": "quill",
+   "text": "And in seventeen sixty-five, the emperor Shah Alam the Second granted the Company the diwani. The right to collect the revenues of Bengal, Bihar and Orissa."
+  },
+  {
+   "id": "E49",
+   "who": "zed",
+   "text": "A company... collecting a country's taxes."
+  },
+  {
+   "id": "E50",
+   "who": "penny",
+   "text": "The traders had become rulers."
+  },
+  {
+   "id": "E51",
+   "who": "penny",
+   "text": "But remember. Plassey won Bengal, not India. It took many more decades of wars and treaties before the Company controlled most of the subcontinent."
+  },
+  {
+   "id": "E52",
+   "who": "quill",
+   "text": "In eighteen fifty-eight, after a great uprising, the British government took power away from the Company itself. And in eighteen seventy-four, the Company was dissolved."
+  },
+  {
+   "id": "E53",
+   "who": "atlas",
+   "text": "From spices... to an empire... to closing down."
+  },
+  {
+   "id": "E54",
+   "who": "penny",
+   "text": "Not bad for a shop. Next time on Tiny Empires: how the Mongols conquered almost everything."
+  }
+ ]
+}

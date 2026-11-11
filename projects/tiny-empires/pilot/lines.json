@@ -1,0 +1,121 @@
+{
+ "voices": {
+  "atlas": {
+   "id": "IKne3meq5aSn9XLyUdCD",
+   "name": "Charlie",
+   "settings": {
+    "stability": 0.42,
+    "similarity_boost": 0.8,
+    "style": 0.35,
+    "use_speaker_boost": true,
+    "speed": 1.0
+   }
+  },
+  "penny": {
+   "id": "pFZP5JQG7iQjIQuC4Bku",
+   "name": "Lily",
+   "settings": {
+    "stability": 0.4,
+    "similarity_boost": 0.8,
+    "style": 0.45,
+    "use_speaker_boost": true,
+    "speed": 0.95
+   }
+  },
+  "pike": {
+   "id": "TX3LPaxmHKxFdv7VOQHJ",
+   "name": "Liam",
+   "settings": {
+    "stability": 0.3,
+    "similarity_boost": 0.75,
+    "style": 0.55,
+    "use_speaker_boost": true,
+    "speed": 1.08
+   }
+  },
+  "quill": {
+   "id": "onwK4e9ZLuTAKqWW03F9",
+   "name": "Daniel",
+   "settings": {
+    "stability": 0.55,
+    "similarity_boost": 0.8,
+    "style": 0.25,
+    "use_speaker_boost": true,
+    "speed": 0.98
+   }
+  },
+  "stampy": {
+   "id": "N2lVS1w4EtoT3dr4eOWO",
+   "name": "Callum",
+   "settings": {
+    "stability": 0.35,
+    "similarity_boost": 0.8,
+    "style": 0.6,
+    "use_speaker_boost": true,
+    "speed": 1.05
+   }
+  }
+ },
+ "lines": [
+  {
+   "id": "P01",
+   "who": "penny",
+   "text": "How does a company... end up running a country?"
+  },
+  {
+   "id": "P02",
+   "who": "stampy",
+   "text": "Paperwork."
+  },
+  {
+   "id": "P03",
+   "who": "atlas",
+   "text": "Bengal, seventeen fifty-seven. The richest province in all of Mughal India."
+  },
+  {
+   "id": "P04",
+   "who": "pike",
+   "text": "Why is there always a river?!"
+  },
+  {
+   "id": "P05",
+   "who": "quill",
+   "text": "The Nawab took Calcutta in seventeen fifty-six. Robert Clive took it back in January seventeen fifty-seven."
+  },
+  {
+   "id": "P06",
+   "who": "penny",
+   "text": "Which brings us to... business."
+  },
+  {
+   "id": "P07",
+   "who": "stampy",
+   "text": "A secret agreement! Help us win, and you become Nawab. Sign here... and here... and here..."
+  },
+  {
+   "id": "P08",
+   "who": "atlas",
+   "text": "Twenty-third of June, seventeen fifty-seven. Plassey. The Company is massively outnumbered."
+  },
+  {
+   "id": "P09",
+   "who": "pike",
+   "text": "Rule one of battles: keep your powder dry. Rule two: I am also wet."
+  },
+  {
+   "id": "P10",
+   "who": "quill",
+   "text": "And the Nawab's own commander? He... just didn't fight."
+  },
+  {
+   "id": "P11",
+   "who": "penny",
+   "text": "New ruler. Same throne. Different owner."
+  },
+  {
+   "id": "P12",
+   "who": "quill",
+   "text": "Actually, that's just Bengal. The rest took another hundred years."
+  }
+ ]
+}

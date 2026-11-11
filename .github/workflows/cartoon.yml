@@ -1,0 +1,97 @@
+name: cartoon
+on:
+  workflow_dispatch:
+    inputs:
+      module:
+        description: storyboard module in scripts/cartoon (ep01)
+        default: ep01
+      parts:
+        description: number of parallel render parts
+        default: '12'
+      kit_tag:
+        default: te-ep01-kit-v1
+      out_tag:
+        default: te-ep01-film-v1
+permissions:
+  contents: write
+jobs:
+  plan:
+    runs-on: ubuntu-latest
+    outputs:
+      parts: ${{ steps.p.outputs.parts }}
+    steps:
+      - id: p
+        run: python3 -c "import json;print('parts='+json.dumps(list(range(1,${{ inputs.parts }}+1))))" >> "$GITHUB_OUTPUT"
+  render:
+    needs: plan
+    runs-on: windows-latest
+    strategy:
+      fail-fast: true
+      matrix:
+        part: ${{ fromJson(needs.plan.outputs.parts) }}
+    defaults:
+      run:
+        shell: bash
+    env:
+      GH_TOKEN: ${{ github.token }}
+      TE_VOICE: ${{ github.workspace }}/work/voice
+      TE_THREADS: '4'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: pip install -q imageio-ffmpeg pyshp pillow numpy
+      - name: relief raster (Natural Earth, public domain)
+        run: |
+          curl -sSL -o ne.zip https://naciscdn.org/naturalearth/50m/raster/NE1_50M_SR_W.zip
+          mkdir -p data/geo/naturalearth/NE1_50M_SR_W && unzip -q ne.zip -d data/geo/naturalearth/NE1_50M_SR_W
+          ls data/geo/naturalearth/NE1_50M_SR_W/*
+      - name: voice kit (encrypted)
+        env:
+          KIT_KEY: ${{ secrets.KIT_KEY }}
+        run: |
+          mkdir -p work && gh release download "${{ inputs.kit_tag }}" -p kit.enc -D work -R "$GITHUB_REPOSITORY"
+          openssl enc -d -aes-256-cbc -pbkdf2 -iter 200000 -in work/kit.enc -out work/kit.tar -pass env:KIT_KEY
+          tar -xf work/kit.tar -C work && rm work/kit.enc work/kit.tar && ls work/voice | head
+      - run: python scripts/cartoon/${{ inputs.module }}.py render ${{ matrix.part }}/${{ inputs.parts }} out
+      - uses: actions/upload-artifact@v4
+        with:
+          name: shots-${{ matrix.part }}
+          path: out/*.mp4
+          retention-days: 3
+          compression-level: 0
+  mix:
+    needs: render
+    runs-on: windows-latest
+    defaults:
+      run:
+        shell: bash
+    env:
+      GH_TOKEN: ${{ github.token }}
+      TE_VOICE: ${{ github.workspace }}/work/voice
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: pip install -q imageio-ffmpeg pyshp pillow numpy
+      - run: |
+          curl -sSL -o ne.zip https://naciscdn.org/naturalearth/50m/raster/NE1_50M_SR_W.zip
+          mkdir -p data/geo/naturalearth/NE1_50M_SR_W && unzip -q ne.zip -d data/geo/naturalearth/NE1_50M_SR_W
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: shots-*
+          merge-multiple: true
+          path: shots
+      - env:
+          KIT_KEY: ${{ secrets.KIT_KEY }}
+        run: |
+          mkdir -p work film && gh release download "${{ inputs.kit_tag }}" -p kit.enc -D work -R "$GITHUB_REPOSITORY"
+          openssl enc -d -aes-256-cbc -pbkdf2 -iter 200000 -in work/kit.enc -out work/kit.tar -pass env:KIT_KEY
+          tar -xf work/kit.tar -C work && rm work/kit.enc work/kit.tar
+          ls shots | wc -l
+          python scripts/cartoon/${{ inputs.module }}.py mix shots film/film.mp4 work/voice/music.mp3
+          openssl enc -aes-256-cbc -pbkdf2 -iter 200000 -salt -in film/film.mp4 -out film.enc -pass env:KIT_KEY
+          gh release view "${{ inputs.out_tag }}" -R "$GITHUB_REPOSITORY" >/dev/null 2>&1 || gh release create "${{ inputs.out_tag }}" -R "$GITHUB_REPOSITORY" --title "${{ inputs.out_tag }}" --notes "Encrypted film."
+          gh release upload "${{ inputs.out_tag }}" film.enc --clobber -R "$GITHUB_REPOSITORY"
