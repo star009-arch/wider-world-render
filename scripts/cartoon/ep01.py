@@ -578,8 +578,10 @@ def mix(shots_dir: Path, out: Path, music: Path):
         acc += sh.dur
     total = acc
     ff = [SC.ffmpeg(), "-nostdin", "-y", "-loglevel", "error"]
+    out = out.resolve()
+    out.parent.mkdir(parents=True, exist_ok=True)
     lst = out.parent / "concat.txt"
-    lst.write_text("".join(f"file '{(shots_dir / (sh.name + '.mp4')).as_posix()}'\n" for sh in ss))
+    lst.write_text("".join(f"file '{(shots_dir.resolve() / (sh.name + '.mp4')).as_posix()}'\n" for sh in ss))
     video = out.parent / "video.mp4"
     subprocess.run([*ff, "-f", "concat", "-safe", "0", "-i", str(lst), "-c", "copy", str(video)], check=True, stdin=subprocess.DEVNULL, timeout=1800)
     bus = out.parent / "dialogue_bus.wav"                                       # pass 1: dialogue bus

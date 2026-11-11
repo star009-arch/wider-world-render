@@ -1,0 +1,127 @@
+name: te3d
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: release tag that receives the plates (one mp4 per shot) or look-test stills
+        default: te-3d-v1
+      shots:
+        description: 'JSON list of [shot, seconds, samples]'
+        default: '[["globe",8,16],["india",8,16],["bengal",8,16],["spice",6,16],["ocean",8,16],["fort",8,16],["durbar",8,24],["court",6,24],["plassey",8,16],["plassey_rain",6,16],["camp",6,24]]'
+      chunk:
+        description: frames per job
+        default: '24'
+      still:
+        description: '0 = full animation; N = render only frame N of every shot (look test)'
+        default: '0'
+permissions:
+  contents: write
+jobs:
+  plan:
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.m.outputs.matrix }}
+    steps:
+      - id: m
+        run: |
+          python3 - <<'EOF' >> "$GITHUB_OUTPUT"
+          import json
+          shots = json.loads('''${{ inputs.shots }}'''); c = int('${{ inputs.chunk }}'); still = int('${{ inputs.still }}')
+          inc = []
+          for shot, sec, samples in shots:
+              n = int(sec * 24)
+              if still:
+                  inc.append({"shot": shot, "sec": sec, "samples": samples, "start": min(still, n), "end": min(still, n)})
+                  continue
+              for s in range(1, n + 1, c):
+                  inc.append({"shot": shot, "sec": sec, "samples": samples, "start": s, "end": min(n, s + c - 1)})
+          print("matrix=" + json.dumps({"include": inc}))
+          EOF
+  terrain:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/cache@v4
+        id: tc
+        with:
+          path: terrain
+          key: te-terrain-${{ hashFiles('te_terrain.py') }}
+      - if: steps.tc.outputs.cache-hit != 'true'
+        run: |
+          pip install -q numpy pillow
+          curl -sSL -o hr.zip https://naciscdn.org/naturalearth/10m/raster/NE1_HR_LC_SR_W.zip && unzip -q hr.zip -d hr
+          curl -sSL -o lo.zip https://naciscdn.org/naturalearth/50m/raster/NE1_50M_SR_W.zip && unzip -q lo.zip -d lo
+          python te_terrain.py "$(ls hr/*.tif hr/*/*.tif 2>/dev/null | head -1)" "$(ls lo/*.tif lo/*/*.tif 2>/dev/null | head -1)" terrain
+          rm -rf terrain/tiles
+      - uses: actions/upload-artifact@v4
+        with:
+          name: terrain
+          path: terrain
+          retention-days: 2
+  render:
+    needs: [plan, terrain]
+    runs-on: ubuntu-latest
+    timeout-minutes: 300
+    strategy:
+      fail-fast: false
+      max-parallel: 20
+      matrix: ${{ fromJson(needs.plan.outputs.matrix) }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/cache@v4
+        with:
+          path: blender
+          key: blender-4.2.9-linux-x64
+      - name: blender
+        run: |
+          if [ ! -x blender/blender ]; then
+            curl -sSLo b.tar.xz https://mirrors.ocf.berkeley.edu/blender/release/Blender4.2/blender-4.2.9-linux-x64.tar.xz
+            echo "dfbc127a7d28f9c2175b23bf9d6701b2855f31eedfb391f9a6e60adb24572846  b.tar.xz" | sha256sum -c -
+            mkdir blender && tar -xf b.tar.xz -C blender --strip-components=1 && rm b.tar.xz
+          fi
+          sudo apt-get install -y -qq libxi6 libxxf86vm1 libxfixes3 libxrender1 libgl1 libxkbcommon0 libsm6 >/dev/null
+      - uses: actions/download-artifact@v4
+        with:
+          name: terrain
+          path: terrain
+      - name: render
+        env:
+          YTG_THREADS: '4'
+          YTG_FRAME_START: ${{ matrix.start }}
+          YTG_FRAME_END: ${{ matrix.end }}
+        run: |
+          STILL=${{ inputs.still }}; [ "$STILL" != "0" ] && STILL=${{ matrix.start }}
+          blender/blender -b --factory-startup -P blender_te.py -- ${{ matrix.shot }} out ${{ matrix.sec }} ${{ matrix.samples }} $STILL 1920x1080 terrain 2>&1 | grep -E "Fra:.*Sample 1/|Saved|Error|Traceback|line [0-9]" | tail -40
+          ls out
+          test "$(ls out/*.png | wc -l)" -eq "$(( ${{ matrix.end }} - ${{ matrix.start }} + 1 ))"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: f-${{ matrix.shot }}-${{ matrix.start }}
+          path: out/*.png
+          retention-days: 2
+          compression-level: 0
+  publish:
+    needs: render
+    if: always()
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: f-*
+          merge-multiple: true
+          path: frames
+      - run: |
+          sudo apt-get install -y -qq ffmpeg >/dev/null
+          gh release view "${{ inputs.tag }}" -R "$GITHUB_REPOSITORY" >/dev/null 2>&1 || gh release create "${{ inputs.tag }}" -R "$GITHUB_REPOSITORY" --title "${{ inputs.tag }}" --notes "Tiny Empires 3D plates."
+          mkdir up
+          if [ "${{ inputs.still }}" != "0" ]; then
+            cp frames/*.png up/
+          else
+            for s in $(ls frames | sed -E 's/_[0-9]+\.png$//' | sort -u); do
+              ffmpeg -nostdin -loglevel error -framerate 24 -i "frames/${s}_%04d.png" -c:v libx264 -preset slow -crf 15 -pix_fmt yuv420p "up/$s.mp4"
+            done
+          fi
+          ls -la up
+          gh release upload "${{ inputs.tag }}" up/* --clobber -R "$GITHUB_REPOSITORY"
