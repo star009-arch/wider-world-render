@@ -159,8 +159,9 @@ def sky(sun_el=25.0, sun_rot=40.0, strength=0.8, turbidity=None):
     st.sun_rotation = math.radians(sun_rot)
     st.air_density = 1.0
     st.dust_density = 1.5
+    st.sun_disc = False                                                         # the sun lamp lights the scene; the sky only fills
     nt.links.new(st.outputs["Color"], bg.inputs["Color"])
-    bg.inputs["Strength"].default_value = strength
+    bg.inputs["Strength"].default_value = strength * 0.18
     return w
 
 
@@ -176,7 +177,7 @@ def flat_world(color, strength):
 def sun(el=35, az=40, strength=3.0, color=(1, 0.95, 0.88), angle=2.0):
     bpy.ops.object.light_add(type="SUN")
     s = bpy.context.active_object
-    s.data.energy = strength
+    s.data.energy = strength * 0.7
     s.data.color = color
     s.data.angle = math.radians(angle)
     s.rotation_euler = (math.radians(90 - el), 0, math.radians(az))
@@ -499,6 +500,17 @@ def shot_fort():
     return sc
 
 
+def half_arch(o):
+    """Delete the lower half of a torus so it reads as an arch."""
+    import bmesh
+    bm = bmesh.new()
+    bm.from_mesh(o.data)
+    mw = o.matrix_world
+    bmesh.ops.delete(bm, geom=[v for v in bm.verts if (mw @ v.co).z < o.location.z - 0.05], context="VERTS")
+    bm.to_mesh(o.data)
+    bm.free()
+
+
 def arch_row(y, x0, x1, n, h, m_col, m_arch, depth=0.6):
     step = (x1 - x0) / n
     for i in range(n + 1):
@@ -509,6 +521,7 @@ def arch_row(y, x0, x1, n, h, m_col, m_arch, depth=0.6):
         x = x0 + (i + 0.5) * step
         t = add("torus", (x, y, h), (1, 1, 1), (math.radians(90), 0, 0), m=m_arch, major_radius=step / 2 - 0.1, minor_radius=0.22,
                 major_segments=48, minor_segments=10)
+        half_arch(t)
     add("cube", ((x0 + x1) / 2, y, h + step / 2 + 0.6), ((x1 - x0) / 2 + 0.5, depth, 0.6), m=m_arch)
 
 
@@ -583,7 +596,7 @@ def ship(x, y, s, heading=0.0, flag=(0.75, 0.1, 0.1)):
         add("cyl", (mx, my, mh / 2 * s), (0.12 * s, 0.12 * s, mh / 2 * s), m=mat("mast", (0.3, 0.2, 0.1)), vertices=8)
         for j in range(2):
             sz = (mh * 0.18 - j * 0.3) * s
-            o = add("plane", (mx, my, (mh * 0.45 + j * mh * 0.28) * s), (0.1, sz * 1.2, sz), (0, math.radians(90), heading + math.radians(90)), m=sail)
+            o = add("plane", (mx, my, (mh * 0.45 + j * mh * 0.28) * s), (sz * 1.25, sz, 1), (math.radians(90), 0, heading + math.radians(90)), m=sail)
         add("plane", (mx, my, (mh + 0.4) * s), (0.6 * s, 0.4 * s, 1), (math.radians(90), 0, heading), m=mat("flag", flag, 0.7))
     return h
 

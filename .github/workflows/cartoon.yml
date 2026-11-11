@@ -7,11 +7,14 @@ on:
         default: ep01
       parts:
         description: number of parallel render parts
-        default: '12'
+        default: '20'
       kit_tag:
         default: te-ep01-kit-v1
       out_tag:
         default: te-ep01-film-v1
+      plates_tag:
+        description: release holding the 3D plates (one mp4 per shot)
+        default: te-3d-v1
 permissions:
   contents: write
 jobs:
@@ -35,6 +38,7 @@ jobs:
     env:
       GH_TOKEN: ${{ github.token }}
       TE_VOICE: ${{ github.workspace }}/work/voice
+      TE_PLATES: ${{ github.workspace }}/plates
       TE_THREADS: '4'
     steps:
       - uses: actions/checkout@v4
@@ -47,6 +51,10 @@ jobs:
           curl -sSL -o ne.zip https://naciscdn.org/naturalearth/50m/raster/NE1_50M_SR_W.zip
           mkdir -p data/geo/naturalearth/NE1_50M_SR_W && unzip -q ne.zip -d data/geo/naturalearth/NE1_50M_SR_W
           ls data/geo/naturalearth/NE1_50M_SR_W/*
+      - name: 3D plates
+        run: |
+          mkdir -p platevids && gh release download "${{ inputs.plates_tag }}" -p "*.mp4" -D platevids -R "$GITHUB_REPOSITORY"
+          python scripts/cartoon/plates_extract.py platevids plates
       - name: voice kit (encrypted)
         env:
           KIT_KEY: ${{ secrets.KIT_KEY }}
