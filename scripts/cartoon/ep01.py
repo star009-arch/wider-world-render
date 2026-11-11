@@ -468,7 +468,8 @@ def shots():
     out.append(scene("s08_throne", "plate:durbar",
                      [P("mir_jafar", 960, 890, 1.7, faces=[(0, {"mouth": "grin"}), (at(L, 1), {"brows": 1.0, "mouth": "worried"})]),
                       P("zed", 1650, G, 1.7, flip=True)],
-                     L, under=[PL_shadow(960, 470, 0.8, at(L, 1) + dur("E46"))], fx=[PL_crown(960, 470, 0.2)]))
+                     L, under=[PL_shadow(960, 470, 0.8, at(L, 1) + dur("E46"))], fx=[PL_crown(960, 560, 0.2)], follow=False,
+                     cam_wide=(1.0, 0.5, 0.5)))
     L = ["E47"]
     out.append(scene("s08_buxar", "plate:plassey",
                      [*PL_army("redcoat", 160, 700, 3, 2, 75, 40, 0.6), *PL_army("csepoy", 200, 780, 4, 2, 75, 40, 0.6),
