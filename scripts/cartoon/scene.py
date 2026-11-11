@@ -146,8 +146,35 @@ def background(key):
     return _BG[key]
 
 
+PLATES = Path(os.environ.get("TE_PLATES", "D:/Temp/cartoon/plates"))
+_PF: dict = {}
+
+
+def _plate_img(name, i):
+    key = (name, i)
+    if key not in _PF:
+        if len(_PF) > 64:
+            _PF.clear()
+        _PF[key] = Image.open(PLATES / name / f"{i:04d}.jpg").convert("RGBA").resize((W, H), Image.BICUBIC)
+    return _PF[key]
+
+
+def plate_frame(name, t, dur):
+    """A 3D plate stretched smoothly over the whole shot (frames blended), so slow camera moves never judder."""
+    n = len(list((PLATES / name).glob("*.jpg")))
+    pos = max(0.0, min(1.0, t / max(0.01, dur))) * (n - 1)
+    i = int(pos)
+    a = _plate_img(name, i + 1)
+    if i + 1 < n and pos - i > 0.02:
+        return Image.blend(a, _plate_img(name, i + 2), pos - i)
+    return a.copy()
+
+
 def render_frame(shot: Shot, t: float) -> Image.Image:
-    frame = background(shot.bg).convert("RGBA").copy()
+    if shot.bg.startswith("plate:"):
+        frame = plate_frame(shot.bg[6:], t, shot.dur)
+    else:
+        frame = background(shot.bg).convert("RGBA").copy()
     if shot.bg == "rain":
         frame.alpha_composite(S.rain_layer(t))
     if shot.under:

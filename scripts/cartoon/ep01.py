@@ -333,14 +333,14 @@ def shots():
 
     # 1. HOOK
     L = ["E01", "E02", "E03", "E04", "E05"]
-    out.append(scene("s01_hook", "m_world",
+    out.append(scene("s01_hook", "plate:globe",
                      [P("penny", 960, G, 2.0, faces=[(0, {"brows": -0.3, "mouth": "smirk"})], acts=[(0.0, "jump", 0.0)]),
                       P("atlas", -200, G, 1.7, walks=[(at(L, 1) - 1.2, 420)], speed=1.6, faces=[(0, {"brows": 0.6, "mouth": "o"})]),
                       P("zed", 2150, G, 1.7, flip=True, walks=[(at(L, 3) - 1.2, 1520)], speed=1.8, faces=[(0, {"mouth": "grin"})])],
                      L, fx=[caption("TINY EMPIRES", at(L, 4) + 1.6)]))
     # 2. LONDON 1600
     L = ["E06", "E07"]
-    out.append(scene("s02_charter", "court",
+    out.append(scene("s02_charter", "plate:court",
                      [P("queen", 960, 880, 1.5, faces=[(0, {"mouth": "smile"})], acts=[(1.2, "present", None)]),
                       P("merchant", 560, 960, 1.4, faces=[(0, {"mouth": "grin"})]), P("merchant2", 1340, 960, 1.4, flip=True),
                       P("quill", 1650, G, 1.7, flip=True)],
@@ -363,23 +363,20 @@ def shots():
     out.append(scene("s03_route", "m_world", [P("atlas", 1700, G, 1.6, flip=True)], L,
                      fx=[route("m_world", S.ROUTE_CAPE, 0.6, dur("E13") + 0.3), pin("m_world", -0.1, 51.5, "London", 0.3)], follow=False))
     L = ["E14", "E15"]
-    out.append(scene("s03_lancaster", "sea", [P("zed", 1650, G, 1.7, flip=True, acts=[(at(L, 1), "celebrate", 0.5)])], L,
-                     fx=[ships([(-300, 560, 900, 600, 0.9, False, "england"), (-700, 620, 500, 650, 0.7, False, "england")], 0.2, 4.5),
-                         label("1601 · JAMES LANCASTER", 700, 120, 0.4, 60, (255, 230, 150)),
+    out.append(scene("s03_lancaster", "plate:ocean", [P("zed", 1650, G, 1.7, flip=True, acts=[(at(L, 1), "celebrate", 0.5)])], L,
+                     fx=[label("1601 · JAMES LANCASTER", 700, 120, 0.4, 60, (255, 230, 150)),
                          PL_coins(1200, 980, at(L, 1), at(L, 1) + 1.5)]))
     L = ["E16", "E17"]
-    out.append(scene("s03_dutch", "m_spice", [P("quill", 1720, G, 1.6, flip=True)], L,
-                     fx=[flags_on("m_spice", [(128.2, -3.7), (127.4, 0.8), (129.9, -4.5), (106.8, -6.2)], "dutch", 1.2),
-                         label("DUTCH EAST INDIA COMPANY · 1602", 900, 110, 0.6, 56, (255, 190, 90)),
-                         pin("m_spice", 128.2, -3.7, "Amboyna, 1623", at(L, 1) + 0.6, (230, 120, 40)),
-                         arrow(900, 500, 160, 300, at(L, 1) + dur("E17") * 0.7)]))
+    out.append(scene("s03_dutch", "plate:spice", [P("quill", 1720, G, 1.6, flip=True)], L,
+                     fx=[label("THE SPICE ISLANDS", 900, 110, 0.4, 64, (255, 220, 120)),
+                         caption("Dutch East India Company, founded 1602", 1.2, at(L, 1)),
+                         caption("Amboyna, 1623", at(L, 1) + 0.4)]))
     # 4. ARRIVAL IN INDIA
     L = ["E18"]
-    out.append(scene("s04_mughal", "m_india", [P("penny", 1650, G, 1.6, flip=True)], L,
-                     fx=[label("THE MUGHAL EMPIRE", 760, 560, 0.6, 76, (255, 220, 120)), pin("m_india", 77.2, 28.6, "Delhi", 1.4),
-                         pin("m_india", 78.0, 27.2, "Agra", 1.8)]))
+    out.append(scene("s04_mughal", "plate:india", [P("penny", 1650, G, 1.6, flip=True)], L,
+                     fx=[label("THE MUGHAL EMPIRE", 760, 140, 0.6, 76, (255, 220, 120)), caption("India in the early 1600s", 1.4)]))
     L = ["E19", "E20"]
-    out.append(scene("s04_court", "palace2",
+    out.append(scene("s04_court", "plate:durbar",
                      [P("jahangir", 960, 860, 1.6, faces=[(0, {"mouth": "smile"})]),
                       P("merchant", 500, 980, 1.4, acts=[(1.0, "nod", 0.0)]),
                       P("roe", -200, 990, 1.4, walks=[(at(L, 1) - 0.3, 700)], speed=1.5, acts=[(at(L, 1) + 1.8, "present", None)]),
@@ -395,7 +392,7 @@ def shots():
                      fx=[icons_row([("cloth", "cotton"), ("cloth", "silk")], 300, 0.3),
                          arrow(*PROJ_or("m_world", 80, 20), *PROJ_or("m_world", 0, 50), 1.2, 1.0, (240, 190, 60))], follow=False))
     L = ["E23", "E24", "E25"]
-    out.append(scene("s04_army", "fort2",
+    out.append(scene("s04_army", "plate:fort",
                      [*PL_army("csepoy", 250, 990, 5, 1, 140, 0, 1.2, walk=(0.3, 500), speed=1.6),
                       P("pike", 1450, G, 1.8, flip=True, faces=[(0, {"brows": 1.0, "mouth": "o"})]),
                       P("penny", 1750, G + 10, 1.7, flip=True)],
@@ -406,39 +403,38 @@ def shots():
                      fx=[timeline([("1707", "Aurangzeb dies"), ("after", "Mughal power|weakens"), ("1700s", "regional rulers|grow stronger")], 0.4, 1.6)],
                      follow=False))
     L = ["E27", "E28"]
-    out.append(scene("s05_siraj", "palace2",
+    out.append(scene("s05_siraj", "plate:durbar",
                      [P("nawab", 960, 880, 1.7, faces=[(0, {"mouth": "smirk"}), (at(L, 1), {"brows": -1.0, "mouth": "frown"})],
                         acts=[(at(L, 1) + 0.3, "fold", None)]),
                       P("atlas", 1650, G, 1.7, flip=True)],
                      L, fx=[label("SIRAJ UD-DAULAH · NAWAB OF BENGAL, 1756", 960, 90, 0.4, 54, (255, 230, 150))]))
     L = ["E29", "E30", "E31"]
     sw = at(L, 0) + 1.0
-    out.append(scene("s05_capture", "fort2",
+    out.append(scene("s05_capture", "plate:fort",
                      [P("nawab", -300, 960, 1.5, walks=[(sw - 1.5, 820)], speed=2.0, acts=[(sw + 0.4, "celebrate", None)]),
                       *PL_army("sepoy", -900, 990, 4, 1, 140, 0, 1.2, walk=(sw - 1.6, 900), speed=2.0),
                       P("pike", 1500, G, 1.8, flip=True, faces=[(0, {"brows": 1.0, "mouth": "worried"})]),
                       P("penny", 1780, G + 10, 1.6, flip=True)],
-                     L, fx=[PL_flag(1600, 30, sw, invert=True), label("CALCUTTA · JUNE 1756", 420, 110, 0.3, 60)]))
+                     L, fx=[PL_flag(1660, 70, sw, invert=True, s=1.6), label("CALCUTTA · JUNE 1756", 420, 110, 0.3, 60)]))
     # 6. CLIVE AND THE SECRET DEAL
     L = ["E32"]
-    out.append(scene("s06_clive", "sea", [P("clive", 1500, 980, 1.6, flip=True, faces=[(0, {"mouth": "smirk"})])], L,
-                     fx=[ships([(-500, 560, 800, 600, 0.95, False, "company"), (-900, 640, 300, 660, 0.75, False, "company")], 0.2, 5.0),
-                         label("CLIVE'S SOLDIERS · WATSON'S FLEET", 960, 110, 1.0, 58, (255, 230, 150))], follow=False))
+    out.append(scene("s06_clive", "plate:ocean", [P("clive", 1500, 980, 1.6, flip=True, faces=[(0, {"mouth": "smirk"})])], L,
+                     fx=[label("CLIVE'S SOLDIERS · WATSON'S FLEET", 960, 110, 1.0, 58, (255, 230, 150))], follow=False))
     L = ["E33"]
     sw = at(L, 0) + 2.4
-    out.append(scene("s06_retake", "fort2",
+    out.append(scene("s06_retake", "plate:fort",
                      [P("clive", -250, 980, 1.6, speed=2.2, walks=[(sw - 2.0, 760)], acts=[(sw + 0.2, "point", None)]),
                       *PL_army("csepoy", -800, 990, 3, 1, 150, 0, 1.3, walk=(sw - 2.1, 900), speed=2.2),
                       P("quill", 1700, G, 1.7, flip=True)],
-                     L, fx=[PL_flag(1600, 30, sw), label("2 JANUARY 1757", 400, 110, 0.4, 64, (255, 230, 150))]))
+                     L, fx=[PL_flag(1660, 70, sw, s=1.6), label("2 JANUARY 1757", 400, 110, 0.4, 64, (255, 230, 150))]))
     L = ["E34"]
-    out.append(scene("s06_plotters", "palace2",
+    out.append(scene("s06_plotters", "plate:durbar",
                      [P("mir_jafar", 700, 900, 1.6, faces=[(0, {"mouth": "smirk", "brows": -0.4})], acts=[(1.4, "think", None)]),
                       P("jagat_seth", 1180, 900, 1.5, flip=True, faces=[(0, {"mouth": "smirk"})]),
                       P("penny", 1720, G, 1.5, flip=True)],
                      L, fx=[label("MIR JAFAR", 700, 300, dur("E34") * 0.45, 52), label("THE JAGAT SETH BANKERS", 1180, 300, dur("E34") * 0.7, 46)]))
     L = ["E35", "E36", "E37", "E38"]
-    out.append(scene("s06_deal", "tent",
+    out.append(scene("s06_deal", "plate:camp",
                      [P("mir_jafar", 520, 990, 1.8, faces=[(0, {"mouth": "smirk"})]),
                       P("clive", 1100, 990, 1.8, flip=True, faces=[(0, {"mouth": "smirk"})]),
                       P("zed", 820, 1040, 1.6), P("pike", 1500, G, 1.7, flip=True, faces=[(0, {"brows": 1.0, "mouth": "worried"})]),
@@ -447,21 +443,21 @@ def shots():
                      under=[PL_contract(900, 1010, at(L, 1) + 0.5, at(L, 2))]))
     # 7. PLASSEY
     L = ["E39"]
-    out.append(scene("s07_plassey", "plassey",
+    out.append(scene("s07_plassey", "plate:plassey",
                      [*PL_army("redcoat", 120, 640, 3, 2, 70, 36, 0.55), *PL_army("csepoy", 150, 712, 4, 2, 70, 36, 0.55),
                       *PL_army("sepoy", 980, 600, 12, 6, 70, 30, 0.5, flip=True), P("penny", 1720, G, 1.6, flip=True)],
                      L, fx=[label("PLASSEY · 23 JUNE 1757", 960, 100, 0.4, 76, (255, 230, 140))], follow=False))
     L = ["E40"]
     out.append(scene("s07_numbers", "card", [P("atlas", 1700, G, 1.6, flip=True)], L, fx=[bars(3000, 50000, 0.6)], follow=False))
     L = ["E41", "E42"]
-    out.append(scene("s07_rain", "plassey_rain",
+    out.append(scene("s07_rain", "plate:plassey_rain",
                      [P("pike", 520, 1040, 1.9, faces=[(0, {"brows": 1.0, "mouth": "worried"})], acts=[(0.3, "cower", 1.0)])], L,
                      under=[PL_cannon(330, 1000, False), PL_tarp(470, 1060, 640, 0.5), PL_cannon(1500, 900, True, fire_at=(0.4, 1.3), fizzle_after=2.0),
                             PL_cannon(1760, 960, True, fire_at=(0.8,), fizzle_after=2.0)],
                      fx=[PL_rain, label("the Nawab's guns fall silent", 1450, 160, 2.6, 52)]))
     L = ["E43", "E44"]
     sit = at(L, 0) + 1.2
-    out.append(scene("s07_betrayal", "plassey",
+    out.append(scene("s07_betrayal", "plate:plassey",
                      [*PL_army("sepoy", 800, 700, 7, 3, 105, 50, 0.85, flip=True, acts=[(sit, "sit", None)]),
                       P("mir_jafar", 1180, 900, 1.5, flip=True, faces=[(0, {"mouth": "smirk"})], acts=[(sit - 0.2, "fold", None)]),
                       P("nawab", 560, 930, 1.5, acts=[(at(L, 1) - 0.2, "double_take", 0.0)], walks=[(at(L, 1) + 1.2, -400)], speed=2.4),
@@ -469,18 +465,18 @@ def shots():
                      L, fx=[label("MIR JAFAR", 1180, 520, 0.4, 52)]))
     # 8. POLITICAL POWER
     L = ["E45", "E46"]
-    out.append(scene("s08_throne", "palace2",
+    out.append(scene("s08_throne", "plate:durbar",
                      [P("mir_jafar", 960, 890, 1.7, faces=[(0, {"mouth": "grin"}), (at(L, 1), {"brows": 1.0, "mouth": "worried"})]),
                       P("zed", 1650, G, 1.7, flip=True)],
                      L, under=[PL_shadow(960, 470, 0.8, at(L, 1) + dur("E46"))], fx=[PL_crown(960, 470, 0.2)]))
     L = ["E47"]
-    out.append(scene("s08_buxar", "plassey",
+    out.append(scene("s08_buxar", "plate:plassey",
                      [*PL_army("redcoat", 160, 700, 3, 2, 75, 40, 0.6), *PL_army("csepoy", 200, 780, 4, 2, 75, 40, 0.6),
                       *PL_army("sepoy", 1000, 640, 9, 5, 75, 34, 0.55, flip=True), P("penny", 1720, G, 1.5, flip=True)],
                      L, fx=[label("BUXAR · 1764", 960, 100, 0.4, 76, (255, 230, 140)),
                             label("Mir Qasim + Awadh + the Mughal emperor", 1250, 520, dur("E47") * 0.55, 46)], follow=False))
     L = ["E48", "E49", "E50"]
-    out.append(scene("s08_diwani", "palace2",
+    out.append(scene("s08_diwani", "plate:durbar",
                      [P("shah_alam", 960, 880, 1.6, faces=[(0, {"mouth": "smile"})], acts=[(1.0, "present", None)]),
                       P("clive", 560, 980, 1.6, faces=[(0, {"mouth": "grin"})], acts=[(1.6, "nod", 0.0)]),
                       P("zed", 1450, G, 1.7, flip=True), P("penny", 1760, G + 10, 1.6, flip=True)],
@@ -496,7 +492,7 @@ def shots():
     out.append(scene("s09_end", "card", [P("quill", 1700, G, 1.6, flip=True)], L,
                      fx=[timeline([("1857–58", "great uprising;|Crown takes over"), ("1874", "Company|dissolved")], 0.5, 2.6)], follow=False))
     L = ["E53", "E54"]
-    out.append(scene("s09_outro", "tabletop",
+    out.append(scene("s09_outro", "plate:bengal",
                      [P(k, 300 + i * 330, G, 1.6, flip=i > 2, faces=[(0, {"mouth": "grin" if k != "pike" else "worried"})])
                       for i, k in enumerate(["atlas", "penny", "quill", "zed", "pike"])],
                      L, extra=0.8))
