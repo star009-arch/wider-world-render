@@ -1427,7 +1427,7 @@ def shot_m_steppe_dawn():
         x, y = rng.uniform(40, 140), rng.uniform(200, 330)
         mg_ger(x, y, h(x, y), rng.uniform(2.5, 3.0), "white" if k % 2 else "grey", rng.uniform(-0.15, 0.15))
     for i, (x, y, z) in enumerate(smoke_at):
-        mg_smoke(x, y, z + 0.3, 16, 2.0, 0.22, (0.82, 0.78, 0.74), (-0.5, 0.08), seed=i * 3.1)
+        mg_smoke(x, y, z + 0.3, 14, 2.6, 0.12, (0.5, 0.47, 0.44), (-0.7, 0.1), seed=i * 3.1)
     mg_cart_ger(75, 225, h(75, 225), math.pi)
     for k in range(4):                                                          # camel train with felt-covered box carts
         x, y = -130 + k * 9.5, 222
@@ -1438,7 +1438,7 @@ def shot_m_steppe_dawn():
     mg_herd(-10, 230, 10, 12, 8, h, rng, 0.5)
     mg_flock(10, 205, 45, 14, 7, h, rng)
     h0 = h(-4, -20)
-    mg_camera([(0.0, (-6, -22, h0 + 2.4)), (1.0, (-2.5, -19.5, h0 + 2.3))], 30, [(0.0, (-20, 200, 6)), (1.0, (-16, 200, 6))])
+    mg_camera([(0.0, (-6, -22, h0 + 4.6)), (1.0, (-2.5, -19.5, h0 + 4.5))], 30, [(0.0, (-20, 200, 3.5)), (1.0, (-16, 200, 3.5))])
     mg_aerial(tuple(c * w for c, w in zip(info["haze"], (0.95, 0.97, 1.02))), 4500, 0.7)
     return sc
 
@@ -1501,13 +1501,22 @@ def shot_m_ger_inside():
         ib.seg((0.75 * math.cos(a), 0.2 + 0.75 * math.sin(a), 0), (0, 0.2, 1.35), 0.025, n=5)
     ib.lathe([(0.05, 0.62), (0.3, 0.68), (0.4, 0.85), (0.38, 1.02), (0.34, 1.05)], 20, (0, 0.2, 0))
     ib.finish("tripod", iron, True)
-    fire = mg_emit_mat("fire", (1.0, 0.33, 0.05), 2.2)
-    fb_ = MgB()
-    for k in range(5):
-        a = 2 * math.pi * k / 5
-        fb_.cyl((0.15 * math.cos(a), 0.2 + 0.15 * math.sin(a), 0.2), 0.09, 0.16, 8, r2=0.0)
-    fb_.cyl((0, 0.2, 0.08), 0.42, 0.06, 12)
+    fire = mg_emit_mat("fire", (1.0, 0.3, 0.04), 1.6)
+    ember = mg_emit_mat("ember", (0.9, 0.12, 0.02), 0.8)
+    rng_f = random.Random(4)
+    fb_, eb, lg = MgB(), MgB(), MgB()
+    for k in range(9):                                                          # tongues of flame, flickering heights
+        a = 2 * math.pi * k / 9 + rng_f.uniform(-0.3, 0.3)
+        rr = rng_f.uniform(0.0, 0.18)
+        hh = rng_f.uniform(0.12, 0.3)
+        fb_.cyl((rr * math.cos(a), 0.2 + rr * math.sin(a), 0.12 + hh / 2), rng_f.uniform(0.04, 0.08), hh / 2, 6, r2=0.0)
+    for k in range(5):                                                          # dung/wood fuel and embers
+        a = 2 * math.pi * k / 5 + 0.4
+        lg.seg((0.32 * math.cos(a), 0.2 + 0.32 * math.sin(a), 0.07), (0.05 * math.cos(a), 0.2 + 0.05 * math.sin(a), 0.16), 0.06, n=6)
+        eb.ico((0.18 * math.cos(a + 0.6), 0.2 + 0.18 * math.sin(a + 0.6), 0.06), 0.07, (1.2, 1, 0.6), 1)
     fb_.finish("fire", fire)
+    eb.finish("embers", ember)
+    lg.finish("fuel", mat("charred", (0.04, 0.03, 0.025), 0.9))
     light("POINT", (0, 0.2, 0.55), 260, (1.0, 0.5, 0.2), 0.25)
     mg_smoke(0, 0.2, 0.7, TOP - 0.4, 0.5, 0.35, (0.6, 0.58, 0.55), (0.0, -0.05), seed=1.0, speed=0.5)
     sunv = Vector((math.cos(math.radians(56)) * math.cos(math.radians(-55)), math.cos(math.radians(56)) * math.sin(math.radians(-55)),
@@ -1516,7 +1525,7 @@ def shot_m_ger_inside():
     mg_shaft((0, 0, TOP + 0.2), tuple(end), CR * 0.85, (1.0, 0.86, 0.62), 0.9)
     brocade = mg_nasij("brocade", (0.05, 0.07, 0.2))
     brocade2 = mg_nasij("brocade2", (0.35, 0.05, 0.04))
-    fur = mg_ph("fur", "curly_teddy_natural", 1.2, tint=(1.0, 0.92, 0.8), fb=(0.8, 0.75, 0.65))
+    fur = mg_ph("fur", "curly_teddy_natural", 3.5, tint=(0.95, 0.86, 0.72), bump=0.4, fb=(0.8, 0.75, 0.65))
     leather = mg_ph("leather", "brown_leather", 1.0, tint=(0.9, 0.7, 0.5), fb=(0.35, 0.22, 0.12))
 
     def polar(th, r, z=0.0):
@@ -1550,7 +1559,12 @@ def shot_m_ger_inside():
     for th in (195, 212, -8):
         x, y, _ = polar(th, R - 0.8)
         se.box((x, y, 0.18), (0.75, 0.42, 0.18), (0, 0, math.radians(th + 90)))
-    se.finish("seats", fur)
+    se.finish("seats", MG_M["grey"])
+    sk = MgB()
+    for th in (195, 212, -8):
+        x, y, _ = polar(th, R - 0.8)
+        sk.box((x, y, 0.38), (0.6, 0.36, 0.035), (0, 0, math.radians(th + 90)))
+    sk.finish("sheepskins", fur)
     kb = MgB()                                                                  # leather koumiss bag by the door
     x, y, _ = polar(-38, R - 0.55)
     kb.ico((x, y, 0.55), 0.32, (1, 0.8, 1.6), 2)
@@ -1884,8 +1898,8 @@ def shot_m_bukhara():
     mq.finish("mosque", brick)
     pq.finish("pishtaq", carved)
     dk.finish("arch", mat("darkarch", (0.05, 0.04, 0.03), 0.9))
-    for k, (x, y, r_) in enumerate(((35, 205, 14), (60, 222, 11), (15, 214, 9))):
-        mg_smoke(x, y, 6, 150, r_ * 1.8, 0.09, (0.22, 0.19, 0.17), (-0.2, 0.1), seed=k * 2.1, speed=0.5)
+    for k, (x, y, r_) in enumerate(((38, 208, 34), (12, 220, 24))):
+        mg_smoke(x, y, 4, 130, r_, 0.06, (0.3, 0.27, 0.24), (-0.28, 0.1), seed=k * 2.1, speed=0.5)
     mud = mg_rammed_mat("arkwall", (0.88, 0.74, 0.56), "clay_plaster", 0.35, 0.7)
     ak = MgB()                                                                  # the Ark: citadel walls on a high mound
     ak.frustum((-130, 150, -1), 55, 72, 44, 60, 15)
@@ -2403,7 +2417,7 @@ def shot_m_dadu_hall():
         pts = [(x + 0.56 * math.cos(t * 0.55), y + 0.56 * math.sin(t * 0.55), 0.6 + t * 0.2) for t in range(37)]
         gd.poly(pts, 0.12, 0.07, 6)
     gd.finish("dragons", gold)
-    mb = mg_ph("marble", "marble_01", 0.3, tint=(0.95, 0.93, 0.9), rough=0.5, fb=(0.85, 0.83, 0.8))
+    mb = noisy("whitemarble", (0.8, 0.79, 0.76), (0.9, 0.89, 0.86), 1.5, 0.3, 0.03)
     tp = MgB()                                                                  # throne dais: three marble tiers with balustrade
     for k in range(3):
         tp.box((0, 20.6 + k * 0.5, 0.25 + k * 0.5), (5.6 - k * 0.8, 3.0 - k * 0.5, 0.25 + k * 0.5))
@@ -2413,11 +2427,16 @@ def shot_m_dadu_hall():
     tp.box((2.8, 18.2, 2.25), (2.0, 0.07, 0.06))
     tp.finish("dais", mb)
     th = MgB()
-    th.box((0, 21.6, 2.05), (1.5, 0.75, 0.3))
-    th.box((0, 22.25, 2.9), (1.5, 0.12, 0.9))
-    for sx in (-1.45, 1.45):
-        th.box((sx, 21.6, 2.6), (0.1, 0.7, 0.3))
+    th.box((0, 21.7, 1.85), (1.9, 0.9, 0.35))                                 # wide gilt throne-couch on the top tier
+    th.box((0, 22.55, 2.9), (1.9, 0.14, 1.05))
+    th.box((0, 22.6, 4.05), (1.2, 0.1, 0.25))
+    for sx in (-1.85, 1.85):
+        th.box((sx, 21.7, 2.6), (0.14, 0.85, 0.42))
     th.finish("throne", gold)
+    cush = MgB()
+    cush.box((0, 21.6, 2.3), (1.7, 0.75, 0.12))
+    cush.box((0, 22.35, 2.85), (1.6, 0.1, 0.6))
+    cush.finish("throne_cushion", mg_nasij("throne_brocade", (0.4, 0.04, 0.03), (0.85, 0.6, 0.2), 6.0))
     sc_ = MgB()
     sc_.box((0, 23.3, 3.4), (3.6, 0.15, 2.6))
     sc_.finish("screen", mg_painted_mat("screenpaint", (0.08, 0.05, 0.04), (0.8, 0.58, 0.2), (0.6, 0.12, 0.08)))
