@@ -1,0 +1,356 @@
+{
+ "voices": {
+  "atlas": {
+   "id": "IKne3meq5aSn9XLyUdCD",
+   "name": "Charlie",
+   "settings": {
+    "stability": 0.42,
+    "similarity_boost": 0.8,
+    "style": 0.35,
+    "use_speaker_boost": true,
+    "speed": 1.0
+   }
+  },
+  "penny": {
+   "id": "pFZP5JQG7iQjIQuC4Bku",
+   "name": "Lily",
+   "settings": {
+    "stability": 0.5,
+    "similarity_boost": 0.8,
+    "style": 0.3,
+    "use_speaker_boost": true,
+    "speed": 0.97
+   }
+  },
+  "pike": {
+   "id": "TX3LPaxmHKxFdv7VOQHJ",
+   "name": "Liam",
+   "settings": {
+    "stability": 0.3,
+    "similarity_boost": 0.75,
+    "style": 0.55,
+    "use_speaker_boost": true,
+    "speed": 1.08
+   }
+  },
+  "quill": {
+   "id": "onwK4e9ZLuTAKqWW03F9",
+   "name": "Daniel",
+   "settings": {
+    "stability": 0.55,
+    "similarity_boost": 0.8,
+    "style": 0.25,
+    "use_speaker_boost": true,
+    "speed": 0.98
+   }
+  },
+  "zed": {
+   "id": "cgSgspJ2msm6clMCkdW9",
+   "name": "Jessica",
+   "settings": {
+    "stability": 0.42,
+    "similarity_boost": 0.8,
+    "style": 0.45,
+    "use_speaker_boost": true,
+    "speed": 1.02
+   }
+  }
+ },
+ "lines": [
+  {
+   "id": "G01",
+   "who": "penny",
+   "text": "More than four and a half thousand years ago, people in Egypt stacked millions of stone blocks into a mountain with almost perfectly straight sides."
+  },
+  {
+   "id": "G02",
+   "who": "atlas",
+   "text": "No steel tools. No cranes. No engines. Just copper tools, rope... and muscle."
+  },
+  {
+   "id": "G03",
+   "who": "penny",
+   "text": "And for nearly four thousand years, it was the tallest building made by human hands."
+  },
+  {
+   "id": "G04",
+   "who": "zed",
+   "text": "I would like to see the budget for that."
+  },
+  {
+   "id": "G05",
+   "who": "penny",
+   "text": "So would we. I'm Penny, this is Tiny Empires, and this is how the Egyptians built the Great Pyramids."
+  },
+  {
+   "id": "G06",
+   "who": "penny",
+   "text": "First, the empire behind them. Ancient Egypt was a long, thin kingdom wrapped around one river: the Nile."
+  },
+  {
+   "id": "G07",
+   "who": "atlas",
+   "text": "Every summer the Nile flooded and left rich black soil behind. That meant good harvests, extra food, and a population that could be organised for big projects."
+  },
+  {
+   "id": "G08",
+   "who": "penny",
+   "text": "At the top of it all stood the pharaoh, the king, who Egyptians believed was connected to the gods."
+  },
+  {
+   "id": "G09",
+   "who": "quill",
+   "text": "The pyramids belong to the period historians call the Old Kingdom, roughly forty-seven to forty-two centuries ago."
+  },
+  {
+   "id": "G10",
+   "who": "penny",
+   "text": "So why spend so much on a tomb? Because for the Egyptians, death was not the end. It was a journey."
+  },
+  {
+   "id": "G11",
+   "who": "quill",
+   "text": "A pharaoh's body was preserved, his tomb was filled with what he would need, and the whole monument was designed to help him reach the afterlife."
+  },
+  {
+   "id": "G12",
+   "who": "zed",
+   "text": "So the pyramid was... a launch pad."
+  },
+  {
+   "id": "G13",
+   "who": "penny",
+   "text": "In a way. Many scholars link its shape to the sun, and to the rays of light the king would rise along."
+  },
+  {
+   "id": "G14",
+   "who": "penny",
+   "text": "Egyptians did not build a perfect pyramid on their first try. They practised."
+  },
+  {
+   "id": "G15",
+   "who": "atlas",
+   "text": "Around twenty-six fifty BC, King Djoser built a step pyramid at Saqqara. Its design is credited to his architect, Imhotep. Six giant stone layers, stacked like a wedding cake."
+  },
+  {
+   "id": "G16",
+   "who": "penny",
+   "text": "Then came King Sneferu. His builders started one pyramid at a steep angle... and part-way up, they changed it to a gentler one."
+  },
+  {
+   "id": "G17",
+   "who": "pike",
+   "text": "So it's... bent?"
+  },
+  {
+   "id": "G18",
+   "who": "quill",
+   "text": "Today it's literally called the Bent Pyramid. Sneferu then built the Red Pyramid nearby, the first true smooth-sided pyramid that worked."
+  },
+  {
+   "id": "G19",
+   "who": "penny",
+   "text": "All that practice paid off for Sneferu's son. His name was Khufu."
+  },
+  {
+   "id": "G20",
+   "who": "penny",
+   "text": "Khufu chose the Giza plateau, a solid platform of limestone near the Nile. And he went big."
+  },
+  {
+   "id": "G21",
+   "who": "zed",
+   "text": "About two point three million blocks, by most estimates. On average, each one weighs about two and a half tonnes, and some weigh far more. The original height was about one hundred and forty-six metres."
+  },
+  {
+   "id": "G22",
+   "who": "atlas",
+   "text": "The base covers more than five hectares. And it's almost perfectly level, with its sides lined up very closely with north, south, east and west."
+  },
+  {
+   "id": "G23",
+   "who": "quill",
+   "text": "Ancient tradition says the work took about twenty years. And Khufu probably ruled for at least twenty-three years, so that fits."
+  },
+  {
+   "id": "G24",
+   "who": "pike",
+   "text": "Twenty years on one building? I can't finish a sandwich without dropping it."
+  },
+  {
+   "id": "G25",
+   "who": "penny",
+   "text": "For a long time, people imagined armies of slaves under whips. The evidence tells a different story."
+  },
+  {
+   "id": "G26",
+   "who": "atlas",
+   "text": "Right next to the pyramids, archaeologists found a whole workers' town, with bakeries, kitchens and storerooms."
+  },
+  {
+   "id": "G27",
+   "who": "quill",
+   "text": "They also found the workers' own tombs, close to the king's monument. That is an honour you don't usually give to slaves."
+  },
+  {
+   "id": "G28",
+   "who": "penny",
+   "text": "Most experts now think the builders were organised crews of Egyptian workers, fed with bread, beer and meat, and rotated in and out of the site."
+  },
+  {
+   "id": "G29",
+   "who": "zed",
+   "text": "The crews even had team names. Some inscriptions call them things like \"Friends of Khufu\"."
+  },
+  {
+   "id": "G30",
+   "who": "pike",
+   "text": "Okay, that's a better team name than ours."
+  },
+  {
+   "id": "Y01",
+   "who": "penny",
+   "text": "So what was a day like for a pyramid builder?"
+  },
+  {
+   "id": "Y02",
+   "who": "atlas",
+   "text": "It started in a workers' town at the edge of the desert. Bread and beer were the basics. The beer was weak, but filling, almost like a food."
+  },
+  {
+   "id": "Y03",
+   "who": "zed",
+   "text": "Archaeologists found bakeries that baked bread in big bell-shaped pots, and piles of cattle, sheep and goat bones. These crews were well fed, with plenty of meat."
+  },
+  {
+   "id": "Y04",
+   "who": "quill",
+   "text": "Workers were organised into crews, and crews into smaller groups, each with its own name. Some of those names were painted on blocks hidden inside the pyramids."
+  },
+  {
+   "id": "Y05",
+   "who": "pike",
+   "text": "Did anyone get hurt?"
+  },
+  {
+   "id": "Y06",
+   "who": "penny",
+   "text": "Yes. Skeletons from the workers' cemetery show worn-out backs and joints, and broken bones that had been set and healed. Someone was looking after them."
+  },
+  {
+   "id": "Y07",
+   "who": "atlas",
+   "text": "And many were buried close to the pyramids, with jars of bread and beer for the afterlife."
+  },
+  {
+   "id": "Y08",
+   "who": "pike",
+   "text": "Bread and beer, even after you die. Okay, that's a good deal."
+  },
+  {
+   "id": "G31",
+   "who": "penny",
+   "text": "Most of the stone was quarried right there at Giza. But the finest stone came from much further away."
+  },
+  {
+   "id": "G32",
+   "who": "atlas",
+   "text": "The bright white casing came from Tura, across the river. And huge granite beams for the king's burial chamber came from Aswan, hundreds of kilometres to the south."
+  },
+  {
+   "id": "G33",
+   "who": "quill",
+   "text": "And here's the best part. In twenty thirteen, archaeologists found papyrus scrolls by the Red Sea. They're the oldest papyri with writing ever found."
+  },
+  {
+   "id": "G34",
+   "who": "penny",
+   "text": "One of them is the logbook of an official named Merer. He describes his team ferrying limestone from Tura down to Giza by boat, using canals and the flooded Nile."
+  },
+  {
+   "id": "G35",
+   "who": "zed",
+   "text": "A delivery driver's diary... from four and a half thousand years ago."
+  },
+  {
+   "id": "G36",
+   "who": "penny",
+   "text": "Getting the blocks to Giza was one problem. Getting them up was another."
+  },
+  {
+   "id": "G37",
+   "who": "atlas",
+   "text": "Blocks were dragged on wooden sledges. A later Egyptian tomb painting shows a worker pouring water in front of a sledge carrying a giant statue."
+  },
+  {
+   "id": "G38",
+   "who": "zed",
+   "text": "Scientists tested it. Wetting the sand in the right amount can roughly halve the force needed to pull a heavy sledge."
+  },
+  {
+   "id": "G39",
+   "who": "penny",
+   "text": "Then the blocks went up ramps. But exactly what kind of ramps is still debated: straight ones, ramps zig-zagging up the sides, or even a ramp spiralling inside the pyramid."
+  },
+  {
+   "id": "G40",
+   "who": "quill",
+   "text": "In twenty eighteen, archaeologists found a steep ramp at an ancient alabaster quarry, with stairs and post holes for hauling, dating to Khufu's time."
+  },
+  {
+   "id": "G41",
+   "who": "pike",
+   "text": "So the answer is... ramps. Lots of ramps."
+  },
+  {
+   "id": "G42",
+   "who": "penny",
+   "text": "Lots of ramps. And lots of very tired people."
+  },
+  {
+   "id": "G43",
+   "who": "penny",
+   "text": "When it was finished, the Great Pyramid was covered in polished white limestone that would have shone in the sun. Most of that casing was taken away much later, much of it to build medieval Cairo."
+  },
+  {
+   "id": "Z01",
+   "who": "penny",
+   "text": "And Giza was never a lonely pyramid in empty sand. It was a busy royal city of the dead."
+  },
+  {
+   "id": "Z02",
+   "who": "atlas",
+   "text": "Around the pyramid stood rows of stone tombs for officials and royal relatives, and three small pyramids for queens."
+  },
+  {
+   "id": "Z03",
+   "who": "quill",
+   "text": "There were also pits for full-size boats. One was found in nineteen fifty-four, taken apart into more than a thousand pieces. Rebuilt, it's about forty-three metres long."
+  },
+  {
+   "id": "Z04",
+   "who": "zed",
+   "text": "And at the edge of the desert, it seems, a harbour basin linked to the Nile, so boats could unload stone right at the foot of the plateau."
+  },
+  {
+   "id": "Z05",
+   "who": "pike",
+   "text": "Express delivery. Four and a half thousand years before parcels."
+  },
+  {
+   "id": "G44",
+   "who": "atlas",
+   "text": "Khufu's son Khafre and later King Menkaure built two more pyramids beside it. And the Great Sphinx is usually linked to Khafre."
+  },
+  {
+   "id": "G45",
+   "who": "quill",
+   "text": "The Great Pyramid stayed the tallest human-made structure for nearly four thousand years. And it's the only one of the Seven Wonders of the Ancient World still standing."
+  },
+  {
+   "id": "G46",
+   "who": "penny",
+   "text": "Not bad for some rope, some ramps, and a lot of bread. Next time on Tiny Empires: from the oldest wonder of the ancient world... to the largest connected land empire in history. How the Mongols conquered almost everything."
+  }
+ ]
+}

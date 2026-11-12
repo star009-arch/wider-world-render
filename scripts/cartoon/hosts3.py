@@ -149,6 +149,11 @@ def head_atlas(d, cx, cy, u, face, k):
             continue
         ex = cx + side * R * 0.98 * (1 - 0.25 * abs(k)) - k * 0.25 * u
         ell(d, ex, cy + 0.15 * u, 0.32 * u, 0.42 * u, shade(skin, 0.92))
+    if C("atlas", "hat") == "headcloth":                                        # lappets falling behind the face
+        for side in (-1, 1):
+            x0 = cx + side * R * 0.75
+            d.polygon([(x0 - 0.55 * u, cy - R * 0.3), (x0 + 0.55 * u, cy - R * 0.3), (x0 + side * 0.25 * u + 0.5 * u, cy + R * 1.25),
+                       (x0 + side * 0.25 * u - 0.5 * u, cy + R * 1.25)], fill=shade(LINEN, 0.9), outline=LINE)
     d.ellipse([cx - R * 1.05 - OUT, cy - R * 0.95 - OUT, cx + R * 1.05 + OUT, cy + R * 1.05 + OUT], fill=LINE)    # hair back
     d.ellipse([cx - R * 1.05, cy - R * 0.95, cx + R * 1.05, cy + R * 1.05], fill=hair)
     shaded_ell(d, cx + k * 0.12 * u, cy + 0.12 * u, R * (1 - 0.08 * abs(k)), R * 1.02, skin, 1 if k >= 0 else -1)
@@ -163,6 +168,12 @@ def head_atlas(d, cx, cy, u, face, k):
         if abs(k) < 0.85 or side * k > 0:
             d.ellipse([fx + side * 0.95 * u - 0.25 * u, cy + 0.6 * u, fx + side * 0.95 * u + 0.25 * u, cy + 0.85 * u], fill=(240, 166, 150))
     mouth(d, fx + k * 0.25 * u, cy + 1.05 * u, u, face.mouth, k)
+    if C("atlas", "hat") == "headcloth":                                        # plain white linen headcloth
+        top = cy - R * 0.62
+        d.chord([cx - R * 1.1 - OUT, cy - R * 1.12 - OUT, cx + R * 1.1 + OUT, cy + R * 0.5 + OUT], 180, 360, fill=LINE)
+        d.chord([cx - R * 1.1, cy - R * 1.12, cx + R * 1.1, cy + R * 0.5], 180, 360, fill=LINEN)
+        d.line([(cx - R * 1.0, cy - R * 0.32), (cx + R * 1.0, cy - R * 0.32)], fill=shade(LINEN, 0.8), width=max(4, int(0.12 * u)))
+        return
     hat, band = (212, 184, 134), (138, 100, 62)                                 # pith helmet
     top = cy - R * 0.62
     d.ellipse([cx - R * 1.75 - OUT, top - 0.42 * u - OUT, cx + R * 1.75 + OUT, top + 0.42 * u + OUT], fill=LINE)
@@ -190,6 +201,15 @@ def head_pike(d, cx, cy, u, face, k):
             d.ellipse([fx + side * 0.75 * u - 0.24 * u, cy + 0.6 * u, fx + side * 0.75 * u + 0.24 * u, cy + 0.86 * u], fill=(240, 150, 140))
     ell(d, fx + k * 0.45 * u, cy + 0.55 * u, 0.16 * u, 0.15 * u, shade(skin, 0.9), w=3)
     mouth(d, fx + k * 0.2 * u, cy + 0.95 * u, u, face.mouth, k, sz=0.85)
+    if C("pike", "hat") == "wig":                                               # short black wig, no helmet (Old Kingdom troops)
+        wig = (30, 26, 26)
+        d.chord([cx - R * 1.12 - OUT, cy - R * 1.2 - OUT, cx + R * 1.12 + OUT, cy + R * 0.55 + OUT], 180, 360, fill=LINE)
+        d.chord([cx - R * 1.12, cy - R * 1.2, cx + R * 1.12, cy + R * 0.55], 180, 360, fill=wig)
+        for side in (-1, 1):
+            if side * k > 0.5:
+                continue
+            d.rectangle([cx + side * R * 0.82 - 0.3 * u, cy - R * 0.4, cx + side * R * 0.82 + 0.3 * u, cy + R * 0.25], fill=wig)
+        return
     d.arc([cx - R * 0.98 + k * 0.1 * u, cy - R * 0.9, cx + R * 0.98 + k * 0.1 * u, cy + R * 1.18], 15, 165, fill=(214, 180, 80), width=max(4, int(0.09 * u)))
     fur = (34, 32, 36)                                                          # bearskin cap
     bx0, bx1, by0, by1 = cx - R * 1.1, cx + R * 1.1, cy - R * 3.25, cy - R * 0.2
@@ -226,7 +246,7 @@ HEADS = {"atlas": (head_atlas, 9.0), "pike": (head_pike, 10.0), "zed": (head_zed
 
 
 @lru_cache(maxsize=6000)
-def head_sprite(key, face, kq, u):
+def head_sprite(key, face, kq, u, world="default"):
     fn, size = HEADS[key]
     W = int(size * u)
     im = Image.new("RGBA", (W, W), (0, 0, 0, 0))
@@ -247,6 +267,11 @@ def prop(d, kind, x, y, u, f):
     elif kind == "cane":
         d.line([(x, y - 0.4 * u), (x + f * 0.1 * u, y + 5.2 * u)], fill=LINE, width=int(0.32 * u))
         d.arc([x - 0.5 * u, y - 0.9 * u, x + 0.5 * u, y + 0.1 * u], 180, 360, fill=LINE, width=int(0.32 * u))
+    elif kind == "spear":
+        d.line([(x - f * 0.2 * u, y + 2.2 * u), (x + f * 0.3 * u, y - 4.4 * u)], fill=(120, 84, 48), width=int(0.24 * u))
+        d.polygon([(x + f * 0.3 * u, y - 4.4 * u), (x + f * 0.15 * u, y - 3.7 * u), (x + f * 0.55 * u, y - 3.75 * u)], fill=(184, 115, 51), outline=LINE)
+    elif kind == "staff":
+        d.line([(x, y - 0.6 * u), (x + f * 0.05 * u, y + 5.0 * u)], fill=(110, 78, 44), width=int(0.26 * u))
     elif kind == "rifle":
         d.line([(x - f * 0.3 * u, y + 2.0 * u), (x + f * 0.4 * u, y - 4.6 * u)], fill=(40, 40, 46), width=int(0.34 * u))
         d.line([(x - f * 0.35 * u, y + 2.4 * u), (x - f * 0.05 * u, y + 0.2 * u)], fill=(92, 60, 36), width=int(0.6 * u))
@@ -290,6 +315,48 @@ BUILD = {"atlas": Build(leg=1.55, torso=3.3, sw=1.45, upper=1.35, fore=1.3, head
 
 KEYS = ("penny", "atlas", "quill", "zed", "pike")
 
+# ------------------------------------------------------------------------------------------------ period costumes
+# Each episode's world dresses the hosts in period clothing (visual bibles in projects/tiny-empires/visual_bibles/);
+# faces, proportions and silhouettes stay the same. Unlisted fields fall back to the default design.
+SKIN_A, SKIN_P = (242, 204, 166), (246, 210, 182)
+LINEN = (244, 240, 230)
+COSTUMES = {
+    "default": {},
+    "egypt_ok": {                                   # Old Kingdom Egypt, c. 2600 BC (01_egypt_old_kingdom_2600BC.md)
+        "atlas": {"hat": "headcloth", "torso": "bare_kilt", "arms": (SKIN_A, SKIN_A), "legs": (LINEN, SKIN_A), "feet": SKIN_A, "socks": False,
+                  "collar": True},
+        "pike": {"hat": "wig", "torso": "bare_kilt", "arms": (SKIN_P, SKIN_P), "cuff": None, "legs": (LINEN, SKIN_P), "feet": SKIN_P,
+                 "collar": False},
+        "penny": {"hat": "nemes", "tie": "collar"},
+        "quill": {"hat": "none", "collar": True},
+        "zed": {"collar": True},
+        "props": {"rifle": "spear", "map": "scroll", "cane": "staff", "chart": "scroll"},
+    },
+}
+WORLD = "default"
+
+
+def set_world(name):
+    """Switch every host into a world's costumes (clears the sprite caches)."""
+    global WORLD
+    assert name in COSTUMES, name
+    WORLD = name
+    head_sprite.cache_clear()
+    torso_sprite.cache_clear()
+
+
+def C(key, field, default=None):
+    return COSTUMES[WORLD].get(key, {}).get(field, default)
+
+
+def collar(d, cx, cy, rx, u, n=3):
+    """Broad collar (wesekh): bands of faience blue-green, gold and carnelian beads."""
+    cols = [(47, 163, 154), (212, 165, 55), (181, 69, 43), (47, 163, 154)]
+    for i in range(n, -1, -1):
+        r = rx * (0.55 + 0.15 * i)
+        d.chord([cx - r - 3, cy - r * 0.55 - 3, cx + r + 3, cy + r * 0.55 + 3], 0, 180, fill=LINE)
+        d.chord([cx - r, cy - r * 0.55, cx + r, cy + r * 0.55], 0, 180, fill=cols[i % len(cols)])
+
 
 def leg_len(key):
     return BUILD[key].leg
@@ -320,13 +387,15 @@ def draw(key, p, s=1.0, flip=False, view=0.6):
     def draw_leg(hp, knee, ankle, back):
         dk = 0.85 if back else 1.0
         if key == "atlas":                                                      # khaki shorts, bare shins, socks, boots
-            limb(d, [hp, knee, ankle], [b.leg_w * u, 0.62 * u], [shade((190, 166, 120), dk), shade((242, 204, 166), dk)])
-            sx, sy = _down(*ankle, 180, 0.35 * u, f)
-            limb(d, [(ankle[0], ankle[1] - 0.4 * u), ankle], [0.7 * u], [shade((236, 228, 210), dk)])
-            boot = shade((112, 72, 42), dk)
+            lc = C("atlas", "legs", ((190, 166, 120), (242, 204, 166)))
+            limb(d, [hp, knee, ankle], [b.leg_w * u, 0.62 * u], [shade(lc[0], dk), shade(lc[1], dk)])
+            if C("atlas", "socks", True):
+                limb(d, [(ankle[0], ankle[1] - 0.4 * u), ankle], [0.7 * u], [shade((236, 228, 210), dk)])
+            boot = shade(C("atlas", "feet", (112, 72, 42)), dk)
         elif key == "pike":
-            limb(d, [hp, knee, ankle], [b.leg_w * u, 0.72 * u], [shade((40, 40, 48), dk)] * 2)
-            boot = (24, 24, 28)
+            lc = C("pike", "legs", ((40, 40, 48), (40, 40, 48)))
+            limb(d, [hp, knee, ankle], [b.leg_w * u, 0.72 * u], [shade(lc[0], dk), shade(lc[1], dk)])
+            boot = shade(C("pike", "feet", (24, 24, 28)), dk)
         elif key == "zed":
             limb(d, [hp, knee, ankle], [b.leg_w * u, 0.75 * u], [shade((134, 204, 60), dk)] * 2)
             boot = shade((134, 204, 60), dk)
@@ -360,12 +429,16 @@ def draw(key, p, s=1.0, flip=False, view=0.6):
         elbow = _down(*sh_pt, sh, b.upper * u, fdir)
         hand = _down(*elbow, sh + el, b.fore * u, fdir)
         dk = 0.84 if back else 1.0
+        prop_kind = COSTUMES[WORLD].get("props", {}).get(prop_kind, prop_kind) if prop_kind else prop_kind
         if key == "atlas":
-            limb(d, [sh_pt, elbow, hand], [b.arm_w * u, 0.5 * u], [shade((214, 190, 142), dk), shade((242, 204, 166), dk)])
+            ac = C("atlas", "arms", ((214, 190, 142), (242, 204, 166)))
+            limb(d, [sh_pt, elbow, hand], [b.arm_w * u, 0.5 * u], [shade(ac[0], dk), shade(ac[1], dk)])
             glove = shade((242, 204, 166), dk)
         elif key == "pike":
             cuff = _down(*elbow, sh + el, b.fore * u * 0.75, fdir)
-            limb(d, [sh_pt, elbow, cuff, hand], [b.arm_w * u, 0.56 * u, 0.6 * u], [shade((206, 52, 38), dk), shade((206, 52, 38), dk), (30, 30, 36)])
+            ac = C("pike", "arms", ((206, 52, 38), (206, 52, 38)))
+            cc = C("pike", "cuff", (30, 30, 36)) if "cuff" not in COSTUMES[WORLD].get("pike", {}) else C("pike", "cuff")
+            limb(d, [sh_pt, elbow, cuff, hand], [b.arm_w * u, 0.56 * u, 0.6 * u], [shade(ac[0], dk), shade(ac[1], dk), shade(cc or ac[1], dk)])
             glove = shade((246, 210, 182), dk)
         elif key == "zed":
             limb(d, [sh_pt, elbow, hand], [b.arm_w * u, 0.55 * u], [shade((150, 220, 70), dk)] * 2)
@@ -403,23 +476,41 @@ def draw(key, p, s=1.0, flip=False, view=0.6):
         mouth(d, fx + k * 0.15 * u, cy + 0.75 * u, u, p.face.mouth, k, sz=1.35)
         bx, by = fx, cy + R * 0.62                                              # bow tie
         bw = 0.85 * u * (1 - 0.3 * v)
-        d.polygon([(bx, by), (bx - bw, by - 0.42 * u), (bx - bw, by + 0.42 * u)], fill=(28, 30, 36), outline=LINE)
-        d.polygon([(bx, by), (bx + bw, by - 0.42 * u), (bx + bw, by + 0.42 * u)], fill=(28, 30, 36), outline=LINE)
-        ell(d, bx, by, 0.2 * u, 0.2 * u, (40, 44, 52), w=3)
-        hat, band = (36, 58, 70), (214, 184, 96)                                # top hat, tilted
-        hs = Image.new("RGBA", (int(6 * u), int(6 * u)), (0, 0, 0, 0))
-        hd = ImageDraw.Draw(hs)
-        ox, oy = 3 * u, 5 * u
-        hd.rounded_rectangle([ox - 1.25 * u - OUT, oy - 3.6 * u - OUT, ox + 1.25 * u + OUT, oy + OUT], radius=0.25 * u, fill=LINE)
-        hd.rounded_rectangle([ox - 1.25 * u, oy - 3.6 * u, ox + 1.25 * u, oy], radius=0.25 * u, fill=hat)
-        hd.rectangle([ox - 1.25 * u, oy - 1.0 * u, ox + 1.25 * u, oy - 0.45 * u], fill=band)
-        hd.rectangle([ox - 0.85 * u, oy - 3.4 * u, ox - 0.5 * u, oy - 1.1 * u], fill=tint(hat, 0.25))
-        hd.ellipse([ox - 2.2 * u - OUT, oy - 0.35 * u - OUT, ox + 2.2 * u + OUT, oy + 0.35 * u + OUT], fill=LINE)
-        hd.ellipse([ox - 2.2 * u, oy - 0.35 * u, ox + 2.2 * u, oy + 0.35 * u], fill=shade(hat, 0.9))
-        hs, (px, py) = rot_sprite(hs, (ox, oy), 14 * f)
-        tx, ty = cx + f * 0.4 * u, cy - R * 0.92
-        im.alpha_composite(hs, (int(tx - px), int(ty - py)))
-        arm(body_pt(f * (R * wf + 0.15 * u), -R * 0.8), p.sh_l, p.el_l, p.prop_l, False)
+        if C("penny", "tie") == "collar":
+            collar(d, bx, by - 0.2 * u, 1.4 * u * (1 - 0.2 * v), u)
+            bw = 0
+        if bw:
+            d.polygon([(bx, by), (bx - bw, by - 0.42 * u), (bx - bw, by + 0.42 * u)], fill=(28, 30, 36), outline=LINE)
+            d.polygon([(bx, by), (bx + bw, by - 0.42 * u), (bx + bw, by + 0.42 * u)], fill=(28, 30, 36), outline=LINE)
+            ell(d, bx, by, 0.2 * u, 0.2 * u, (40, 44, 52), w=3)
+        if C("penny", "hat") == "nemes":                                        # striped royal headcloth over the coin
+            hx0, hy0, hw = cx, cy - R * 0.98, R * wf * 1.0
+            pts = [(hx0 - hw * 1.05, hy0 + R * 0.75), (hx0 - hw * 0.8, hy0 - R * 0.2), (hx0, hy0 - R * 0.38), (hx0 + hw * 0.8, hy0 - R * 0.2),
+                   (hx0 + hw * 1.05, hy0 + R * 0.75), (hx0 + hw * 0.78, hy0 + R * 0.3), (hx0 - hw * 0.78, hy0 + R * 0.3)]
+            d.polygon(pts, fill=(212, 165, 55), outline=LINE)
+            for i in range(1, 6):
+                yy = hy0 - R * 0.3 + i * R * 0.14
+                d.line([(hx0 - hw * 0.95, yy), (hx0 + hw * 0.95, yy)], fill=(47, 100, 154), width=max(4, int(0.12 * u)))
+            d.line([(hx0 - hw * 0.78, hy0 + R * 0.3), (hx0 + hw * 0.78, hy0 + R * 0.3)], fill=LINE, width=4)
+            arm(body_pt(f * (R * wf + 0.15 * u), -R * 0.8), p.sh_l, p.el_l, p.prop_l, False)
+            hat = None
+        if C("penny", "hat") == "nemes":
+            pass
+        else:
+          hat, band = (36, 58, 70), (214, 184, 96)                              # top hat, tilted
+          hs = Image.new("RGBA", (int(6 * u), int(6 * u)), (0, 0, 0, 0))
+          hd = ImageDraw.Draw(hs)
+          ox, oy = 3 * u, 5 * u
+          hd.rounded_rectangle([ox - 1.25 * u - OUT, oy - 3.6 * u - OUT, ox + 1.25 * u + OUT, oy + OUT], radius=0.25 * u, fill=LINE)
+          hd.rounded_rectangle([ox - 1.25 * u, oy - 3.6 * u, ox + 1.25 * u, oy], radius=0.25 * u, fill=hat)
+          hd.rectangle([ox - 1.25 * u, oy - 1.0 * u, ox + 1.25 * u, oy - 0.45 * u], fill=band)
+          hd.rectangle([ox - 0.85 * u, oy - 3.4 * u, ox - 0.5 * u, oy - 1.1 * u], fill=tint(hat, 0.25))
+          hd.ellipse([ox - 2.2 * u - OUT, oy - 0.35 * u - OUT, ox + 2.2 * u + OUT, oy + 0.35 * u + OUT], fill=LINE)
+          hd.ellipse([ox - 2.2 * u, oy - 0.35 * u, ox + 2.2 * u, oy + 0.35 * u], fill=shade(hat, 0.9))
+          hs, (px, py) = rot_sprite(hs, (ox, oy), 14 * f)
+          tx, ty = cx + f * 0.4 * u, cy - R * 0.92
+          im.alpha_composite(hs, (int(tx - px), int(ty - py)))
+          arm(body_pt(f * (R * wf + 0.15 * u), -R * 0.8), p.sh_l, p.el_l, p.prop_l, False)
     elif key == "quill":
         cx, cy = hx, hip_y - 2.6 * u
         br, belly = (132, 92, 58), (238, 222, 190)
@@ -447,22 +538,25 @@ def draw(key, p, s=1.0, flip=False, view=0.6):
         nb = fcx + k * 0.6 * u
         d.polygon([(nb - 0.36 * u, cy - 0.25 * u), (nb + 0.36 * u, cy - 0.25 * u), (nb + k * 0.4 * u, cy + (0.95 if open_ else 0.7) * u)],
                   fill=(238, 170, 52), outline=LINE)
-        mb = (30, 30, 36)                                                       # mortarboard and tassel
-        d.chord([cx - 1.7 * u, cy - 4.3 * u, cx + 1.7 * u, cy - 2.4 * u], 180, 360, fill=mb, outline=LINE, width=OUT)
-        d.polygon([(cx - 2.6 * u, cy - 3.75 * u), (cx + 0.2 * u, cy - 4.55 * u), (cx + 2.6 * u, cy - 3.75 * u), (cx - 0.2 * u, cy - 3.0 * u)],
-                  fill=mb, outline=LINE)
-        d.line([(cx, cy - 3.78 * u), (cx - f * 2.1 * u, cy - 3.6 * u), (cx - f * 2.2 * u, cy - 2.4 * u)], fill=(222, 182, 60), width=int(0.13 * u))
-        ell(d, cx - f * 2.2 * u, cy - 2.25 * u, 0.2 * u, 0.25 * u, (222, 182, 60), w=3)
+        if C("quill", "collar"):
+            collar(d, bx, cy + 0.35 * u, 1.7 * u * (1 - 0.25 * v), u)
+        if C("quill", "hat", "mortarboard") == "mortarboard":
+            mb = (30, 30, 36)                                                   # mortarboard and tassel
+            d.chord([cx - 1.7 * u, cy - 4.3 * u, cx + 1.7 * u, cy - 2.4 * u], 180, 360, fill=mb, outline=LINE, width=OUT)
+            d.polygon([(cx - 2.6 * u, cy - 3.75 * u), (cx + 0.2 * u, cy - 4.55 * u), (cx + 2.6 * u, cy - 3.75 * u), (cx - 0.2 * u, cy - 3.0 * u)],
+                      fill=mb, outline=LINE)
+            d.line([(cx, cy - 3.78 * u), (cx - f * 2.1 * u, cy - 3.6 * u), (cx - f * 2.2 * u, cy - 2.4 * u)], fill=(222, 182, 60), width=int(0.13 * u))
+            ell(d, cx - f * 2.2 * u, cy - 2.25 * u, 0.2 * u, 0.25 * u, (222, 182, 60), w=3)
         arm(body_pt(f * 2.75 * u * (1 - 0.12 * v), -1.7 * u), p.sh_l, p.el_l, p.prop_l, False)
     else:
         if v >= 0.3:
             arm(bk_sh, p.sh_r, p.el_r, p.prop_r, True)
-        tor, piv = torso_sprite(key, round(lean), round(u, 2), round(k, 1))
+        tor, piv = torso_sprite(key, round(lean), round(u, 2), round(k, 1), WORLD)
         im.alpha_composite(tor, (int(hx - piv[0]), int(hip_y - piv[1])))
         if v < 0.3:
             arm(bk_sh, p.sh_r, p.el_r, p.prop_r, True)
         hang = round(lean + p.head * f)
-        spr, ox, oy = head_sprite(key, p.face, round(k * 10), round(u, 2))
+        spr, ox, oy = head_sprite(key, p.face, round(k * 10), round(u, 2), WORLD)
         spr, (ox, oy) = rot_sprite(spr, (ox, oy), hang)
         hdx, hdy = _rot(0, -b.head_up * u, hang)
         im.alpha_composite(spr, (int(neck[0] + hdx - ox), int(neck[1] + hdy - oy)))
@@ -487,7 +581,7 @@ def draw(key, p, s=1.0, flip=False, view=0.6):
 
 
 @lru_cache(maxsize=2048)
-def torso_sprite(key, ang, u, k):
+def torso_sprite(key, ang, u, k, world="default"):
     """Human/alien torso drawn upright for view k, rotated about the hip; returns (image, (hip x, hip y))."""
     b = BUILD[key]
     T = b.torso * u
@@ -504,6 +598,26 @@ def torso_sprite(key, ang, u, k):
         g = (150, 220, 70)
         shaded_ell(d, hx, hy - T * 0.42, sw * 1.05, T * 0.62, g, f)
         d.ellipse([hx + k * 0.35 * u - sw * 0.62, hy - T * 0.62, hx + k * 0.35 * u + sw * 0.62, hy + 0.05 * u], fill=(206, 242, 150))
+        if COSTUMES[world].get("zed", {}).get("collar"):
+            collar(d, hx + k * 0.3 * u, hy - T * 0.98, sw * 0.9, u)
+        return rot_sprite(im, (hx, hy), ang)
+    cs = COSTUMES[world].get(key, {})
+    if cs.get("torso") == "bare_kilt":                                          # bare chest, linen kilt, optional broad collar
+        skin = cs["arms"][1]
+        body = [(hx - sw * 0.88, top), (hx + sw * 0.88, top), (hx + sw * 0.95, top + 0.5 * u), (hx + sw * 0.82, hy + 0.2 * u),
+                (hx - sw * 0.82, hy + 0.2 * u), (hx - sw * 0.95, top + 0.5 * u)]
+        d.polygon([(x + (OUT if x > hx else -OUT), y + (OUT if y > hy - T / 2 else -OUT)) for x, y in body], fill=LINE)
+        d.polygon(body, fill=skin)
+        d.polygon([(hx - f * sw * 0.95, top + 0.5 * u), (hx - f * sw * 0.82, hy + 0.2 * u), (hx - f * sw * 0.45, hy + 0.2 * u),
+                   (hx - f * sw * 0.55, top + 0.3 * u)], fill=shade(skin, 0.88))
+        kt = hy - 0.9 * u                                                       # kilt from the waist down
+        d.rectangle([hx - sw * 0.9, kt, hx + sw * 0.9, hy + 0.35 * u], fill=LINEN, outline=LINE, width=4)
+        for i in range(1, 6):
+            xx = hx - sw * 0.9 + i * sw * 0.3
+            d.line([(xx, kt + 0.2 * u), (xx + k * 0.1 * u, hy + 0.3 * u)], fill=shade(LINEN, 0.82), width=3)
+        d.rectangle([hx - sw * 0.92, kt - 0.15 * u, hx + sw * 0.92, kt + 0.15 * u], fill=shade(LINEN, 0.9), outline=LINE, width=3)
+        if cs.get("collar"):
+            collar(d, hx + k * 0.3 * u, top + 0.1 * u, sw * 0.95, u)
         return rot_sprite(im, (hx, hy), ang)
     col = {"atlas": (214, 190, 142), "pike": (206, 52, 38)}[key]
     body = [(hx - sw * 0.92, top), (hx + sw * 0.92, top), (hx + sw, top + 0.5 * u), (hx + sw * 0.9, hy + 0.2 * u),

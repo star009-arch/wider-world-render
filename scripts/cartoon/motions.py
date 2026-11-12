@@ -210,6 +210,16 @@ class Performer:
         self.pp = persona(self.key)
         self.y = self.ground
         self.upx = 20 * self.scale                  # pixels per head unit at 1x
+        if ":" in self.key:                                                  # period people "<world>:<name>" (people.py)
+            import people as PP
+            w, n = self.key.split(":", 1)
+            self.ch = None
+            self.natural = False
+            self.L = 1.55 * PP.get(w, n).height
+            k = self.L / 0.75
+            self.pp = replace(DEFAULT, stride=DEFAULT.stride * k * 0.8, lift=DEFAULT.lift * k * 0.7, arm=DEFAULT.arm * 0.9)
+            self._plan()
+            return
         if USE_V3 and self.key in H3.KEYS:                                  # v3 hosts: leg length straight from their build
             self.ch = None
             self.natural = False
@@ -370,8 +380,19 @@ def _shadow(w, h):
 
 @lru_cache(maxsize=6000)
 def tile_for(key, pose, scale, flip, view=0.6):
+    if ":" in key:
+        import people as PP
+        w, n = key.split(":", 1)
+        return PP.draw(PP.get(w, n), pose, scale, flip, view)
     if USE_V3 and key in H3.KEYS:
         return H3.draw(key, pose, scale, flip, view)
     if USE_NATURAL and key in N.LOOKS:
         return N.draw(key, pose, scale, flip)
     return R.draw_character(R.get(key), pose, scale, flip)
+
+
+
+def set_world(name):
+    """Dress all hosts for an episode's world (period costumes) and drop cached tiles."""
+    H3.set_world(name)
+    tile_for.cache_clear()
