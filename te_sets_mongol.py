@@ -489,6 +489,23 @@ def mg_rug_mat(name, field=(0.42, 0.06, 0.05), border=(0.07, 0.09, 0.24), motif=
     return m
 
 
+def mg_nasij(name, base=(0.05, 0.07, 0.2), gold=(0.85, 0.6, 0.2), k=9.0):
+    """Gold brocade (nasij): roundels and scrolling gold on a dark silk ground, metallic threads."""
+    m, nt, b = _mnew(name)
+    pos = _pos(nt)
+    s = _sep(nt, pos)
+    fu = _math(nt, "FRACT", _math(nt, "MULTIPLY", _math(nt, "ADD", s[0], s[1]), k * 0.5))
+    fv = _math(nt, "FRACT", _math(nt, "MULTIPLY", s[2], k * 0.5))
+    rr = _math(nt, "ADD", _math(nt, "POWER", _math(nt, "SUBTRACT", fu, 0.5), 2), _math(nt, "POWER", _math(nt, "SUBTRACT", fv, 0.5), 2))
+    ring = _math(nt, "MAXIMUM", _band(nt, rr, 0.09, 0.13), _math(nt, "LESS_THAN", rr, 0.03))
+    vine = _band(nt, _noise(nt, pos, k, 2, 0.4), 0.46, 0.54)
+    g = _math(nt, "MAXIMUM", ring, vine)
+    nt.links.new(_mix(nt, g, base, gold), b.inputs["Base Color"])
+    nt.links.new(_math(nt, "MULTIPLY", g, 0.85), b.inputs["Metallic"])
+    nt.links.new(_math(nt, "MULTIPLY_ADD", g, -0.35, 0.65), b.inputs["Roughness"])
+    return m
+
+
 def mg_painted_mat(name, base=(0.5, 0.1, 0.05), c1=(0.8, 0.6, 0.22), c2=(0.1, 0.2, 0.42)):
     m, nt, b = _mnew(name)
     pos = _pos(nt)
@@ -677,7 +694,7 @@ def mg_sky(hdri, strength=1.0, sun_az=None, sun_el=None, sun_power=4.0, sun_col=
     return info
 
 
-def mg_aerial(col, dist, fmax=1.0, k=1.0):
+def mg_aerial(col, dist, fmax=1.0, k=0.85):
     """Aerial perspective: blend every surface towards the horizon colour with camera distance (cheap, no volumes)."""
     col = tuple(c * k for c in col)
     for m in list(bpy.data.materials):
@@ -705,7 +722,7 @@ def mg_aerial(col, dist, fmax=1.0, k=1.0):
                 pass
 
 
-def mg_smoke(x, y, z0, h, r, dens=0.5, col=(0.3, 0.28, 0.26), lean=(0.0, 0.0), seed=0.0, speed=0.35):
+def mg_smoke(x, y, z0, h, r, dens=0.5, col=(0.3, 0.28, 0.26), lean=(0.0, 0.0), seed=0.0, speed=1.2):
     """Rising smoke column: volume in a cylinder, noise drifts upward over the shot. lean = (tilt towards +x, towards +y) rad."""
     rot = Euler((-lean[1], lean[0], 0.0))
     cen = Vector((x, y, z0)) + rot.to_matrix() @ Vector((0, 0, h / 2))
@@ -717,14 +734,14 @@ def mg_smoke(x, y, z0, h, r, dens=0.5, col=(0.3, 0.28, 0.26), lean=(0.0, 0.0), s
     nt.nodes.remove(nt.nodes["Principled BSDF"])
     out = nt.nodes["Material Output"]
     oc = _tc(nt, "Object")
-    mp = _node(nt, "ShaderNodeMapping", {"Scale": (1.0, 1.0, 0.55)})
+    mp = _node(nt, "ShaderNodeMapping", {"Scale": (1.0, 1.0, (h / 2) / r * 0.6)})
     nt.links.new(oc, mp.inputs["Vector"])
     loc = mp.inputs["Location"]
     loc.default_value = (seed, seed * 0.7, 0.0)
     loc.keyframe_insert("default_value", frame=1)
     loc.default_value = (seed, seed * 0.7, -speed)
     loc.keyframe_insert("default_value", frame=N)
-    nd = _maprange(nt, _noise(nt, mp.outputs["Vector"], 2.2, 6, 0.6), 0.4, 0.72)
+    nd = _maprange(nt, _noise(nt, mp.outputs["Vector"], 1.4, 6, 0.6), 0.38, 0.7)
     s = _sep(nt, oc)
     z01 = _math(nt, "MULTIPLY_ADD", s[2], 0.5, 0.5)
     cx = _node(nt, "ShaderNodeCombineXYZ")
@@ -785,14 +802,15 @@ def mg_grass(ob, count, length, m, children=8, radius=0.004, seed=1, rand=0.45, 
     s = ps.settings
     s.type = "HAIR"
     s.count = count
-    s.hair_length = length
     s.emit_from = "FACE"
     _try(s, distribution="RAND", use_emit_random=True, use_advanced_hair=True)
-    _try(s, normal_factor=1.0, factor_random=rand, render_type="PATH", hair_step=4, render_step=3, display_step=2)
+    _try(s, factor_random=rand * 0.25, render_type="PATH", hair_step=4, render_step=3, display_step=2)
     _try(s, child_type="INTERPOLATED", rendered_child_count=children, child_nbr=1)
     _try(s, clump_factor=clump, roughness_2=0.12, roughness_endpoint=0.04, roughness_1=0.02, child_length=1.0,
          child_length_threshold=0.45)
     _try(s, radius_scale=radius, root_radius=1.0, tip_radius=0.0, use_close_tip=True)
+    s.hair_length = length                                                      # last: it rescales the normal velocity
+    print("mg_grass length", s.hair_length)
     try:
         s.material = len(ob.data.materials)
     except Exception:
@@ -1112,6 +1130,15 @@ def mg_tree(b, leaves, x, y, z, h, rng, kind="oak"):
             leaves.ico((x + rng.uniform(-0.3, 0.3), y + rng.uniform(-0.3, 0.3), zz), rr + 0.4, (1, 1, 1.6), 2)
 
 
+def _pad(pads, c, r, rng):
+    """A cloud-pad of pine needles: a cluster of flattened lumps, not one disc."""
+    for k in range(7):
+        a = rng.uniform(0, 6.283)
+        d = r * rng.uniform(0.2, 0.9)
+        pads.ico((c.x + math.cos(a) * d * 1.3, c.y + math.sin(a) * d * 1.3, c.z + rng.uniform(-0.15, 0.25) * r),
+                 r * rng.uniform(0.45, 0.7), (1.4, 1.4, 0.75), 2)
+
+
 def mg_pine(trunk, pads, x, y, z, h, rng, lean=0.0):
     """Japanese black pine: leaning, twisting trunk, near-horizontal limbs ending in flat cloud-pads of needles."""
     d = Vector((math.cos(lean), math.sin(lean), 0)) * 0.35 + Vector((0, 0, 1))
@@ -1122,14 +1149,14 @@ def mg_pine(trunk, pads, x, y, z, h, rng, lean=0.0):
         cur = cur + d * (h / 6)
         pts.append(cur.copy())
     trunk.poly([tuple(p) for p in pts], h * 0.028, h * 0.012, 7)
-    pads.ico(tuple(pts[-1] + Vector((0, 0, 0.3))), h * 0.13, (1.5, 1.5, 0.55), 2)
+    _pad(pads, pts[-1] + Vector((0, 0, 0.3)), h * 0.13, rng)
     for k in range(7):
         base = pts[2 + k % 4] + (pts[3 + k % 3] - pts[2 + k % 4]) * rng.random()
         a = rng.uniform(0, 6.283)
         L = h * rng.uniform(0.18, 0.34)
         end = base + Vector((math.cos(a) * L, math.sin(a) * L, rng.uniform(-0.05, 0.25) * L))
         trunk.seg(tuple(base), tuple(end), h * 0.01, h * 0.005, 5)
-        pads.ico(tuple(end + Vector((0, 0, 0.2))), h * rng.uniform(0.08, 0.12), (1.6, 1.6, 0.5), 2)
+        _pad(pads, end + Vector((0, 0, 0.2)), h * rng.uniform(0.08, 0.12), rng)
 
 
 def mg_palm(trunk, fronds, x, y, z, h, rng, dead=None):
@@ -1403,7 +1430,7 @@ def shot_m_ger_inside():
     mg_render_tweaks(sc, vol=True)
     sc.cycles.max_bounces = 6
     mg_sky("kloppenheim_06_puresky", 0.8, sun_az=-55, sun_el=56, sun_power=7.0, sun_col=(1.0, 0.88, 0.72), view_az=90)
-    exposure(0.4)
+    exposure(-0.35)
     M = mg_gmats()
     R, HW, TOP, CR = 4.0, 1.75, 4.4, 0.75
     wood = mg_ph("willow", "rough_wood", 1.2, tint=(0.82, 0.6, 0.4), fb=(0.4, 0.28, 0.16))
@@ -1467,9 +1494,9 @@ def shot_m_ger_inside():
     sunv = Vector((math.cos(math.radians(56)) * math.cos(math.radians(-55)), math.cos(math.radians(56)) * math.sin(math.radians(-55)),
                    math.sin(math.radians(56))))
     end = Vector((0, 0, TOP)) - sunv * (TOP / sunv.z)
-    mg_shaft((0, 0, TOP + 0.2), tuple(end), CR * 0.85, (1.0, 0.86, 0.62), 0.22)
-    brocade = mg_ph("brocade", "floral_jacquard", 1.6, tint=(1.6, 1.15, 0.45), rough=0.6, fb=(0.6, 0.45, 0.15))
-    brocade2 = mg_ph("brocade2", "quatrefoil_jacquard_fabric", 1.4, tint=(0.9, 0.45, 0.5), rough=0.6, fb=(0.5, 0.12, 0.1))
+    mg_shaft((0, 0, TOP + 0.2), tuple(end), CR * 0.85, (1.0, 0.86, 0.62), 0.9)
+    brocade = mg_nasij("brocade", (0.05, 0.07, 0.2))
+    brocade2 = mg_nasij("brocade2", (0.35, 0.05, 0.04))
     fur = mg_ph("fur", "curly_teddy_natural", 1.2, tint=(1.0, 0.92, 0.8), fb=(0.8, 0.75, 0.65))
     leather = mg_ph("leather", "brown_leather", 1.0, tint=(0.9, 0.7, 0.5), fb=(0.35, 0.22, 0.12))
 
@@ -1520,9 +1547,9 @@ def shot_m_ger_inside():
     r3 = add("plane", (2.15, 0.9, 0.014), (1.4, 0.8, 1), (0, 0, math.radians(-75)), m=mg_applique_mat("shyrdak", (0.35, 0.06, 0.05)))
     r4 = add("plane", (0, 2.2, 0.016), (1.6, 0.7, 1), m=mg_rug_mat("rug3", (0.5, 0.25, 0.08), (0.2, 0.05, 0.04), (0.85, 0.72, 0.4), k=7))
     l1 = light("AREA", (0, 0, TOP - 0.25), 160, (0.85, 0.9, 1.0), 1.4)
-    l2 = light("AREA", (0.3, -R + 0.5, 1.7), 380, (1.0, 0.9, 0.78), 2.2)
+    l2 = light("AREA", (0.3, -R + 0.5, 1.7), 220, (1.0, 0.88, 0.74), 2.2)
     l2.rotation_euler = (math.radians(90), 0, 0)
-    l3 = light("AREA", (0, 1.0, 3.4), 140, (1.0, 0.75, 0.5), 3.0)
+    l3 = light("AREA", (0, 1.0, 3.4), 70, (1.0, 0.7, 0.45), 3.0)
     for l in (l1, l2, l3):
         _try(l, visible_camera=False, visible_glossy=False)
     mg_camera([(0.0, (0.9, -3.25, 1.5)), (1.0, (0.55, -2.85, 1.47))], 17, [(0.0, (-0.35, 2.8, 1.62)), (1.0, (-0.5, 2.8, 1.58))])
@@ -1622,7 +1649,7 @@ def shot_m_karakorum():
         mg_box_cart(30 + k * 6, 110 + k * 2, h(30 + k * 6, 110), 1.5)
     hz = h(-6, -46)
     mg_camera([(0.0, (-8, -48, hz + 2.6)), (1.0, (-4, -45, hz + 2.5))], 32, [(0.0, (-40, 420, 6)), (1.0, (-36, 420, 6))])
-    mg_aerial(info["haze"], 2200, 0.9)
+    mg_aerial(info["haze"], 3500, 0.9)
     return sc
 
 
@@ -1725,7 +1752,7 @@ def shot_m_zhongdu():
     mg_hall(-260, 620, 9, 4, 5.2, 9.0, 4.0, 0.0, roof_m=green, ridge_m=green, double=True)    # Jin palace roofs beyond
     wood = MG_M.setdefault("timber", mg_ph("timber", "rough_wood", 0.6, tint=(0.8, 0.65, 0.5), fb=(0.4, 0.3, 0.2)))
     tw, tr = MgB(), MgB()
-    for (x, y) in ((-120, 46), (-55, 38), (40, 44), (105, 50)):
+    for (x, y) in ((-62, 44), (-24, 36), (24, 40), (58, 50)):
         mg_trebuchet(tw, tr, x, y, h(x, y))
         tw.box((x, y + 9.5, 1.3), (3.2, 0.12, 1.3))                            # mantlet screen
     pal = MgB()
@@ -1740,19 +1767,19 @@ def shot_m_zhongdu():
     pal.finish("palisade", wood)
     st = MgB()
     for _ in range(40):
-        x, y = rng.choice((-120, -55, 40, 105)) + rng.uniform(-4, 4), rng.uniform(30, 40)
+        x, y = rng.choice((-62, -24, 24, 58)) + rng.uniform(-4, 4), rng.uniform(26, 34)
         st.ico((x, y, 0.3), rng.uniform(0.25, 0.4), (1, 1, 0.9), 1)
     st.finish("stones", mg_ph("stoneballs", "rock_face", 1.2, tint=(0.75, 0.72, 0.68), fb=(0.5, 0.48, 0.45)), True)
-    for k in range(18):                                                         # Mongol camp to the sides
-        x = rng.choice((-1, 1)) * rng.uniform(150, 330)
-        y = rng.uniform(5, 60)
+    for k in range(22):                                                         # Mongol camp to the sides
+        x = rng.choice((-1, 1)) * rng.uniform(70, 260)
+        y = rng.uniform(15, 66)
         mg_ger(x, y, h(x, y), rng.uniform(2.3, 2.9), rng.choice(("grey", "white", "black")), rng.uniform(-0.3, 0.3))
-    mg_herd(-240, 30, 16, 25, 10, h, rng, 0.5)
+    mg_herd(-90, 20, 14, 14, 6, h, rng, 0.5)
     for k, (x, y, r_) in enumerate(((-210, 420, 26), (90, 480, 32), (330, 360, 22), (-420, 520, 28))):
         mg_smoke(x, y, 2, 210, r_, 0.13, (0.16, 0.14, 0.13), (-0.25, 0.08), seed=k * 1.7, speed=0.2)
     mg_smoke(-180, 20, 0.5, 25, 2.0, 0.6, (0.45, 0.42, 0.4), (-0.3, 0.05), seed=9)
-    mg_camera([(0.0, (-6, -30, 2.4)), (1.0, (-2, -28, 2.4))], 34, [(0.0, (-14, 110, 6.5)), (1.0, (-10, 110, 6.5))])
-    mg_aerial(info["haze"], 1100, 0.9)
+    mg_camera([(0.0, (-6, -32, 3.0)), (1.0, (-2.5, -30, 3.0))], 26, [(0.0, (-14, 110, 6.5)), (1.0, (-10, 110, 6.5))])
+    mg_aerial(info["haze"], 3200, 0.85)
     return sc
 
 
@@ -1891,7 +1918,7 @@ def shot_m_bukhara():
         mg_tree(tb, None, x, y, 0, rng.uniform(8, 12), rng, "oak")
     tb.finish("trees", MG_M.setdefault("bark", mg_ph("bark", "bark_willow", 1.0, tint=(0.7, 0.62, 0.55), fb=(0.3, 0.25, 0.2))))
     mg_camera([(0.0, (8, -42, 1.9)), (1.0, (5, -39, 1.9))], 27, [(0.0, (-8, 160, 7.0)), (1.0, (-6, 160, 7.2))])
-    mg_aerial(info["haze"], 900, 0.85)
+    mg_aerial(info["haze"], 3000, 0.8)
     return sc
 
 
@@ -2029,7 +2056,7 @@ def shot_m_mohi():
     mg_smoke(130, 230, h(130, 230) + 4, 30, 1.5, 0.7, (0.55, 0.53, 0.5), (-0.25, 0.1), seed=2)
     mg_smoke(FX + 5, FY, h(FX, FY) + 1, 22, 1.4, 0.7, (0.55, 0.53, 0.5), (-0.25, 0.1), seed=5)
     mg_camera([(0.0, (-6, -30, 2.3)), (1.0, (-2.5, -27.5, 2.25))], 30, [(0.0, (12, 160, 3.0)), (1.0, (15, 160, 3.0))])
-    mg_aerial(info["haze"], 1300, 0.9)
+    mg_aerial(info["haze"], 3000, 0.88)
     return sc
 
 
@@ -2151,30 +2178,31 @@ def shot_m_baghdad():
     hb2.finish("houses2", brick)
     trunk = mg_ph("palmtrunk", "palm_bark", 1.0, tint=(0.85, 0.75, 0.62), fb=(0.35, 0.27, 0.18))
     tb, fb_ = MgB(), MgB()
-    for _ in range(14):                                                         # palms on the near bank (left edge)
-        mg_palm(tb, fb_, rng.uniform(-75, -18), rng.uniform(-14, 6), 0, rng.uniform(9, 14), rng)
-    for _ in range(4):
-        mg_palm(tb, fb_, rng.uniform(26, 60), rng.uniform(-6, 8), 0, rng.uniform(10, 14), rng)
-    for _ in range(70):                                                         # palm groves on the far bank, both sides of the town
-        x = rng.choice((rng.uniform(-700, -230), rng.uniform(240, 700)))
-        mg_palm(tb, fb_, x, rng.uniform(B1 + 6, B1 + 140), 2.0, rng.uniform(10, 16), rng)
+    for _ in range(9):                                                          # palms on the near bank (left edge of frame)
+        mg_palm(tb, fb_, rng.uniform(-40, -16), rng.uniform(-2, 9), 0, rng.uniform(9, 14), rng)
+    for _ in range(3):
+        mg_palm(tb, fb_, rng.uniform(17, 26), rng.uniform(6, 11), 0, rng.uniform(10, 13), rng)
+    for _ in range(90):                                                         # palm gardens on the far bank, among and beside the town
+        x = rng.choice((rng.uniform(-500, -175), rng.uniform(220, 500), rng.uniform(-160, 200)))
+        y = rng.uniform(B1 + 6, B1 + 30) if abs(x) > 175 else rng.uniform(B1 + 60, B1 + 220)
+        mg_palm(tb, fb_, x, y, 2.0, rng.uniform(10, 16), rng)
     tb.finish("palmtrunks", trunk)
     fb_.finish("fronds", mg_leaf_mat("frond", (0.16, 0.24, 0.08), (0.3, 0.36, 0.14), 0.25, 2.0))
     bo, sl = MgB(), MgB()                                                       # bridge of boats + river craft
-    BX = 205.0
+    BX = 120.0
     for k in range(17):
         mg_boat(bo, sl, BX, B0 + 6 + k * (B1 - B0 - 12) / 16, -1.25, 0.0, 8.0, False)
     bo.box((BX, (B0 + B1) / 2, -0.15), (1.8, (B1 - B0) / 2, 0.12))
-    for (x, y, a) in ((-60, 70, 0.1), (30, 110, -0.2), (110, 55, 0.3), (-140, 140, 0.0), (70, 150, 0.15)):
-        mg_boat(bo, sl, x, y, -1.25, a, 10.0, True)
+    for (x, y, a) in ((-28, 42, 0.1), (30, 95, -0.2), (70, 48, 0.3), (-90, 120, 0.0), (55, 150, 0.15)):
+        mg_boat(bo, sl, x, y, -1.25, a, 11.0, True)
     for (x, y) in ((-20, 40), (12, 62), (-35, 95), (60, 85)):
         bo.cyl((x, y, -1.0), 1.3, 0.4, 16)                                      # quffa coracles (bitumen)
     bo.finish("boats", mg_ph("boatwood", "weathered_planks", 0.6, tint=(0.7, 0.58, 0.45), fb=(0.35, 0.27, 0.18)))
     sl.finish("sails", mg_felt_mat("sailcloth", (0.78, 0.72, 0.6), (0.86, 0.8, 0.68), dirt_h=0.0))
     for k, (x, y, r_) in enumerate(((-260, 520, 30), (40, 640, 36), (260, 480, 26), (-80, 900, 34))):
         mg_smoke(x, y, 4, 260, r_, 0.12, (0.16, 0.14, 0.13), (-0.22, 0.1), seed=k * 2.7, speed=0.2)
-    mg_camera([(0.0, (0, -26, 3.2)), (1.0, (3.5, -23.5, 3.1))], 30, [(0.0, (-10, 260, 7.5)), (1.0, (-6, 260, 7.5))])
-    mg_aerial(info["haze"], 1100, 0.85)
+    mg_camera([(0.0, (0, -24, 3.2)), (1.0, (3.0, -21.5, 3.1))], 26, [(0.0, (-20, 260, 8.0)), (1.0, (-16, 260, 8.0))])
+    mg_aerial(info["haze"], 3000, 0.8)
     return sc
 
 
@@ -2183,9 +2211,9 @@ def shot_m_hakata():
     Yuan/Goryeo fleet off the islands."""
     sc = reset()
     mg_render_tweaks(sc)
-    info = mg_sky("kloofendal_overcast_puresky", 0.55, sun_az=150, sun_el=16, sun_power=1.1, sun_col=(0.85, 0.88, 0.95), sun_angle=8,
-                  view_az=109, gamma=1.35, tint=(0.82, 0.87, 0.95))
-    exposure(0.35)
+    info = mg_sky("kloofendal_overcast_puresky", 0.38, sun_az=150, sun_el=16, sun_power=1.1, sun_col=(0.85, 0.88, 0.95), sun_angle=8,
+                  view_az=109, gamma=1.6, tint=(0.72, 0.78, 0.9))
+    exposure(0.25)
     rng = random.Random(81)
 
     def sl(y):                                                                  # shoreline x at y (sea to the left)
@@ -2220,8 +2248,8 @@ def shot_m_hakata():
         return 0.0 if (x - sl(y)) < 9 else -8.0
     sea = mg_terrain("sea", 5000, 300, hw, None, -300, 400, 2.0)
     oc = sea.modifiers.new("ocean", "OCEAN")
-    _try(oc, geometry_mode="DISPLACE", resolution=12, spatial_size=160, wave_scale=1.6, choppiness=1.3, wind_velocity=22,
-         wave_alignment=0.6, wave_direction=math.radians(-20), use_foam=True, foam_layer_name="foam", foam_coverage=0.3, random_seed=4)
+    _try(oc, geometry_mode="DISPLACE", resolution=14, spatial_size=120, wave_scale=2.6, choppiness=1.6, wind_velocity=28,
+         wave_alignment=0.5, wave_direction=math.radians(-20), use_foam=True, foam_layer_name="foam", foam_coverage=0.55, random_seed=4)
     oc.time = 1.0
     oc.keyframe_insert("time", frame=1)
     oc.time = 1.0 + SECONDS * 0.8
@@ -2232,7 +2260,7 @@ def shot_m_hakata():
     pos = _pos(nt)
     s = _sep(nt, pos)
     u = _math(nt, "ADD", _math(nt, "ADD", s[0], 34.0), _math(nt, "MULTIPLY", s[1], 0.35))      # x - sl(y)
-    band = _math(nt, "MULTIPLY", _maprange(nt, u, -40, -8), _maprange(nt, u, 3, 0))
+    band = _math(nt, "MULTIPLY", _maprange(nt, u, -70, -6), _maprange(nt, u, 4, 0))
     stripes = _maprange(nt, _noise(nt, pos, 0.09, 6, 0.65), 0.45, 0.62)
     at = nt.nodes.new("ShaderNodeAttribute")
     at.attribute_name = "foam"
@@ -2268,7 +2296,7 @@ def shot_m_hakata():
     for (x, y) in ((0, 70), (-8, 95), (5, 55)):
         mg_pine(tb, pb, x, y, h(x, y), rng.uniform(10, 13), rng, 2.9)
     tb.finish("pinetrunks", trunk)
-    pb.finish("pineneedles", mg_leaf_mat("needles", (0.07, 0.13, 0.07), (0.13, 0.2, 0.1), 0.12, 8.0), True)
+    pb.finish("pineneedles", mg_leaf_mat("needles", (0.04, 0.08, 0.04), (0.09, 0.14, 0.07), 0.1, 14.0), True)
     hull = mg_ph("junkwood", "weathered_planks", 0.6, tint=(0.55, 0.45, 0.36), fb=(0.3, 0.24, 0.18))
     jb, js = MgB(), MgB()
     for (x, y, sc_) in ((-700, 1500, 1.6), (-420, 1900, 1.4), (-950, 2100, 1.4), (-250, 2300, 1.3), (-600, 2500, 1.2), (-1250, 1800, 1.5)):
@@ -2291,7 +2319,7 @@ def shot_m_dadu_hall():
     sc.cycles.max_bounces = 6
     mg_render_tweaks(sc)
     mg_sky("kloofendal_48d_partly_cloudy_puresky", 1.0, sun_az=-75, sun_el=34, sun_power=5.0, sun_col=(1.0, 0.93, 0.82), view_az=95)
-    exposure(0.45)
+    exposure(-0.1)
     rng = random.Random(12)
     M = mg_hall_mats()
     HX, Y1, CH, CEIL = 22.5, 24.0, 8.4, 10.6
@@ -2348,7 +2376,9 @@ def shot_m_dadu_hall():
     gd = MgB()                                                                  # gilt dragons coiled on the throne columns
     for (x, y) in ((-7.5, 18.0), (7.5, 18.0), (-2.6, 18.0), (2.6, 18.0)):
         if abs(x) < 3:
-            gd.cyl((x, y, CH / 2), 0.5, CH / 2, 16)
+            cb2 = MgB()
+            cb2.cyl((x, y, CH / 2), 0.5, CH / 2, 16)
+            cb2.finish("thronecol", M["col"])
         pts = [(x + 0.56 * math.cos(t * 0.55), y + 0.56 * math.sin(t * 0.55), 0.6 + t * 0.2) for t in range(37)]
         gd.poly(pts, 0.12, 0.07, 6)
     gd.finish("dragons", gold)
@@ -2370,7 +2400,7 @@ def shot_m_dadu_hall():
     sc_ = MgB()
     sc_.box((0, 23.3, 3.4), (3.6, 0.15, 2.6))
     sc_.finish("screen", mg_painted_mat("screenpaint", (0.08, 0.05, 0.04), (0.8, 0.58, 0.2), (0.6, 0.12, 0.08)))
-    brocade = mg_ph("nasij", "floral_jacquard", 1.4, tint=(1.6, 1.15, 0.45), rough=0.6, fb=(0.6, 0.45, 0.15))
+    brocade = mg_nasij("nasij", (0.05, 0.07, 0.2))
     ermine = mg_ph("ermine", "curly_teddy_natural", 1.6, tint=(1.15, 1.12, 1.08), fb=(0.85, 0.83, 0.8))
     sable = mg_ph("sable", "curly_teddy_natural", 1.6, tint=(0.35, 0.25, 0.18), fb=(0.2, 0.15, 0.1))
     hb, he, hs = MgB(), MgB(), MgB()
@@ -2388,9 +2418,9 @@ def shot_m_dadu_hall():
     add("plane", (11, 12, 0.01), (5.5, 9, 1), m=mg_rug_mat("rugside", (0.1, 0.12, 0.3), (0.45, 0.07, 0.05), (0.8, 0.62, 0.3), k=6))
     lan = MgB()
     for (x, y) in ((-7.5, 12), (7.5, 12), (-2.5, 4), (2.5, 4)):                 # hanging lanterns
-        lan.seg((x, y, CEIL), (x, y, 6.6), 0.02, n=4)
-        lan.cyl((x, y, 6.2), 0.35, 0.4, 12)
-    lan.finish("lanterns", mg_emit_mat("lantern", (1.0, 0.7, 0.4), 6))
+        lan.seg((x, y, CEIL), (x, y, 7.4), 0.02, n=4)
+        lan.ico((x, y, 7.0), 0.32, (1, 1, 1.3), 2)
+    lan.finish("lanterns", mg_emit_mat("lantern", (0.9, 0.3, 0.12), 2.5))
     ct = MgB()                                                                  # the courtyard and rear hall seen through the doors
     ct.box((0, 46, -0.2), (60, 22, 0.2))
     for k in range(40):
@@ -2435,12 +2465,12 @@ def shot_m_caravan():
         dune = (1 - abs(math.sin((x * 0.8 + y * 0.6) / 38 + mg_fbm(x / 120, y / 120, 2, 5) * 3))) ** 2 * 14
         z += dune * mg_ss(70, 160, x) * mg_ss(120, 260, y) * (1 - mg_ss(900, 1400, y))
         z += (mg_fbm(x / 500, y / 500, 4, 6) + 0.5) * 120 * mg_ss(1200, 2600, y)
-        z += mg_ridge(x / 1700, y / 1700, 6, 2) ** 1.3 * 2300 * mg_ss(3200, 6500, y)
+        z += mg_ridge(x / 2600, y / 2600, 6, 2) ** 1.8 * 1700 * mg_ss(4000, 8500, y)
         return z
     gm = mg_ground_mat("desert", [("gravelly_sand", 0.3, (1.05, 0.95, 0.8)), ("dry_ground_rocks", 0.3, (1.05, 0.95, 0.8))], 0.012,
                        extra=[("aerial_sand", 0.04, (1.1, 0.98, 0.82), mg_mask_height(2.0, 5.0, 1.5)),
                               ("rock_face", 0.02, (0.8, 0.76, 0.72), mg_mask_height(150, 500, 100)),
-                              ("snow_02", 0.05, (1.0, 1.0, 1.0), mg_mask_height(1350, 1650, 250))], fb=(0.7, 0.6, 0.45))
+                              ("snow_02", 0.05, (1.0, 1.0, 1.0), mg_mask_height(700, 950, 200))], fb=(0.7, 0.6, 0.45))
     mg_terrain("desert", 9000, 440, h, gm, 0, 80, 2.3)
     camel = mg_camel_me()
     hides = [noisy("camelA", (0.42, 0.32, 0.2), (0.55, 0.43, 0.28), 4, 0.9, 0.15),
@@ -2449,7 +2479,7 @@ def shot_m_caravan():
     bales = [mg_stripe_mat("baleA", (0.55, 0.12, 0.08), (0.85, 0.78, 0.6), 2.5, 2), mg_stripe_mat("baleB", (0.16, 0.22, 0.42), (0.82, 0.75, 0.58), 2.5, 2),
              mg_ph("bags", "brown_leather", 1.0, tint=(0.95, 0.8, 0.6), fb=(0.4, 0.28, 0.16))]
     rope = MgB()
-    p0, p1 = Vector((-72, 82, 0)), Vector((18, 52, 0))
+    p0, p1 = Vector((-52, 52, 0)), Vector((14, 30, 0))
     ang = math.atan2(p1.y - p0.y, p1.x - p0.x)
     prev = None
     for k in range(10):
@@ -2467,7 +2497,7 @@ def shot_m_caravan():
             rope.seg(prev, nose, 0.02, n=3)
         prev = (p.x - 1.0 * c, p.y - 1.0 * s, z + 1.2)
     rope.finish("leadrope", MG_M.setdefault("hemp", mat("hemp", (0.45, 0.38, 0.26), 0.9)))
-    SX, SY = -112.0, 175.0                                                      # yam station: rammed-earth enclosure
+    SX, SY = -78.0, 118.0                                                      # yam station: rammed-earth enclosure
     zs = h(SX, SY)
     earth = mg_rammed_mat("yamwall", (0.9, 0.78, 0.6), "brown_mud_dry", 0.3, 0.75)
     yw = MgB()
@@ -2501,8 +2531,8 @@ def shot_m_caravan():
     lv.finish("poplarleaf", mg_leaf_mat("poplarleaf", (0.22, 0.3, 0.08), (0.42, 0.45, 0.14), 0.3, 3.0), True)
     mg_smoke(SX + 5, SY + 8, zs + 3.5, 22, 1.2, 0.7, (0.55, 0.52, 0.5), (0.25, 0.1), seed=3)
     h0 = h(-5, -30)
-    mg_camera([(0.0, (-9, -32, h0 + 2.5)), (1.0, (-5, -29.5, h0 + 2.45))], 32, [(0.0, (-20, 300, 7)), (1.0, (-16, 300, 7))])
-    mg_aerial(info["haze"], 3200, 0.92)
+    mg_camera([(0.0, (-9, -32, h0 + 2.5)), (1.0, (-5, -29.5, h0 + 2.45))], 28, [(0.0, (-24, 300, 8)), (1.0, (-20, 300, 8))])
+    mg_aerial(info["haze"], 6000, 0.8)
     return sc
 
 
