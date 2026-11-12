@@ -1384,6 +1384,12 @@ SHOTS = {"globe": shot_globe, "india": shot_india, "bengal": shot_bengal, "spice
          "memphis": shot_memphis, "house_interior": shot_house_interior, "palace": shot_palace, "tura": shot_tura, "fields": shot_fields,
          "saqqara2": shot_saqqara2}
 
+# Episode set packs: te_sets_<episode>.py files next to this script add their shots to SHOTS. They run in this module's
+# namespace, so they can use every helper above (mat, add, ph_mat, ph_sky, sun, camera_path, ground, ...).
+_HERE = Path(sys.argv[sys.argv.index("-P") + 1]).resolve().parent if "-P" in sys.argv else Path(".").resolve()
+for _pack in sorted(_HERE.glob("te_sets_*.py")):
+    exec(compile(_pack.read_text(encoding="utf-8"), str(_pack), "exec"), globals())
+
 if __name__ == "__main__":
     sc = SHOTS[SHOT]()
     OUT.mkdir(parents=True, exist_ok=True)
