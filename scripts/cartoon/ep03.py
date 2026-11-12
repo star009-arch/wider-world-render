@@ -338,12 +338,20 @@ def khufu_ship(t0):
 def shots():
     K.CUES.clear()
     out = []
-    L = ["G01", "G02", "G03", "G04", "G05"]
+    # cold open: establishing beat on the building site (music fades up), then Penny walks in and speaks
+    OPEN = 2.6
+    L = ["G01", "G02"]
+    out.append(scene("s00_open", "plate:giza_build",
+                     [*crew(["worker", "worker2", "worker", "worker2", "worker"], -700, 1040, 150, 1.3, walk=(0.0, 1150), speed=0.55),
+                      P("penny", 2150, G, 1.9, flip=True, walks=[(OPEN - 1.6, 1500)], speed=1.5, faces=[(0, {"brows": -0.3, "mouth": "smirk"})]),
+                      P("atlas", -250, G, 1.7, walks=[(at(L, 1, OPEN) - 1.4, 1150)], speed=1.6, faces=[(0, {"brows": 0.6, "mouth": "o"})])],
+                     L, lead=OPEN, follow=False, cam=[(0.0, 1.0, 0.5, 0.5), (at(L, 2, OPEN) + 0.6, 1.14, 0.56, 0.55)],
+                     fx=[label("EGYPT · ABOUT 4,600 YEARS AGO", 960, 110, 0.5, 60, GOLD, t1=OPEN + 2.5)]))
+    L = ["G03", "G04", "G05"]
     out.append(scene("s01_hook", "plate:giza_later",
-                     [P("penny", 960, G, 2.0, faces=[(0, {"brows": -0.3, "mouth": "smirk"})], acts=[(0.0, "jump", 0.0)]),
-                      P("atlas", -200, G, 1.7, walks=[(at(L, 1) - 1.2, 420)], speed=1.6, faces=[(0, {"brows": 0.6, "mouth": "o"})]),
-                      P("zed", 2150, G, 1.7, flip=True, walks=[(at(L, 3) - 1.2, 1520)], speed=1.8, faces=[(0, {"mouth": "grin"})])],
-                     L, fx=[caption("c. 2600–2550 BC · GIZA", 1.0, at(L, 1)), caption("TINY EMPIRES", at(L, 4) + 2.0)]))
+                     [P("penny", 960, G, 2.0, faces=[(0, {"brows": -0.3, "mouth": "smirk"})]),
+                      P("zed", 2150, G, 1.7, flip=True, walks=[(at(L, 1) - 1.2, 1520)], speed=1.8, faces=[(0, {"mouth": "grin"})])],
+                     L, fx=[caption("the tallest building on Earth for ~4,000 years", 0.8, at(L, 1)), caption("TINY EMPIRES", at(L, 2) + 2.0)]))
     L = ["G06"]
     out.append(scene("s02_nile_map", "m_egypt", [P("penny", 1720, G, 1.5, flip=True)], L,
                      fx=[route("m_egypt", [(32.9, 24.1), (32.7, 25.7), (31.9, 26.6), (30.8, 28.1), (31.25, 29.85), (31.0, 31.0)], 0.6, 4.6,

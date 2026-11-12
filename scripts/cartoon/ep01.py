@@ -567,6 +567,18 @@ def render(part, outdir):
         print("rendered", sh.name, round(sh.dur, 1), flush=True)
 
 
+def two_pass_loudnorm(ff, inputs, graph, out_args, timeout=1800):
+    """Run an ffmpeg filtergraph containing {LN} twice: measure loudness, then apply it linearly. Single-pass loudnorm adapts its
+    gain while playing, which makes the first seconds swell and pump; the measured linear pass keeps the whole film steady."""
+    import re as _re
+    pre = [*ff, *inputs, "-filter_complex", graph.replace("{LN}", "loudnorm=I=-14:TP=-1.5:LRA=11:print_format=json"), "-map", "[a]", "-f", "null", "-"]
+    r = subprocess.run([x for x in pre if x not in ("-loglevel", "error")], capture_output=True, text=True, stdin=subprocess.DEVNULL, timeout=timeout)
+    m = json.loads(_re.findall(r"\{[^{}]*\}", r.stderr)[-1])
+    ln = (f"loudnorm=I=-14:TP=-1.5:LRA=11:measured_I={m['input_i']}:measured_TP={m['input_tp']}:measured_LRA={m['input_lra']}:"
+          f"measured_thresh={m['input_thresh']}:offset={m['target_offset']}:linear=true")
+    subprocess.run([*ff, *inputs, "-filter_complex", graph.replace("{LN}", ln), *out_args], check=True, stdin=subprocess.DEVNULL, timeout=timeout)
+
+
 def mix(shots_dir: Path, out: Path, music: Path):
     ss = shots()
     start, acc = {}, 0.0
@@ -592,13 +604,13 @@ def mix(shots_dir: Path, out: Path, music: Path):
     subprocess.run([*ff, *ins, "-filter_complex", ";".join(flt), "-map", "[dia]", "-ar", "48000", str(bus)], check=True,
                    stdin=subprocess.DEVNULL, timeout=1800)
     flt = ["[1:a]anull[key]", "[2:a]anull[dia]",
-           f"[3:a]aresample=48000,aformat=channel_layouts=stereo,atrim=0:{total:.2f},volume=0.2,afade=t=out:st={total - 3:.2f}:d=3[mus]",
+           f"[3:a]aresample=48000,aformat=channel_layouts=stereo,atrim=0:{total:.2f},volume=0.2,afade=t=in:d=2.0,"
+           f"afade=t=out:st={total - 3:.2f}:d=3[mus]",
            "[mus][key]sidechaincompress=threshold=0.03:ratio=6:attack=20:release=400[duck]",
-           f"[duck][dia]amix=inputs=2:normalize=0:duration=first,loudnorm=I=-14:TP=-1.5:LRA=9,alimiter=limit=0.89,aresample=48000,"
+           f"[duck][dia]amix=inputs=2:normalize=0:duration=first,{{LN}},alimiter=limit=0.89,aresample=48000,afade=t=in:d=0.15,"
            f"atrim=0:{total:.2f}[a]"]
-    subprocess.run([*ff, "-i", str(video), "-i", str(bus), "-i", str(bus), "-stream_loop", "-1", "-i", str(music), "-filter_complex", ";".join(flt),
-                    "-map", "0:v", "-map", "[a]", "-c:v", "copy", "-c:a", "aac", "-b:a", "192k", "-t", f"{total:.2f}", str(out)],
-                   check=True, stdin=subprocess.DEVNULL, timeout=1800)
+    two_pass_loudnorm(ff, ["-i", str(video), "-i", str(bus), "-i", str(bus), "-stream_loop", "-1", "-i", str(music)], ";".join(flt),
+                      ["-map", "0:v", "-map", "[a]", "-c:v", "copy", "-c:a", "aac", "-b:a", "192k", "-t", f"{total:.2f}", str(out)])
     print("wrote", out, round(total, 1), "s")
 
 
