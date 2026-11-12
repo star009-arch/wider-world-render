@@ -279,7 +279,7 @@ def P(key, x, ground, s=1.7, **kw):
 
 
 def scene(name, bg, cast, lines, *, fx=(), under=(), cam_wide=(1.0, 0.5, 0.5), closeup=1.32, follow=True, shake=(), extra=0.0,
-          lead=LEAD, gestures=True, cam=None):
+          lead=LEAD, gestures=True, cam=None, world=None):
     """cast: list of Performers (hosts keyed by .key). lines: line ids in order. The camera eases to each speaker."""
     t = lead
     starts = []
@@ -314,7 +314,7 @@ def scene(name, bg, cast, lines, *, fx=(), under=(), cam_wide=(1.0, 0.5, 0.5), c
         if clean and k[0] <= clean[-1][0]:
             k = (clean[-1][0] + 0.01,) + tuple(k[1:])
         clean.append(k)
-    return Shot(name, total, bg, actors=list(cast), fx=list(fx), under=list(under), camkeys=cam or clean, shake=list(shake))
+    return Shot(name, total, bg, actors=list(cast), fx=list(fx), under=list(under), camkeys=cam or clean, shake=list(shake), world=world)
 
 
 def at(lines, i, lead=LEAD):

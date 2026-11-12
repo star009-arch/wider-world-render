@@ -124,6 +124,12 @@ def hat_back(d, kind, cx, cy, R, u, k, c1=None, c2=None):
         ell(d, cx - f * 0.1 * R, cy + 1.35 * R, 0.95 * R, 0.42 * R, shade(c1, 0.9))
 
 
+def _rect(d, box, **kw):
+    """ImageDraw.rectangle that accepts corners in any order (mirrored views flip x)."""
+    x0, y0, x1, y1 = box
+    d.rectangle([min(x0, x1), min(y0, y1), max(x0, x1), max(y0, y1)], **kw)
+
+
 def hat(d, kind, cx, cy, R, u, k, c1=None, c2=None, jewel=False):
     """Headwear on top of the head (after the face). The brow line sits at about cy - 0.48 R."""
     if kind not in HATS:
@@ -271,11 +277,11 @@ def hat(d, kind, cx, cy, R, u, k, c1=None, c2=None, jewel=False):
         box = [cx - 1.12 * R, cy - 1.32 * R, cx + 1.12 * R, cy + 1.25 * R]
         d.rounded_rectangle([box[0] - OUT, box[1] - OUT, box[2] + OUT, box[3] + OUT], radius=0.35 * R, fill=LINE)
         d.rounded_rectangle(box, radius=0.3 * R, fill=c1)
-        d.rectangle([cx - f * 1.12 * R, box[1] + 4, cx - f * 0.55 * R, box[3] - 4], fill=shade(c1, 0.85))
-        d.rectangle([cx - 0.95 * R, cy - 0.1 * R, fx - 0.12 * R, cy + 0.1 * R], fill=(20, 20, 24))
-        d.rectangle([fx + 0.12 * R, cy - 0.1 * R, cx + 0.95 * R, cy + 0.1 * R], fill=(20, 20, 24))
-        d.rectangle([fx - 0.12 * R, cy - 1.3 * R, fx + 0.12 * R, cy + 1.2 * R], fill=c2, outline=LINE, width=3)
-        d.rectangle([fx - 0.7 * R, cy + 0.32 * R, fx + 0.7 * R, cy + 0.5 * R], fill=c2, outline=LINE, width=3)
+        _rect(d, [cx - f * 1.12 * R, box[1] + 4, cx - f * 0.55 * R, box[3] - 4], fill=shade(c1, 0.85))
+        _rect(d, [cx - 0.95 * R, cy - 0.1 * R, fx - 0.12 * R, cy + 0.1 * R], fill=(20, 20, 24))
+        _rect(d, [fx + 0.12 * R, cy - 0.1 * R, cx + 0.95 * R, cy + 0.1 * R], fill=(20, 20, 24))
+        _rect(d, [fx - 0.12 * R, cy - 1.3 * R, fx + 0.12 * R, cy + 1.2 * R], fill=c2, outline=LINE, width=3)
+        _rect(d, [fx - 0.7 * R, cy + 0.32 * R, fx + 0.7 * R, cy + 0.5 * R], fill=c2, outline=LINE, width=3)
         for i in range(3):
             for j in range(2):
                 x, y = fx + f * (0.35 + 0.22 * i) * R, cy + (0.75 + 0.22 * j) * R
