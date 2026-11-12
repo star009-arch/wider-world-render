@@ -799,13 +799,161 @@ def shot_storm():
     return sc
 
 
+def pyramid(x, y, base, h, m, rot=0.0):
+    o = add("cone", (x, y, h / 2), (base / 1.4142, base / 1.4142, h / 2), (0, 0, math.radians(45) + rot), m=m, vertices=4)
+    return o
+
+
+def frustum(x, y, b0, b1, z0, z1, m):
+    o = add("cube", (x, y, (z0 + z1) / 2), (b0 / 2, b0 / 2, (z1 - z0) / 2), m=m)
+    k = b1 / b0
+    for v in o.data.vertices:
+        if v.co.z > 0:
+            v.co.x *= k
+            v.co.y *= k
+    return o
+
+
+def limestone(name="limestone", c1=(0.78, 0.7, 0.55), c2=(0.88, 0.8, 0.64)):
+    return noisy(name, c1, c2, 1.2, 0.9, 0.35)
+
+
+def palm(x, y, s=1.0):
+    trunk = noisy("palmtrunk", (0.32, 0.22, 0.12), (0.42, 0.3, 0.16), 8, 0.9, 0.4)
+    leaf = noisy("palmleaf", (0.12, 0.3, 0.08), (0.22, 0.42, 0.12), 3, 0.7, 0.2)
+    add("cyl", (x, y, 3.5 * s), (0.22 * s, 0.22 * s, 3.5 * s), (math.radians(4), 0, 0), m=trunk, vertices=8)
+    for k in range(7):
+        a = k / 7 * 6.283
+        add("cone", (x + math.cos(a) * 1.4 * s, y + math.sin(a) * 1.4 * s, 6.8 * s), (0.5 * s, 2.0 * s, 0.12 * s),
+            (math.radians(-20), 0, a + math.radians(90)), m=leaf, vertices=4)
+
+
+def nile_boat(x, y, s=1.0, heading=0.0):
+    wood = noisy("reedwood", (0.45, 0.32, 0.16), (0.58, 0.42, 0.22), 4, 0.8, 0.2)
+    h = add("cube", (x, y, 0.5 * s), (4 * s, 1.0 * s, 0.45 * s), (0, 0, heading), m=wood)
+    for v in h.data.vertices:
+        if abs(v.co.x) > 0.6:
+            v.co.z += 0.5 * abs(v.co.x)
+    add("cyl", (x, y, 4 * s), (0.1 * s, 0.1 * s, 3.6 * s), m=mat("mast", (0.3, 0.2, 0.1)), vertices=6)
+    add("plane", (x, y, 4.6 * s), (2.2 * s, 2.6 * s, 1), (math.radians(90), 0, heading), m=noisy("linen", (0.86, 0.82, 0.7), (0.94, 0.9, 0.8), 2, 0.9, 0.05))
+
+
+def desert_ground(size=400, disp=2.5):
+    return ground(size, noisy("sand", (0.72, 0.58, 0.38), (0.84, 0.7, 0.48), 0.25, 0.95, 0.25), 6, disp, 0.012)
+
+
+def shot_giza():
+    sc = reset()
+    sky(22, 250, 0.9)
+    sun(22, 250, 3.8, (1, 0.88, 0.7))
+    desert_ground(500, 3.0)
+    ls = limestone()
+    pyramid(0, 60, 46, 29, ls)                                                   # Khufu (scaled 1:5)
+    pyramid(-40, 95, 43, 28, limestone("ls2", (0.76, 0.66, 0.5), (0.86, 0.76, 0.58)))   # Khafre
+    pyramid(-70, 125, 21, 13, limestone("ls3"))                                  # Menkaure
+    sx, sy = 25, 30                                                             # the Sphinx (simplified)
+    stone = limestone("sphinx", (0.7, 0.58, 0.4), (0.8, 0.68, 0.48))
+    add("cube", (sx, sy, 1.6), (2.0, 7.0, 1.6), m=stone)
+    add("cube", (sx, sy - 6.2, 3.8), (1.4, 1.2, 1.8), m=stone)
+    add("cube", (sx - 0.9, sy - 9.5, 0.6), (0.4, 3.0, 0.6), m=stone)
+    add("cube", (sx + 0.9, sy - 9.5, 0.6), (0.4, 3.0, 0.6), m=stone)
+    camera_path([(0.0, (70, -70, 14)), (1.0, (45, -55, 11))], lens=30, target_keys=[(0.0, (-10, 70, 14)), (1.0, (-14, 74, 16))])
+    return sc
+
+
+def shot_build():
+    """Khufu's pyramid under construction: a truncated pyramid, a straight supply ramp, blocks and sledges."""
+    sc = reset()
+    sky(28, 230, 0.9)
+    sun(28, 230, 3.8, (1, 0.9, 0.72))
+    desert_ground(400, 1.5)
+    ls = limestone()
+    frustum(0, 50, 46, 24, 0, 13, ls)
+    ramp = add("cube", (0, 50 - 23 - 30, 6.5), (4.5, 30, 6.5), m=noisy("mudbrick", (0.52, 0.4, 0.26), (0.62, 0.5, 0.34), 1.5, 0.95, 0.3))
+    for v in ramp.data.vertices:                                                # slope up towards the pyramid
+        if v.co.y < 0:
+            v.co.z = -1.0
+    rng = random.Random(3)
+    blk = limestone("block", (0.8, 0.72, 0.56), (0.9, 0.82, 0.66))
+    sled = mat("sledge", (0.4, 0.26, 0.12), 0.8)
+    for i in range(10):
+        y = -40 + i * 3.4
+        z = max(0.4, 13 * (i / 10)) if False else 0.6
+        add("cube", (rng.uniform(-14, 14), y - 20, 0.6), (0.9, 0.7, 0.6), m=blk)
+    for k in range(6):                                                          # blocks on sledges going up the ramp
+        t = k / 6
+        y = 50 - 23 - 58 + t * 56
+        z = 0.5 + t * 13
+        add("cube", (0, y, z + 0.75), (0.9, 0.7, 0.6), m=blk)
+        add("cube", (0, y, z + 0.1), (0.8, 1.0, 0.1), m=sled)
+    for x in (-30, 30):
+        for j in range(5):
+            add("cube", (x + rng.uniform(-6, 6), rng.uniform(10, 70), 0.6), (0.9, 0.7, 0.6), m=blk)
+    camera_path([(0.0, (-55, -60, 18)), (1.0, (-35, -50, 14))], lens=30, target_keys=[(0.0, (0, 30, 6)), (1.0, (2, 34, 8))])
+    return sc
+
+
+def shot_nile():
+    sc = reset()
+    sky(18, 250, 0.9)
+    sun(18, 250, 3.6, (1, 0.85, 0.65))
+    desert_ground(500, 4.0)
+    water_plane((0, 40, 0.3), (300, 18, 1), (0.08, 0.22, 0.26))
+    green = noisy("fields", (0.18, 0.32, 0.08), (0.3, 0.44, 0.12), 0.5, 0.9, 0.2)
+    for yy in (16, 64):
+        add("plane", (0, yy, 0.35), (300, 8, 1), m=green)
+    rng = random.Random(8)
+    for _ in range(40):
+        palm(rng.uniform(-120, 120), rng.choice([rng.uniform(12, 20), rng.uniform(60, 68)]), rng.uniform(0.8, 1.2))
+    for k in range(4):
+        nile_boat(-40 + k * 30, 40 + rng.uniform(-6, 6), rng.uniform(1.0, 1.4), math.radians(rng.uniform(-8, 8)))
+    camera_path([(0.0, (-60, -20, 9)), (1.0, (-30, -14, 8))], lens=30, target_keys=[(0.0, (0, 45, 3)), (1.0, (12, 48, 3))])
+    return sc
+
+
+def shot_quarry():
+    sc = reset()
+    sky(30, 220, 0.9)
+    sun(30, 220, 3.8, (1, 0.9, 0.75))
+    ls = limestone("quarry", (0.8, 0.72, 0.56), (0.9, 0.82, 0.66))
+    desert_ground(300, 1.0)
+    for i in range(6):                                                          # stepped quarry faces
+        add("cube", (0, 40 + i * 5, 1.5 + i * 1.6), (40, 2.5, 1.5 + i * 1.6), m=ls)
+    rng = random.Random(5)
+    for _ in range(30):
+        add("cube", (rng.uniform(-30, 30), rng.uniform(10, 34), 0.6), (0.9, 0.7, 0.6), (0, 0, rng.uniform(0, 0.4)), m=ls)
+    camera_path([(0.0, (-30, -20, 9)), (1.0, (-14, -14, 7))], lens=30, target_keys=[(0.0, (0, 40, 4)), (1.0, (6, 42, 5))])
+    return sc
+
+
+def shot_saqqara():
+    """Djoser's step pyramid (left) and Sneferu's Bent Pyramid (right), side by side as the learning curve."""
+    sc = reset()
+    sky(26, 230, 0.9)
+    sun(26, 230, 3.8, (1, 0.88, 0.7))
+    desert_ground(500, 2.0)
+    ls = limestone()
+    steps = [(40, 0, 4), (34, 4, 8), (28, 8, 11.5), (22, 11.5, 14.5), (16, 14.5, 17), (10, 17, 19)]
+    for b, z0, z1 in steps:
+        o = add("cube", (-40, 70, (z0 + z1) / 2), (b / 2, b * 0.8 / 2, (z1 - z0) / 2), m=ls)
+    frustum(40, 75, 40, 20, 0, 14, ls)                                          # bent pyramid: steep lower part
+    pyramid(40, 75, 20, 10, ls)
+    for o in bpy.data.objects:
+        if o.type == "MESH" and abs(o.location.x - 40) < 0.1 and o.location.z > 4 and o.data.vertices and len(o.data.vertices) == 5:
+            o.location.z = 14 + 5
+    camera_path([(0.0, (0, -60, 14)), (1.0, (0, -46, 12))], lens=28, target_keys=[(0.0, (0, 70, 10)), (1.0, (0, 72, 11))])
+    return sc
+
+
 SHOTS = {"globe": shot_globe, "india": shot_india, "bengal": shot_bengal, "spice": shot_spice, "ocean": shot_ocean, "fort": shot_fort,
          "durbar": shot_durbar, "court": shot_court, "plassey": lambda: shot_plassey(False), "plassey_rain": lambda: shot_plassey(True),
          "camp": shot_camp, "steppe": shot_steppe, "city": shot_city, "hall": shot_hall, "storm": shot_storm,
          "mongolia": lambda: shot_terrain_generic("mongolia", 14.0, (104, 46)),
          "centralasia": lambda: shot_terrain_generic("centralasia", 14.0, (64, 39)),
          "eurasia": lambda: shot_terrain_generic("eurasia", 10.0, (70, 40), back=(-4, -70, 42), fwd=(0, -48, 30)),
-         "globe_mongol": lambda: shot_globe_to(20, 20, 104, 46)}
+         "globe_mongol": lambda: shot_globe_to(20, 20, 104, 46),
+         "giza": shot_giza, "build": shot_build, "nile": shot_nile, "quarry": shot_quarry, "saqqara": shot_saqqara,
+         "egypt": lambda: shot_terrain_generic("egypt", 12.0, (31.2, 27.5), back=(-4, -66, 34), fwd=(0, -44, 22))}
 
 if __name__ == "__main__":
     sc = SHOTS[SHOT]()
