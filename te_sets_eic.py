@@ -1951,7 +1951,7 @@ def eic_shot_spice_quay():
         eic_inst(banana, px, py, 1.0, rng.uniform(0, 6), rng.uniform(0.9, 1.2))
     for k in range(60):                                                         # palm-lined far shore to the left
         eic_inst(palms[k % 3], rng.uniform(-420, -90), rng.uniform(70, 260), 0.8, rng.uniform(0, 6.28), rng.uniform(0.9, 1.3))
-    hillm = noisy("hillgreen", eic_lin("#3E5A40"), eic_lin("#5E7A52"), 0.03, 1.0, 0.4)
+    hillm = noisy("hillgreen", eic_lin("#6A7E6A"), eic_lin("#8A9A80"), 0.03, 1.0, 0.25)
     hillm.node_tree.nodes["Principled BSDF"].inputs["Specular IOR Level"].default_value = 0.05
     hillm["eic_nofog"] = 1                                                      # distant green, tuned by hand (no beige haze)
     eic_hill(-300, 330, 260, 160, 45, hillm, 2)
