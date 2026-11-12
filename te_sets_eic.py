@@ -2685,7 +2685,7 @@ def eic_shot_murshidabad():
     rng = random.Random(33)
     lime = eic_ph("lime", "white_stucco", 0.35, tint=(1.0, 0.95, 0.86), fallback=(0.9, 0.88, 0.8))
     ochre = eic_ph("ochreplaster", "yellow_plaster", 0.3, tint=(1.0, 0.93, 0.8), fallback=(0.82, 0.7, 0.48))
-    floor = eic_ph("courtstone", "white_plaster_02", 0.25, tint=(0.95, 0.86, 0.72), fallback=(0.8, 0.72, 0.6))
+    floor = eic_ph("courtstone", "white_plaster_02", 0.25, tint=(1.05, 0.9, 0.7), fallback=(0.8, 0.72, 0.6))
     brick = eic_ph("ghatbrick", "red_brick_03", 0.5, tint=(0.92, 0.72, 0.6), fallback=(0.5, 0.3, 0.2))
     gold = eic_gold()
     chandni = noisy("chandni", (0.86, 0.85, 0.82), (0.93, 0.92, 0.9), 9, 0.85, 0.1)
