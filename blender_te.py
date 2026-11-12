@@ -1064,7 +1064,7 @@ WHITEWASH = (0.93, 0.91, 0.86)
 
 
 def mudbrick_white():
-    return ph_mat("whitewash", "white_rough_plaster", 0.35, tint=(0.9, 0.86, 0.78))
+    return ph_mat("whitewash", "white_plaster_rough_01", 0.3, tint=(0.93, 0.9, 0.83))
 
 
 def mud_plaster():
@@ -1072,7 +1072,7 @@ def mud_plaster():
 
 
 def bedrock():
-    return ph_mat("bedrock", "dry_ground_rocks", 0.08, tint=(0.95, 0.85, 0.7))
+    return ph_mat("bedrock", "aerial_sand", 0.025, tint=(0.95, 0.88, 0.76))
 
 
 def casing():
@@ -1318,7 +1318,7 @@ def shot_tura():
     sun_obj = sun(26, 230, 3.8, (1, 0.9, 0.74))
     ls = casing()
     ground(300, noisy("riverbank", (0.5, 0.42, 0.3), (0.6, 0.5, 0.36), 0.6, 0.95, 0.3), 3, 0.5, 0.03)
-    add("cube", (0, 60, 18), (90, 14, 18), m=ph_mat("cliff", "rock_wall_10", 0.06, tint=(1.0, 0.97, 0.9)))   # white limestone cliff
+    add("cube", (0, 60, 18), (90, 14, 18), m=ph_mat("cliff", "marble_cliff_01", 0.03, tint=(1.0, 0.97, 0.9)))   # white limestone cliff
     for i in range(5):                                                          # cut gallery mouths
         add("cube", (-40 + i * 20, 46.2, 4), (3, 0.6, 4), m=mat("dark", (0.08, 0.07, 0.06), 0.9))
     rng = random.Random(3)
