@@ -163,7 +163,7 @@ def shots():
     out.append(scene("s03_relay", "plate:mongolia", [P("quill", 1700, G, 1.6, flip=True)], L,
                      fx=[caption("promotion by ability  ·  relay stations across the empire", 0.6)], follow=False))
     L = ["M19", "M20", "M21"]
-    out.append(scene("s04_jin", "plate:city",
+    out.append(scene("s04_jin", "plate:fort",
                      [*army("jin", 500, 760, 6, 1, 110, 0, 0.6), P("atlas", 1450, G, 1.8, flip=True), P("penny", 1760, G + 10, 1.6, flip=True)],
                      L, fx=[label("THE JIN DYNASTY · NORTHERN CHINA", 960, 90, 0.4, 56, (255, 230, 150)),
                             caption("siege engineers recruited from conquered lands", at(L, 2) + 0.4)]))
@@ -181,7 +181,7 @@ def shots():
                      L, fx=[label("OTRAR · 1218", 400, 110, 0.4, 64, (255, 230, 150))]))
     L = ["M27", "M28"]
     out.append(scene("s05_campaign", "m_ca", [P("quill", 1720, G, 1.5, flip=True)], L,
-                     fx=[pin("m_ca", 68.3, 42.85, "Otrar", 0.3), pin("m_ca", 64.42, 39.77, "Bukhara 1220", 1.4),
+                     fx=[pin("m_ca", 68.3, 42.85, "Otrar", 0.3), pin("m_ca", 64.42, 39.77, "Bukhara 1220", 1.4, dx=-270),
                          pin("m_ca", 66.96, 39.65, "Samarkand 1220", 2.6), pin("m_ca", 61.84, 37.66, "Merv 1221", 3.8),
                          label("1219–1221", 420, 110, 0.4, 70, (255, 214, 120))], follow=False))
     L = ["M29"]
