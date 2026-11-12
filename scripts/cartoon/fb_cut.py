@@ -24,6 +24,21 @@ import sets as S  # noqa: E402
 FPS = 30
 PRE, POST, END = 0.25, 0.35, 4.0
 CUTS = {
+    "ep02": {
+        "title": ["HOW THE MONGOLS CONQUERED", "ALMOST EVERYTHING"],
+        "ep": "Episode 02",
+        "lines": ["M01", "M03", "M04", "M08", "M11", "M13", "M15", "M17", "M24", "M25", "M26", "M31", "M35", "M37", "M38", "M39", "M46"],
+        "chapters": {"M01": "The hook", "M08": "Temujin", "M13": "The army", "M24": "The war with Khwarazm", "M31": "Into Europe",
+                     "M35": "Baghdad and Japan", "M39": "Kublai Khan", "M46": "From a boy to an empire"},
+    },
+    "eic": {
+        "title": ["HOW A COMPANY", "TOOK OVER INDIA"],
+        "ep": "Episode 03",
+        "lines": ["E01", "E03", "E04", "E06", "E08", "E12", "E19", "C02", "C04", "E23", "E24", "E25", "E28", "E29", "E35", "E37", "E39",
+                  "E41", "E43", "E45", "E48", "E50"],
+        "chapters": {"E01": "The hook", "E06": "London, 1600", "E12": "Spices", "E19": "Mughal India", "C02": "The cloth craze",
+                     "E23": "A shop with an army", "E28": "Siraj and Calcutta", "E35": "The secret deal", "E39": "Plassey", "E45": "The traders become rulers"},
+    },
     "ep03": {
         "title": ["HOW THE EGYPTIANS BUILT", "THE GREAT PYRAMIDS"],
         "ep": "Episode 01",
@@ -32,7 +47,12 @@ CUTS = {
                      "G25": "Who really built it", "G34": "A 4,500-year-old diary", "G37": "Moving the stones", "G45": "The last wonder"},
     },
 }
-SPOKEN = [("two point three million", "2.3 million"), ("two and a half tonnes", "2.5 tonnes"),
+SPOKEN = [("Twenty-third of June, seventeen fifty-seven", "23 June 1757"), ("eleven sixty-two", "1162"), ("twelve-oh-six", "1206"),
+          ("twelve-eighteen", "1218"), ("twelve forty-one", "1241"), ("twelve fifty-eight", "1258"), ("twelve seventy-four", "1274"),
+          ("twelve eighty-one", "1281"), ("twelve seventy-one", "1271"), ("twelve seventy-nine", "1279"), ("sixteen hundred", "1600"),
+          ("sixteen-thirteen", "1613"), ("seventeen fifty-six", "1756"), ("seventeen fifty-seven", "1757"), ("seventeen sixty-five", "1765"),
+          ("seventeen twenty-one", "1721"), ("seventeen hundred", "1700"),
+          ("two point three million", "2.3 million"), ("two and a half tonnes", "2.5 tonnes"),
           ("one hundred and forty-six metres", "146 metres"), ("twenty-six fifty BC", "2650 BC"), ("twenty thirteen", "2013"),
           ("twenty eighteen", "2018"), ("nineteen fifty-four", "1954"), ("forty-three metres", "43 metres"),
           ("four and a half thousand", "4,500"), ("four thousand", "4,000"), ("twenty years", "20 years"), ("Twenty years", "20 years"),
@@ -180,7 +200,8 @@ def main():
     cfg = CUTS[module]
     K, segs, total = plan(module)
     ff = K.SC.ffmpeg()
-    work = Path("D:/Temp/cartoon") / module / "fb_work"
+    import os
+    work = Path(os.environ.get("FB_WORK", str(Path("D:/Temp/cartoon") / module / "fb_work")))
     work.mkdir(parents=True, exist_ok=True)
     cut = picture(film, segs, work, ff)
     audio = sound(K, segs, total, music, work, ff)
