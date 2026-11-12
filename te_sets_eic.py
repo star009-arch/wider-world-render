@@ -497,18 +497,21 @@ def eic_pat_hull(era, W=1024, H=256, L=34.0, zmin=-4.5, zmax=10.0):
         eic_put(img, z < -0.15, "#D9D2BE")
         a, b = (x / 1.1 + z / 0.55), (x / 1.1 - z / 0.55)
         loz = (np.abs(eic_frac(a) - 0.5) + np.abs(eic_frac(b) - 0.5))
-        upper = (z > 3.0)
+        upper = ((z > 3.0) & (z < 4.5)) | ((z > 6.2) & (z < 7.3))
         cid = (np.floor(a) + np.floor(b)) % 3
+        eic_put(img, z > 2.9, "#2E2620")
         eic_put(img, upper, "#1E1A16")
-        for k, col in enumerate(("#A7372A", "#D5A73A", "#3E6B4F")):
+        for k, col in enumerate(("#8E3A2E", "#B8923A", "#3E5A44")):
             eic_put(img, upper & (cid == k) & (np.abs(eic_frac(a) - 0.5) < 0.42) & (np.abs(eic_frac(b) - 0.5) < 0.42), col)
-        eic_put(img, upper & (np.abs(eic_frac(a) - 0.5) > 0.42) | upper & (np.abs(eic_frac(b) - 0.5) > 0.42), "#E8DFC8")
+        eic_put(img, upper & ((np.abs(eic_frac(a) - 0.5) > 0.42) | (np.abs(eic_frac(b) - 0.5) > 0.42)), "#C9B98F")
+        eic_put(img, (np.abs(z - 4.6) < 0.08) | (np.abs(z - 2.95) < 0.06) | (np.abs(z - 6.1) < 0.08), "#B8923A")
         ports = [(1.7, 2.4), (3.6, 4.2)]
         bands = [(0.5, 0.75), (1.25, 1.5), (2.75, 3.0)]
     else:
         img[:] = eic_srgb("#1E1C1A")
         eic_put(img, z < -0.15, "#D9D2BE")
         eic_put(img, (z > 1.45) & (z < 2.85), "#C89B3C")
+        eic_put(img, (z > 4.6) & (z < 5.0), "#C89B3C")
         ports = [(1.8, 2.5), (3.7, 4.3)]
         bands = [(0.5, 0.75), (1.2, 1.45), (2.85, 3.05)]
     eic_put(img, (z > -0.15) & (np.abs(eic_frac(z / 0.32) - 0.5) > 0.46), "#15120F")
@@ -1210,7 +1213,7 @@ def eic_poly_ground(pts, z, m, bottom=-3.0, name="land"):
 def eic_palm_proto(seed, h=10.0, lean=0.18, nfr=13):
     rng = random.Random(seed)
     bark = eic_ph("palmbark", "palm_tree_bark", 1.2, tint=(0.85, 0.78, 0.68), fallback=(0.4, 0.33, 0.25))
-    fm = eic_frond_mat("palmfrond", "#3B5E22", "#8C9A3C")
+    fm = eic_frond_mat("palmfrond", "#3B5E22", "#8C9A3C", density=24.0, fill=0.74)
     ang = rng.uniform(0, 6.28)
     dx, dy = math.cos(ang), math.sin(ang)
     pts = [(lean * h * t * t * dx, lean * h * t * t * dy, h * t) for t in [i / 9 for i in range(10)]]
@@ -1239,7 +1242,7 @@ def eic_palm_proto(seed, h=10.0, lean=0.18, nfr=13):
     return eic_proto(parts, "palm")
 
 
-def eic_tree_proto(seed, h=7.0, crown=4.5, leaf=None, n=14, flat=0.55):
+def eic_tree_proto(seed, h=7.0, crown=4.5, leaf=None, n=20, flat=0.55):
     """Broad dense tree (mango, neem): trunk with branches and a domed canopy of noise-displaced lumps."""
     rng = random.Random(seed)
     bark = eic_ph("bark", "bark_brown_02", 1.0, tint=(0.8, 0.72, 0.62), fallback=(0.3, 0.22, 0.15))
@@ -1254,7 +1257,7 @@ def eic_tree_proto(seed, h=7.0, crown=4.5, leaf=None, n=14, flat=0.55):
         a = rng.uniform(0, 6.28)
         rr = rng.uniform(0, crown * 0.55)
         z = th + crown * (0.25 + 0.55 * (1 - rr / crown) * rng.uniform(0.6, 1.0))
-        r = crown * rng.uniform(0.32, 0.5)
+        r = crown * rng.uniform(0.28, 0.44)
         bpy.ops.mesh.primitive_ico_sphere_add(subdivisions=3, radius=r, location=(math.cos(a) * rr, math.sin(a) * rr, z))
         o = bpy.context.active_object
         for v in o.data.vertices:
@@ -1380,13 +1383,14 @@ def eic_ship(x, y, rz=0.0, s=1.0, era="1600", sails="furled", flags=True, z=0.0,
     """Galleon-type East Indiaman (era '1600': lateen mizzen, beakhead, painted upper works) or ship-rigged 1750s
     Indiaman (era '1750': black and ochre, gaff mizzen). Built bow +x and placed with an empty."""
     L, B, D, H = 34.0, 9.6, 3.8, 3.2
-    paint = eic_pmat("hull" + era, lambda: eic_pat_hull(era, L=L, zmin=-D, zmax=H + 2.0), rough=0.55, bump=0.05)
+    ZT = 10.0
+    paint = eic_pmat("hull" + era, lambda: eic_pat_hull(era, L=L, zmin=-D, zmax=ZT), rough=0.55, bump=0.05)
     wood = eic_ph("shipwood", "dark_wood", 0.7, tint=(0.75, 0.62, 0.5), fallback=(0.25, 0.18, 0.12))
     canvas = eic_pmat("canvas", lambda: eic_pat_canvas(), rough=0.85, translucent=0.25, sheen=0.2)
     rope = eic_col("rope", "#2E261C", 0.8)
     parts = []
     hull, hb, top = eic_hull("hull", L, B, D, H, paint, stern_w=0.6 if era == "1600" else 0.66, sheer_bow=1.1, sheer_stern=1.6,
-                             zr=(-D, H + 2.0), uv=True)
+                             zr=(-D, ZT), uv=True)
     parts.append(hull)
 
     def uvbox(o):
@@ -1396,7 +1400,7 @@ def eic_ship(x, y, rz=0.0, s=1.0, era="1600", sails="furled", flags=True, z=0.0,
         for poly in me.polygons:
             for li in poly.loop_indices:
                 p = mw @ me.vertices[me.loops[li].vertex_index].co
-                uvl.data[li].uv = ((p.x + L / 2) / L, (p.z + D) / (H + 2.0 + D))
+                uvl.data[li].uv = ((p.x + L / 2) / L, (p.z + D) / (ZT + D))
         return o
     if era == "1600":
         sc_ = add("cube", (-13.2, 0, 5.4), (3.8, 3.3, 2.0), m=paint)            # tall narrow stern castle
@@ -1561,9 +1565,9 @@ def eic_boat(x, y, rz=0.0, kind="perahu", s=1.0, z=0.0, sail=True, seed=0):
                                    hood))
             if sail:
                 sm = eic_pmat("bengalsail", lambda: eic_pat_canvas(base="#D8C49A", seams=9), rough=0.9, translucent=0.25)
-                parts.append(eic_rod((2.5, 0, 0.8), (2.5, 0, 9.5), 0.09, pole, 6))
-                parts.append(eic_sail((2.7, -2.2, 2.4), (2.7, 2.2, 2.4), (2.7, -1.9, 9.2), (2.7, 1.9, 9.2), 0.8, sm, 6, 6))
-                parts.append(eic_rod((2.7, -2.1, 9.2), (2.7, 2.1, 9.2), 0.06, pole, 6))
+                parts.append(eic_rod((2.5, 0, 0.8), (2.5, 0, 10.0), 0.09, pole, 6))
+                parts.append(eic_sail((2.7, -3.3, 2.2), (2.7, 3.3, 2.2), (2.7, -3.0, 9.6), (2.7, 3.0, 9.6), 1.2, sm, 8, 6))
+                parts.append(eic_rod((2.7, -3.1, 9.6), (2.7, 3.1, 9.6), 0.07, pole, 6))
             parts.append(eic_rod((-6.0, 0.3, 2.6), (-7.4, 0.9, -0.3), 0.07, pole, 6))
         elif kind == "budgerow":
             cab = eic_pmat("budgcabin", lambda: eic_pat_budgerow(), rough=0.6)
@@ -1690,13 +1694,13 @@ def eic_chest(x, y, z=0.0, rz=0.0, s=1.0):
 
 def eic_carpet(x, y, w, l, style, seed=1, rz=0.0, z=0.012, **kw):
     key = f"carpet_{style}_{seed}"
-    m = eic_pmat(key, lambda: eic_pat_carpet(seed=seed, style=style, **kw), rough=0.95, sheen=0.6, bump=0.15)
+    m = eic_pmat(key, lambda: eic_pat_carpet(seed=seed, style=style, **kw), rough=0.9, sheen=0.12, bump=0.15)
     return add("plane", (x, y, z), (w / 2, l / 2, 1), (0, 0, rz), m=m)
 
 
 def eic_table_carpet(x, y, z, w, l, drop, style="ushak", seed=2, **kw):
     """A knotted carpet laid over a table: top plus four hanging sides."""
-    m = eic_pmat(f"carpet_{style}_{seed}", lambda: eic_pat_carpet(seed=seed, style=style, **kw), rough=0.95, sheen=0.6, bump=0.15)
+    m = eic_pmat(f"carpet_{style}_{seed}", lambda: eic_pat_carpet(seed=seed, style=style, **kw), rough=0.9, sheen=0.12, bump=0.15)
     add("plane", (x, y, z + 0.01), (w / 2, l / 2, 1), m=m)
     for sg in (1, -1):
         eic_cloth((x + sg * (w / 2 + 0.02), y, z - drop / 2), l, drop, m, rot=(math.radians(90), 0, math.radians(90)), folds=4, amp=0.03)
@@ -1718,7 +1722,7 @@ def eic_canopy(x, y, z, w, d, m_top, m_val, pole_m, drop=0.6, poles=True, rz=0.0
 
 
 def eic_rain(x, y, w, h, rz=0.0):
-    m = eic_pmat("rain", lambda: eic_pat_streaks(), rough=1.0, alpha=True, uv_scale=(3, 1))
+    m = eic_pmat("rain", lambda: eic_pat_streaks() * np.array([0.7, 0.72, 0.76, 0.45], np.float32), rough=1.0, alpha=True, uv_scale=(3, 1))
     return add("plane", (x, y, h / 2), (w / 2, h / 2, 1), (math.radians(90), 0, rz), m=m)
 
 
@@ -1727,6 +1731,10 @@ def eic_begin():
     sc = reset()
     sc.cycles.transparent_max_bounces = 24
     sc.cycles.sample_clamp_indirect = 6.0
+    try:
+        sc.view_settings.look = "AgX - Punchy"
+    except Exception:
+        pass
     EIC_M.clear()
     return sc
 
@@ -1834,7 +1842,7 @@ def eic_table(x, y, w, l, h, m):
 def eic_jav_house(x, y, w, d, rz=0.0, h=2.8, stilt=1.0, roof_h=4.6, z=0.0, tier=False):
     wall = eic_ph("javplank", "weathered_brown_planks", 0.7, tint=(0.82, 0.68, 0.52), fallback=(0.35, 0.25, 0.16))
     post = eic_col("javpost", "#4A3524", 0.7)
-    thatch = eic_ph("ijuk", "thatch_roof_angled", 0.4, tint=(0.7, 0.58, 0.45), fallback=(0.4, 0.32, 0.22))
+    thatch = eic_ph("ijuk", "thatch_roof_angled", 0.4, tint=(1.0, 0.82, 0.6), fallback=(0.5, 0.4, 0.28))
     dark = eic_col("darkdoor", "#16110D", 0.9)
     objs = []
     for sx in (-1, 0, 1):
@@ -1901,9 +1909,9 @@ def eic_shot_spice_quay():
     """Bantam/Banda-style spice port, c.1600, late afternoon: pepper, nutmeg, mace and cloves on the quay, Javanese
     warehouses and palms, perahus and a junk, an English galleon at anchor, a volcano island beyond (Gunung Api)."""
     sc = eic_begin()
-    eic_sky("kloppenheim_06_puresky", 0.85, sun_az=150)
-    eic_sun(150, 3.4, (1, 0.8, 0.55), lo=10, hi=22)
-    exposure(-0.35)
+    eic_sky("hilly_terrain_01_puresky", 0.8, sun_az=132)
+    eic_sun(132, 4.0, (1, 0.74, 0.46), lo=9, hi=15)
+    exposure(-0.25)
     sand = eic_ph("quaysand", "coast_sand_01", 0.22, tint=(1.0, 0.9, 0.75), fallback=(0.75, 0.62, 0.45))
     planks = eic_ph("wharf", "weathered_planks", 0.45, tint=(0.85, 0.72, 0.58), fallback=(0.45, 0.35, 0.25))
     post = eic_col("pilepost", "#3A2C20", 0.8)
@@ -1932,7 +1940,7 @@ def eic_shot_spice_quay():
         eic_inst(palms[k % 3], rng.uniform(-420, -90), rng.uniform(70, 260), 0.8, rng.uniform(0, 6.28), rng.uniform(0.9, 1.3))
     hillm = eic_ph("hillgreen", "forest_ground_04", 0.02, tint=(0.55, 0.75, 0.45), fallback=(0.2, 0.32, 0.15))
     eic_hill(-300, 330, 260, 160, 45, hillm, 2)
-    eic_volcano(-120, 1100, 480, 330, hillm, 3)
+    eic_volcano(-330, 1500, 420, 300, hillm, 3)
     eic_hill(380, 900, 300, 200, 60, hillm, 5)
     bale = eic_bale_mat()
     pepper = eic_spice_mat("pepper", "#2B231D", 60)
@@ -1957,23 +1965,28 @@ def eic_shot_spice_quay():
         o = add("sphere", (jx, jy, 1.55), (0.42, 0.42, 0.55), m=jar, segments=16, ring_count=10)
         smooth(o)
         add("cyl", (jx, jy, 2.15), (0.16, 0.16, 0.1), m=jar, vertices=12)
-    stripe = eic_pmat("batik", lambda: eic_pat_stripes(cols=("#24305E", "#E9DFC9", "#A4302A", "#E9DFC9")), rough=0.85, translucent=0.3)
+    stripe = eic_pmat("batik", lambda: eic_pat_stripes(cols=("#24305E", "#E9DFC9", "#B5662A", "#E9DFC9"), n=22), rough=0.85, translucent=0.3)
     eic_canopy(-8.0, 13.0, 3.3, 6.0, 4.0, stripe, stripe, eic_col("pole", "#5A4630", 0.7), drop=0.4).location.z = 1.0
     eic_chest(-3.2, 15.8, 1.0, 0.3)
     eic_chest(-2.4, 16.9, 1.0, -0.2)
-    for k, (bx, by) in enumerate(((-2.8, 3.0), (-3.6, 3.9), (-1.9, 4.3))):
+    for k, (bx, by) in enumerate(((-6.0, 6.0), (-6.9, 6.8), (-5.4, 7.2))):
         eic_basket(bx, by, 1.0, 0.36, 0.3, (nutmeg, mace, pepper)[k])
-    eic_sack(-4.4, 2.6, 1.0, 1.05, 0.4, bale)
-    eic_boat(4.6, 25, math.radians(92), "perahu", sail=False, seed=1)
-    eic_boat(13.6, 31, math.radians(88), "perahu", sail=True, seed=2)
-    eic_boat(4.4, 46, math.radians(95), "perahu", sail=False, seed=3)
+    eic_sack(-7.6, 5.6, 1.0, 1.05, 0.4, bale)
+    cloths = [eic_col("bolt" + c, c, 0.7) for c in ("#A4302A", "#24305E", "#E3A23B", "#2E6B4A", "#E9DFC9", "#7A1F2E")]
+    for k in range(14):                                                         # bolts of Indian cloth traded for pepper
+        row, col = divmod(k, 5)
+        eic_rod((-12.2 + col * 0.0, 11.2 + col * 0.36, 1.18 + row * 0.33), (-10.4, 11.2 + col * 0.36, 1.18 + row * 0.33), 0.16, cloths[k % 6], 12)
+    eic_boat(4.0, 19.0, math.radians(-21), "perahu", sail=False, seed=1)
+    eic_boat(-10.5, 28.5, math.radians(-30), "perahu", sail=True, seed=2)
+    eic_boat(15.5, 66, math.radians(4), "perahu", sail=False, seed=3)
+    eic_boat(2.0, 62, math.radians(-6), "perahu", sail=True, seed=5)
     eic_boat(-30, 120, math.radians(15), "perahu", sail=True, seed=4)
-    eic_boat(42, 80, math.radians(150), "junk", s=1.0)
-    eic_boat(-90, 160, math.radians(20), "junk", s=0.9)
-    eic_ship(60, 215, math.radians(195), 1.0, "1600", "furled")
-    eic_ship(-70, 390, math.radians(160), 0.95, "1600", "furled")
-    eic_aerial(45, 700, 0.8)
-    camera_path([(0.0, (6, -12, 2.7)), (1.0, (8.2, -9.9, 2.65))], lens=30, target_keys=[(0.0, (-2, 40, 3.4)), (1.0, (1, 42, 3.5))])
+    eic_boat(38, 105, math.radians(200), "junk", s=0.85)
+    eic_boat(-80, 170, math.radians(20), "junk", s=0.8)
+    eic_ship(26, 150, math.radians(215), 1.0, "1600", "furled")
+    eic_ship(-60, 280, math.radians(160), 0.95, "1600", "furled")
+    eic_aerial(60, 1300, 0.6)
+    camera_path([(0.0, (3, -1, 2.6)), (1.0, (5, 1.4, 2.55))], lens=30, target_keys=[(0.0, (-3, 45, 3.8)), (1.0, (0, 47, 3.9))])
     return sc
 
 
@@ -2030,9 +2043,9 @@ def eic_london_bridge(x0, x1, y, z_water, stone, mats, rng):
 
 def eic_shot_london():
     sc = eic_begin()
-    eic_sky("kloofendal_28d_misty_puresky", 0.95, sun_az=150)
-    eic_sun(150, 2.4, (1, 0.88, 0.72), lo=15, hi=30)
-    exposure(-0.25)
+    eic_sky("kloppenheim_03_puresky", 0.8, sun_az=-35)
+    eic_sun(-35, 3.0, (1, 0.88, 0.72), lo=22, hi=34)
+    exposure(-0.3)
     rng = random.Random(16)
     cob = eic_ph("cobbles", "cobblestone_floor_03", 0.4, tint=(0.82, 0.74, 0.64), fallback=(0.4, 0.37, 0.33))
     mud = eic_ph("bankmud", "brown_mud_dry", 0.1, tint=(0.8, 0.75, 0.65), fallback=(0.35, 0.3, 0.24))
@@ -2056,7 +2069,7 @@ def eic_shot_london():
     k = 0
     while y < 125:
         w = rng.uniform(4.8, 6.8)
-        eic_tudor_house(-5.2 + rng.uniform(-0.3, 0.3), y + w / 2, w, 9.0, rng.choice([3, 3, 4]), rng,
+        eic_tudor_house(-5.2 + rng.uniform(-0.3, 0.3), y + w / 2, w, 9.0, rng.choice([3, 3, 4, 4, 5]), rng,
                         (infills[k % 2 if rng.random() < 0.7 else 0], timber, roof, win, brick, dark), signs[k % 4] if k % 3 == 1 else None)
         y += w + 0.05
         k += 1
@@ -2081,12 +2094,15 @@ def eic_shot_london():
     add("cyl", (280, 120, 12.6), (15.6, 15.6, 0.8), m=eic_ph("globethatch", "thatch_roof_angled", 0.3, tint=(0.8, 0.68, 0.5)), vertices=20)
     eic_rod((280, 120, 12), (280, 120, 19.6), 0.08, timber)
     eic_flag(280, 120, 18, 3, 1.6, "george")
-    eic_ship(55, 70, math.radians(98), 0.95, "1600", "furled", z=-1.6)
-    eic_ship(100, 135, math.radians(84), 0.85, "1600", "furled", z=-1.6)
-    eic_ship(160, 185, math.radians(92), 0.7, "1600", "furled", z=-1.6)
+    eic_ship(42, 58, math.radians(125), 0.95, "1600", "furled", z=-1.6)
+    eic_ship(80, 115, math.radians(60), 0.9, "1600", "furled", z=-1.6)
+    eic_ship(140, 170, math.radians(110), 0.75, "1600", "furled", z=-1.6)
+    for bx, by in ((-4.0, 16.0), (-4.3, 17.1), (-3.6, 22.5)):
+        eic_barrel(bx, by, 0, 0.9)
+    eic_chest(-4.0, 30.0, 0, 0.1)
     for k in range(9):
         eic_boat(rng.uniform(12, 60), rng.uniform(4, 150), math.radians(rng.uniform(60, 120)), "wherry", z=-1.6, seed=k)
-    eic_aerial(18, 260, 0.88)
+    eic_aerial(30, 500, 0.6, tint=(1.0, 0.97, 0.92))
     camera_path([(0.0, (1.5, -14, 1.85)), (1.0, (2.5, -11.6, 1.85))], lens=30, target_keys=[(0.0, (-1, 60, 5.2)), (1.0, (0, 62, 5.3))])
     return sc
 
@@ -2094,18 +2110,18 @@ def eic_shot_london():
 def eic_shot_whitehall():
     sc = eic_begin()
     sc.cycles.max_bounces = 6
-    flat_world((0.78, 0.83, 0.9), 1.4)
-    sun(28, 197 + 90, 5.5, (1, 0.9, 0.75), 1.0)
-    exposure(0.2)
-    plaster = eic_ph("hallplaster", "white_plaster_rough_01", 0.3, tint=(0.93, 0.87, 0.77), fallback=(0.85, 0.8, 0.7))
-    oak = eic_ph("hall_oak", "dark_wood", 0.8, tint=(0.8, 0.6, 0.45), fallback=(0.25, 0.16, 0.1))
+    flat_world((0.78, 0.83, 0.9), 1.0)
+    sun(26, 200 + 90, 12.0, (1, 0.88, 0.7), 1.0)
+    exposure(0.15)
+    plaster = eic_ph("hallplaster", "white_plaster_rough_01", 0.3, tint=(1.0, 0.94, 0.84), fallback=(0.88, 0.84, 0.75))
+    oak = eic_ph("hall_oak", "dark_wood", 2.2, tint=(0.8, 0.6, 0.45), fallback=(0.25, 0.16, 0.1))
     stonew = eic_ph("winstone", "white_sandstone_blocks_02", 0.4, tint=(0.95, 0.9, 0.82))
     panels = eic_pmat("wainscot", lambda: eic_pat_panels(), rough=0.45, bump=0.6, coat=0.2, uv_scale=(10, 1))
-    rush = eic_pmat("rush", lambda: eic_pat_rush(), rough=0.9, bump=0.3, uv_scale=(6, 11.2))
+    rush = eic_pmat("rush", lambda: eic_pat_rush(), rough=0.9, bump=0.3, uv_scale=(3, 5.6))
     tap = eic_pmat("tapestry", lambda: eic_pat_tapestry(), rough=0.95, sheen=0.5)
     tap2 = eic_pmat("tapestry2", lambda: eic_pat_tapestry(seed=8, field="#3A4A3C"), rough=0.95, sheen=0.5)
-    dam = eic_pmat("damask", lambda: eic_pat_damask(), rough=0.55, sheen=0.6)
-    val = eic_pmat("valance_c", lambda: eic_pat_valance(base="#8E1B23", gold="#C9A24A"), rough=0.6, sheen=0.5, alpha=True)
+    dam = eic_pmat("damask", lambda: eic_pat_damask(), rough=0.55, sheen=0.15)
+    val = eic_pmat("valance_c", lambda: eic_pat_valance(base="#8E1B23", gold="#C9A24A"), rough=0.6, sheen=0.1, alpha=True)
     glass = eic_pmat("leaded", lambda: eic_pat_leaded(), rough=0.2, transmit=True, uv_scale=(3, 3))
     velvet = eic_col("velvet", "#7E1620", 0.75)
     add("plane", (0, 4, 0), (7.5, 14, 1), m=rush)
@@ -2149,24 +2165,24 @@ def eic_shot_whitehall():
     add("plane", (0, 17.98, 1.5), (7.5, 1.5, 1), (math.radians(90), 0, 0), m=panels)        # dais end
     eic_cloth((-5.0, 17.95, 4.9), 4.2, 3.2, tap2, folds=5, amp=0.03)
     eic_cloth((5.0, 17.95, 4.9), 4.2, 3.2, tap, folds=5, amp=0.03)
-    eic_cloth((0, 17.9, 3.7), 3.6, 5.2, dam, folds=6, amp=0.04)
-    add("cube", (0, 16.3, 6.35), (2.0, 1.7, 0.12), m=dam)
-    eic_cloth((0, 14.58, 5.98), 4.0, 0.62, val, folds=10, amp=0.02, nv=2)
+    eic_cloth((0, 17.9, 3.85), 4.4, 5.7, dam, folds=7, amp=0.04)
+    add("cube", (0, 16.2, 6.75), (2.4, 1.8, 0.12), m=dam)
+    eic_cloth((0, 14.38, 6.36), 4.8, 0.7, val, folds=12, amp=0.02, nv=2)
     for sg in (-1, 1):
-        eic_cloth((sg * 2.02, 16.3, 5.98), 3.4, 0.62, val, rot=(math.radians(90), 0, math.radians(90)), folds=8, amp=0.02, nv=2)
+        eic_cloth((sg * 2.42, 16.2, 6.36), 3.6, 0.7, val, rot=(math.radians(90), 0, math.radians(90)), folds=8, amp=0.02, nv=2)
     add("cube", (0, 15.7, 0.15), (3.3, 2.5, 0.15), m=oak)
     add("cube", (0, 16.3, 0.42), (2.5, 1.7, 0.12), m=oak)
     eic_carpet(0, 16.2, 4.4, 3.0, "ushak", seed=7, z=0.55, field="#9C2A2A", border="#1E2E5A")
-    cx, cy, cz = 0, 16.9, 0.54                                                  # chair of estate
+    cx, cy, cz, k_ = 0, 16.9, 0.54, 1.3                                         # chair of estate
     for sx in (-1, 1):
         for sy in (-1, 1):
-            add("cube", (cx + sx * 0.42, cy + sy * 0.35, cz + 0.25), (0.05, 0.05, 0.25), m=eic_gold())
-        add("cube", (cx + sx * 0.46, cy, cz + 0.75), (0.05, 0.38, 0.05), m=eic_gold())
-        add("cube", (cx + sx * 0.42, cy + 0.38, cz + 1.0), (0.05, 0.05, 0.5), m=eic_gold())
-        add("sphere", (cx + sx * 0.42, cy + 0.38, cz + 1.58), (0.08, 0.08, 0.1), m=eic_gold(), segments=10, ring_count=6)
-    add("cube", (cx, cy, cz + 0.52), (0.48, 0.42, 0.07), m=velvet)
-    add("cube", (cx, cy + 0.4, cz + 1.05), (0.42, 0.05, 0.45), m=velvet)
-    add("cube", (cx, cy - 0.05, cz + 0.64), (0.44, 0.36, 0.06), m=dam)
+            add("cube", (cx + sx * 0.42 * k_, cy + sy * 0.35 * k_, cz + 0.25 * k_), (0.05 * k_, 0.05 * k_, 0.25 * k_), m=eic_gold())
+        add("cube", (cx + sx * 0.46 * k_, cy, cz + 0.75 * k_), (0.05 * k_, 0.38 * k_, 0.05 * k_), m=eic_gold())
+        add("cube", (cx + sx * 0.42 * k_, cy + 0.38 * k_, cz + 1.0 * k_), (0.05 * k_, 0.05 * k_, 0.5 * k_), m=eic_gold())
+        add("sphere", (cx + sx * 0.42 * k_, cy + 0.38 * k_, cz + 1.58 * k_), (0.08 * k_, 0.08 * k_, 0.1 * k_), m=eic_gold(), segments=10, ring_count=6)
+    add("cube", (cx, cy, cz + 0.52 * k_), (0.48 * k_, 0.42 * k_, 0.07 * k_), m=velvet)
+    add("cube", (cx, cy + 0.4 * k_, cz + 1.05 * k_), (0.42 * k_, 0.05 * k_, 0.45 * k_), m=velvet)
+    add("cube", (cx, cy - 0.05, cz + 0.64 * k_), (0.44 * k_, 0.36 * k_, 0.06), m=dam)
     eic_table(-5.3, 8.0, 1.0, 2.2, 0.85, oak)                                   # tables with Turkey carpets
     eic_table_carpet(-5.3, 8.0, 0.86, 1.25, 2.5, 0.6, "ushak", seed=2, field="#9C2A2A", border="#1B1F3A")
     eic_table(5.1, 12.8, 1.0, 2.0, 0.85, oak)
@@ -2279,7 +2295,7 @@ def eic_shot_deptford():
     eic_windmill(-60, 300, -1.2, wood, canvas)
     eic_windmill(140, 340, -1.2, wood, canvas)
     eic_ship(19, 33, math.radians(180), 1.0, "1600", "none", flags=False, z=-2.2, yards=False)   # fitting out: masts stepped, no sails yet
-    eic_ship(130, 150, math.radians(10), 0.8, "1600", "set", flags=True, z=-2.2)
+    eic_ship(110, 170, math.radians(38), 0.8, "1600", "set", flags=True, z=-2.2)
     eic_ship(-80, 120, math.radians(-15), 0.75, "1600", "furled", flags=True, z=-2.2)
     rope = eic_col("rope", "#2E261C", 0.8)
     for sx in (10.5, 17.5):                                                     # sheer legs over the hull
@@ -2290,10 +2306,10 @@ def eic_shot_deptford():
     eic_tread_crane(-4, 15.5, math.radians(90), wood, roof)
     for r in range(3):                                                          # log stack
         for i in range(5 - r):
-            yy = 5.5 + i * 0.68 + r * 0.34
-            eic_rod((-21, yy, 0.32 + r * 0.58), (-11.5, yy, 0.32 + r * 0.58), 0.33, bark, 10)
+            yy = 9.0 + i * 0.68 + r * 0.34
+            eic_rod((-15, yy, 0.32 + r * 0.58), (-6.0, yy, 0.32 + r * 0.58), 0.33, bark, 10)
     for k in range(12):                                                         # plank stacks
-        add("cube", (-8.6, 11.5, 0.05 + k * 0.055), (0.32, 2.4, 0.025), (0, 0, rng.uniform(-0.03, 0.03)), m=wood)
+        add("cube", (-7.6, 15.0, 0.05 + k * 0.055), (0.32, 2.4, 0.025), (0, 0, rng.uniform(-0.03, 0.03)), m=wood)
         add("cube", (-9.4, 13.2, 0.05 + k * 0.055), (1.6, 0.3, 0.025), (0, 0, rng.uniform(-0.03, 0.03)), m=wood)
     for bx, by in ((-1.5, 14.0), (-0.6, 14.4), (-1.1, 15.2), (0.3, 15.0), (3.6, 16.2), (4.5, 16.0), (4.1, 17.0)):
         eic_barrel(bx, by, 0, rng.uniform(0.9, 1.05))
@@ -2310,7 +2326,7 @@ def eic_shot_deptford():
     eic_gable(-30, 30, 6.0, 6, 5, 3.2, roof, brick, rz=math.radians(90), over=0.4)
     eic_ship_frame(-35, 52, math.radians(8), wood)
     eic_aerial(40, 600, 0.8)
-    camera_path([(0.0, (-3, -12, 2.6)), (1.0, (-0.8, -10, 2.6))], lens=28, target_keys=[(0.0, (6, 34, 6.5)), (1.0, (8, 34, 6.6))])
+    camera_path([(0.0, (-2.5, -3.5, 2.6)), (1.0, (-0.5, -1.5, 2.6))], lens=28, target_keys=[(0.0, (7, 34, 7.0)), (1.0, (9, 34, 7.1))])
     return sc
 
 
@@ -2318,17 +2334,17 @@ def eic_shot_ajmer_court():
     """Jahangir's darbar at Ajmer, 1616 (Roe): red sandstone with white-marble geometric inlay, trabeate pillared halls,
     the jharokha above, a gilt inner rail round a carpeted platform under velvet canopies, red qanats."""
     sc = eic_begin()
-    eic_sky("citrus_orchard_puresky", 0.75, sun_az=235)
-    eic_sun(235, 3.4, (1, 0.88, 0.7), lo=34, hi=48)
-    exposure(-0.4)
-    red = eic_ph("redstone", "red_sandstone_wall", 0.35, tint=(1.0, 0.8, 0.68), fallback=(0.6, 0.3, 0.2))
-    red2 = eic_ph("redstone2", "red_sandstone_tiles", 0.5, tint=(1.0, 0.8, 0.7), fallback=(0.6, 0.32, 0.22))
-    pave = eic_ph("redpave", "red_sandstone_pavement", 0.22, tint=(1.0, 0.85, 0.75), fallback=(0.6, 0.35, 0.25))
+    eic_sky("kloofendal_48d_partly_cloudy_puresky", 0.75, sun_az=235)
+    eic_sun(235, 3.6, (1, 0.88, 0.7), el=40)
+    exposure(-0.35)
+    red = eic_ph("redstone", "red_sandstone_wall", 0.35, tint=(1.0, 0.68, 0.52), fallback=(0.6, 0.3, 0.2))
+    red2 = eic_ph("redstone2", "red_sandstone_wall", 0.7, tint=(1.0, 0.64, 0.48), fallback=(0.6, 0.32, 0.22), vary=0.08)
+    pave = eic_ph("redpave", "red_sandstone_pavement", 0.22, tint=(1.0, 0.8, 0.68), fallback=(0.6, 0.35, 0.25))
     marble = eic_ph("marble", "marble_01", 0.6, tint=(1.0, 0.98, 0.95), fallback=(0.9, 0.88, 0.84))
     gold = eic_gold()
     inlay = eic_pmat("inlay", lambda: eic_pat_inlay(), rough=0.3, alpha=True, uv_scale=(2, 2))
     inlay_b = eic_pmat("inlayband", lambda: eic_pat_inlay(cell=0.5), rough=0.3, alpha=True, uv_scale=(12, 1))
-    velvet = eic_pmat("velvet_c", lambda: eic_pat_brocade(base="#9E1B32", c1="#C9A13C", c2="#1F7A52"), rough=0.6, sheen=0.7)
+    velvet = eic_pmat("velvet_c", lambda: eic_pat_brocade(base="#9E1B32", c1="#C9A13C", c2="#1F7A52"), rough=0.6, sheen=0.15)
     val = eic_pmat("valance", lambda: eic_pat_valance(), rough=0.6, sheen=0.5, alpha=True)
     broc = eic_pmat("brocade", lambda: eic_pat_brocade(), rough=0.35, metal=0.4, sheen=0.4)
     qanat = eic_pmat("qanat", lambda: eic_pat_qanat(), rough=0.85, sheen=0.3)
@@ -2407,8 +2423,10 @@ def eic_shot_ajmer_court():
         eic_cloth((sg * 23.85, 11.5, 2.4), 24, 3.4, qanat, rot=(math.radians(90), 0, math.radians(90)), folds=20, amp=0.06, nu=80)
         for k in range(7):
             yy = -0.5 + (k + 0.5) * 3.4
-            add("cyl", (sg * 15.3, yy, 5.45), (0.14, 0.14, 1.45), (math.radians(90), 0, 0), m=eic_col("silk" + str(k % 4), cols[k % 4], 0.45),
-                vertices=10)
+            silk = eic_col("silk" + str(k % 4), cols[(k + (sg > 0)) % 4], 0.45)
+            add("cyl", (sg * 15.3, yy, 5.45), (0.14, 0.14, 1.45), (math.radians(90), 0, 0), m=silk, vertices=10)
+            for dy in (-1.15, 1.15):
+                eic_cloth((sg * 15.25, yy + dy, 3.4), 0.85, 4.0, silk, rot=(math.radians(90), 0, math.radians(90)), folds=3, amp=0.06, nu=12)
         add("plane", (sg * 14.95, 11.5, 0.3), (12.5, 0.3, 1), (math.radians(90), 0, math.radians(90)), m=inlay_b)
         eic_cloth((sg * 19.5, 23.6, 1.6), 9.0, 3.2, qanat, folds=8, amp=0.05, nu=50)
     eic_carpet(0.8, -2.0, 7.0, 10.5, "medallion", seed=11)
@@ -2434,11 +2452,11 @@ def eic_balcony(xf, y, z, w, sg, teak, jali):
 
 def eic_shot_surat():
     sc = eic_begin()
-    eic_sky("evening_road_01_puresky", 0.8, sun_az=25)
-    eic_sun(25, 3.3, (1, 0.86, 0.66), lo=28, hi=45)
+    eic_sky("qwantani_mid_morning_puresky", 0.75, sun_az=20)
+    eic_sun(20, 3.6, (1, 0.88, 0.7), el=52)
     exposure(-0.35)
     rng = random.Random(8)
-    plaster = eic_ph("limeplaster", "white_plaster_rough_02", 0.3, tint=(0.95, 0.87, 0.74), fallback=(0.85, 0.78, 0.66))
+    plaster = eic_ph("limeplaster", "white_stucco", 0.35, tint=(1.0, 0.9, 0.76), fallback=(0.85, 0.78, 0.66))
     brick = eic_ph("suratbrick", "red_brick_03", 0.5, tint=(0.9, 0.72, 0.6), fallback=(0.5, 0.3, 0.2))
     teak = eic_ph("teak", "dark_wood", 1.0, tint=(0.85, 0.62, 0.42), fallback=(0.3, 0.2, 0.12))
     floor = eic_ph("courtfloor", "brick_floor", 0.3, tint=(0.95, 0.82, 0.7), fallback=(0.55, 0.38, 0.28))
@@ -2453,26 +2471,27 @@ def eic_shot_surat():
         add("cube", (0, 30.3 + k * 0.5, -0.1 - k * 0.2), (40, 0.25, 0.1), m=stone)
     for sg in (-1, 1):                                                          # the two house wings
         xf = sg * 9.0
+        o_ = -sg                                                                # out of the facade, into the courtyard
         add("cube", (sg * 13.5, 1.5, 6.0), (4.5, 15.5, 6.0), m=plaster)
         add("cube", (sg * 13.5, 1.5, 1.2), (4.55, 15.55, 1.2), m=brick)
-        add("cube", (xf + sg * 0.15, 1.5, 12.0), (0.25, 15.6, 0.15), m=teak)
+        add("cube", (xf + o_ * 0.15, 1.5, 12.0), (0.25, 15.6, 0.15), m=teak)
         for k in range(14):
-            add("cube", (xf + sg * 0.05, -13.5 + k * 2.2, 12.5), (0.25, 0.6, 0.35), m=plaster)
+            add("cube", (xf + o_ * 0.05, -13.5 + k * 2.2, 12.5), (0.25, 0.6, 0.35), m=plaster)
         for k in range(7):
             yy = -11 + k * 4
-            add("cube", (xf - sg * 0.01, yy, 1.45), (0.04, 1.2, 1.45), m=dark)
-            add("cube", (xf + sg * 0.06, yy, 3.0), (0.08, 1.5, 0.12), m=teak)
+            add("cube", (xf + o_ * 0.02, yy, 1.45), (0.04, 1.2, 1.45), m=dark)
+            add("cube", (xf + o_ * 0.08, yy, 3.0), (0.08, 1.5, 0.12), m=teak)
             for dy in (-1.3, 1.3):
-                add("cube", (xf + sg * 0.06, yy + dy, 1.45), (0.08, 0.1, 1.45), m=teak)
-        add("cube", (xf + sg * 0.1, 1.5, 3.6), (0.12, 15.6, 0.1), m=teak)
-        add("cube", (xf + sg * 0.1, 1.5, 7.2), (0.12, 15.6, 0.1), m=teak)
+                add("cube", (xf + o_ * 0.08, yy + dy, 1.45), (0.08, 0.1, 1.45), m=teak)
+        add("cube", (xf + o_ * 0.1, 1.5, 3.6), (0.12, 15.6, 0.1), m=teak)
+        add("cube", (xf + o_ * 0.1, 1.5, 7.2), (0.12, 15.6, 0.1), m=teak)
         for fl, ys in ((1, (-9, -1, 7, 13)), (2, (-12, -5, 3, 10))):
             z = 3.6 * fl + 0.25
             for yy in ys:
-                eic_balcony(xf, yy, z, 2.6, sg, teak, jali)
+                eic_balcony(xf, yy, z, 2.6, o_, teak, jali)
             for yy in [v for v in range(-13, 16, 3) if all(abs(v - q) > 2.2 for q in ys)]:
-                add("cube", (xf + sg * 0.02, yy, z + 1.2), (0.05, 0.5, 0.75), m=dark)
-                add("cube", (xf + sg * 0.08, yy, z + 1.2), (0.04, 0.6, 0.85), m=teak)
+                add("cube", (xf + o_ * 0.02, yy, z + 1.2), (0.05, 0.5, 0.75), m=dark)
+                add("cube", (xf + o_ * 0.08, yy, z + 1.2), (0.04, 0.6, 0.85), m=teak)
     add("cube", (0, 17.3, 0.12), (9, 0.6, 0.12), m=brick)                      # back arcade towards the river
     eic_arcade(-9, 17.2, 5, 3.6, 3.0, 1.6, 5.6, 0.9, 0.85, plaster, p=1.1, q=0.6)
     add("cube", (0, 17.2, 5.75), (9.2, 0.6, 0.15), m=teak)
@@ -2500,7 +2519,7 @@ def eic_shot_surat():
     tree = eic_tree_proto(7, h=7, crown=3.4, leaf=eic_leaf_mat("neem", "#2A4A22", "#6A8E3A", 7))
     eic_inst(tree, 6.6, 12.8, 0, 0.5, 1.0)
     eic_inst(tree, -40, 34, 0, 1.0, 1.4)
-    calico = eic_ph("calico", "rough_linen", 2.0, tint=(1.0, 0.96, 0.88), fallback=(0.9, 0.86, 0.78))
+    calico = noisy("calico", (0.82, 0.78, 0.68), (0.9, 0.87, 0.78), 6, 0.9, 0.15)
     cord = eic_col("cord", "#5A4630", 0.8)
     for i in range(4):                                                          # calico bales
         for j in range(2):
@@ -2550,6 +2569,10 @@ def eic_shot_calcutta():
     dark = eic_col("darkdoor", "#16110D", 0.9)
     G = 1.4
     eic_poly_ground([(-5, -80), (500, -80), (500, 700), (-20, 700), (-12, 300), (-5, 160)], G, strand)
+    eic_poly_ground([(-56, -40), (-5, -40), (-5, -14), (-24, -14), (-24, 8), (-56, 8)], G, eic_ph("landing", "brick_floor", 0.3,
+                    tint=(0.95, 0.8, 0.68), fallback=(0.5, 0.35, 0.25)), name="landing")
+    for k in range(6):
+        add("cube", (-40, 8.4 + k * 0.5, G - 0.25 - k * 0.24), (16, 0.25, 0.12), m=brick)
     eic_water((-200, 300, 0.0), (300, 500), "#6E6448", rough=0.07, wave=0.15, scale=0.3)
     eic_poly_ground([(-1500, -80), (-430, -80), (-440, 700), (-1500, 700)], 0.8, eic_ph("farbank2", "leafy_grass", 0.03, tint=(0.7, 0.8, 0.5)),
                     name="howrah")
@@ -2586,22 +2609,22 @@ def eic_shot_calcutta():
     pole = eic_col("flagpole", "#3A2E22", 0.6)
     eic_rod((-4.2, 98, G), (-4.2, 98, G + 26), 0.18, pole, 8, 0.1)
     eic_rod((-4.2, 96, G + 22), (-4.2, 100, G + 22), 0.06, pole)
-    eic_flag(-4.2, 98, G + 21.0, 7.0, 3.6, "union1707", ripple=0.12)
+    eic_flag(-4.2, 98, G + 21.0, 7.0, 3.6, "union1707", rz=-0.39, ripple=0.12)
     add("cube", (-4.2, 98, G + 0.5), (1.2, 1.2, 0.5), m=chunam)
     add("cube", (44, 172, G + 4.5), (11, 5.5, 4.5), m=chunam)                  # St Anne's Church
     eic_gable(44, 172, G + 9, 11, 5.5, 3.5, eic_col("roofgrey", "#7A7468", 0.7), chunam)
     add("cube", (30, 172, G + 9), (3.2, 3.2, 9), m=chunam)
     add("cone", (30, 172, G + 18 + 7), (2.6, 2.6, 7), m=eic_col("spire", "#6E6A62", 0.5), vertices=8)
-    for hx, hy, w, d, h in ((24, 10, 13, 10, 8.5), (40, 30, 12, 11, 9.5), (58, 8, 14, 10, 8.0), (78, 30, 12, 10, 7.5), (21, 32, 9, 8, 7.0)):
-        eic_chunam_house(hx, hy, w, d, h, 0.0, chunam if rng.random() < 0.6 else worn, green, z=G)
+    for hx, hy, w, d, h in ((5, 14, 11, 9, 8.5), (19, 27, 10, 9, 9.5), (24, 6, 12, 10, 8.0), (40, 20, 12, 10, 7.5), (36, 36, 9, 8, 7.0)):
+        eic_chunam_house(hx, hy, w, d, h, 0.0, chunam, green, z=G)
     for hx, hy in ((95, 8), (102, 22), (88, 44), (110, 40), (70, -8)):
         eic_hut(hx, hy, rng.uniform(-0.3, 0.3), z=G)
     palms = [eic_palm_proto(s, h=rng.uniform(9, 12)) for s in (11, 12, 13)]
-    for px, py in ((17, -2), (31, 20), (50, 18), (66, 22), (36, 44), (15, 40), (85, 15), (60, -4), (97, 32), (49, 42), (72, 44)):
+    for px, py in ((-1, 26), (12, 4), (13, 36), (30, 14), (2, 2), (28, 40), (50, 30), (46, 6), (-2, 8), (60, 24), (20, -6)):
         eic_inst(palms[rng.randrange(3)], px, py, G, rng.uniform(0, 6), rng.uniform(0.9, 1.2))
     tree = eic_tree_proto(17, h=9, crown=6, leaf=eic_leaf_mat("banyan", "#1E3A1E", "#4E7232", 4))
-    eic_inst(tree, 13, 26, G, 0.3, 1.2)
     eic_inst(tree, 75, 60, G, 1.3, 1.3)
+    eic_inst(tree, 52, 170, G, 0.3, 1.3)
     for k in range(60):
         eic_inst(palms[k % 3], rng.uniform(-900, -450), rng.uniform(-50, 600), 0.8, rng.uniform(0, 6), rng.uniform(0.9, 1.3))
     for k in range(14):
@@ -2611,15 +2634,16 @@ def eic_shot_calcutta():
         add("cube", (-1.4 + (k % 4) * 1.15, 40 + (k // 4) * 1.6, G + 0.32), (0.5, 0.7, 0.32), (0, 0, rng.uniform(-0.1, 0.1)), m=bale)
     for bx, by in ((1.6, 43.5), (2.4, 42.6), (2.0, 44.6)):
         eic_barrel(bx, by, G, 0.9)
-    eic_boat(-14, 22, math.radians(100), "budgerow", sail=False)
-    eic_boat(-30, 48, math.radians(80), "country", seed=2)
-    eic_boat(-50, 100, math.radians(95), "country", seed=3)
-    eic_boat(-9, 66, math.radians(92), "lighter", seed=4)
-    eic_boat(-22, 140, math.radians(85), "country", sail=False, seed=5)
-    eic_ship(-95, 110, math.radians(86), 1.0, "1750", "furled")
-    eic_ship(-170, 230, math.radians(80), 0.95, "1750", "furled")
-    eic_aerial(45, 650, 0.8)
-    camera_path([(0.0, (8, -12, G + 1.65)), (1.0, (10, -9.5, G + 1.65))], lens=30, target_keys=[(0.0, (-4, 70, 6.5)), (1.0, (-2, 72, 6.6))])
+    eic_boat(-30, 30, math.radians(70), "budgerow", sail=False)
+    eic_boat(-58, 72, math.radians(80), "country", seed=2)
+    eic_boat(-70, 140, math.radians(100), "country", seed=3)
+    eic_boat(-9, 70, math.radians(90), "lighter", seed=4)
+    eic_boat(-16, 120, math.radians(85), "country", sail=False, seed=5)
+    eic_boat(-30, 4, math.radians(10), "country", s=0.6, sail=False, seed=6)
+    eic_ship(-48, 112, math.radians(68), 1.0, "1750", "furled")
+    eic_ship(-120, 210, math.radians(95), 0.95, "1750", "furled")
+    eic_aerial(60, 700, 0.6)
+    camera_path([(0.0, (-40, -12, G + 1.7)), (1.0, (-37.5, -10, G + 1.7))], lens=30, target_keys=[(0.0, (2, 92, 7.5)), (1.0, (4, 94, 7.6))])
     return sc
 
 
@@ -2631,7 +2655,7 @@ def eic_shot_murshidabad():
     rng = random.Random(33)
     lime = eic_ph("lime", "white_stucco", 0.35, tint=(1.0, 0.95, 0.86), fallback=(0.9, 0.88, 0.8))
     ochre = eic_ph("ochreplaster", "yellow_plaster", 0.3, tint=(1.0, 0.93, 0.8), fallback=(0.82, 0.7, 0.48))
-    floor = eic_ph("courtstone", "stone_tiles_02", 0.3, tint=(0.95, 0.88, 0.78), fallback=(0.7, 0.65, 0.55))
+    floor = eic_ph("courtstone", "brick_floor_02", 0.3, tint=(1.0, 0.86, 0.74), fallback=(0.7, 0.55, 0.45))
     brick = eic_ph("ghatbrick", "red_brick_03", 0.5, tint=(0.92, 0.72, 0.6), fallback=(0.5, 0.3, 0.2))
     gold = eic_gold()
     chandni = eic_ph("chandni", "rough_linen", 1.5, tint=(1.0, 0.99, 0.96), fallback=(0.95, 0.94, 0.9))
@@ -2642,10 +2666,10 @@ def eic_shot_murshidabad():
     eic_poly_ground([(-200, -60), (10, -60), (10, 200), (-200, 200)], 0.0, floor)
     eic_poly_ground([(10, -60), (14, -60), (14, 200), (10, 200)], -0.4, brick, name="ghat")
     eic_water((200, 100, -2.5), (190, 300), "#5E5A42", rough=0.06, wave=0.14, scale=0.3)
-    eic_poly_ground([(390, -300), (900, -300), (900, 600), (390, 600)], -1.8, eic_ph("farbank2", "leafy_grass", 0.03, tint=(0.7, 0.8, 0.5)), name="far")
-    add("cube", (10.3, 5, 0.45), (0.3, 30, 0.45), m=lime)
+    eic_poly_ground([(160, -300), (900, -300), (900, 600), (160, 600)], -1.8, eic_ph("farbank2", "leafy_grass", 0.03, tint=(0.7, 0.8, 0.5)), name="far")
+    add("cube", (10.3, 5, 0.3), (0.3, 30, 0.3), m=lime)
     for k in range(38):
-        add("cube", (10.3, -24 + k * 1.6, 1.05), (0.32, 0.3, 0.18), m=lime)
+        add("cube", (10.3, -24 + k * 1.6, 0.75), (0.32, 0.3, 0.15), m=lime)
     for k in range(8):
         add("cube", (12 + k * 0.6, 1.5, -0.35 - k * 0.28), (0.3, 3.0, 0.14), m=brick)
     kw = dict(p=1.1, q=0.62, lobes=7, depth=0.16)                               # left wing: multifoil arcades
@@ -2693,23 +2717,37 @@ def eic_shot_murshidabad():
              eic_col("pipe", "#7A2A2A", 0.6), 6)
     eic_canopy(-2.0, 18.0, 4.4, 8.0, 4.6, stripes, val, gold, drop=0.5)
     add("cube", (-6.5, 5.5, 0.25), (2.8, 4.2, 0.25), m=lime)                   # tank
-    eic_water((-6.5, 5.5, 0.4), (2.5, 3.9), "#3E5A5A", name="tank", rough=0.02, wave=0.05)
+    eic_water((-6.5, 5.5, 0.52), (2.5, 3.9), "#2E4A4A", name="tank", rough=0.02, wave=0.05)
+    eic_carpet(-2.0, 10.5, 3.2, 9.0, "medallion", seed=23, field="#8F2430", border="#1F4E3A")
+    pot = eic_col("pot", "#9A4E2E", 0.7)
+    mari = eic_col("marigold", "#F08A1C", 0.6)
+    for k in range(9):
+        px = -10.5 + k * 2.1
+        add("cyl", (px, 20.3, 1.45), (0.28, 0.28, 0.25), m=pot, vertices=12)
+        o = add("ico", (px, 20.3, 1.9), (0.42, 0.42, 0.32), m=mari, subdivisions=2)
+        smooth(o)
+    red_c = eic_col("pardah", "#A8233A", 0.55)
+    for k in range(5):
+        for dx in (-1.25, 1.25):
+            eic_cloth((-9.2 + k * 3.6 + dx, 21.3, 3.0), 0.6, 3.3, red_c, folds=3, amp=0.05, nu=10)
     for sx in (-1, 1):                                                          # Bengal-roofed pavilion
         for sy in (-1, 1):
             add("cube", (6.8 + sx * 1.9, 22.0 + sy * 1.9, 1.6), (0.25, 0.25, 1.6), m=lime)
     add("cube", (6.8, 22.0, 3.3), (2.3, 2.3, 0.15), m=lime)
-    eic_chala(6.8, 22.0, 3.4, 2.4, 2.2, 1.6, ochre, droop=0.5, bulge=0.3)
+    eic_chala(6.8, 22.0, 3.4, 2.4, 2.2, 1.6, eic_ph("chalaplaster", "white_stucco", 0.35, tint=(1.0, 0.82, 0.66)), droop=0.5, bulge=0.3)
     palms = [eic_palm_proto(s, h=11) for s in (31, 32)]
-    for k in range(40):
-        eic_inst(palms[k % 2], rng.uniform(400, 700), rng.uniform(-100, 400), -1.8, rng.uniform(0, 6), rng.uniform(0.9, 1.3))
+    for k in range(50):
+        eic_inst(palms[k % 2], rng.uniform(165, 300), rng.uniform(-50, 400), -1.8, rng.uniform(0, 6), rng.uniform(0.9, 1.3))
     tree = eic_tree_proto(37, h=8, crown=5, leaf=eic_leaf_mat("mango", "#16301A", "#3F6B2C", 5.0))
-    for k in range(12):
-        eic_inst(tree, rng.uniform(400, 700), rng.uniform(-50, 300), -1.8, rng.uniform(0, 6), rng.uniform(0.8, 1.2))
+    for k in range(16):
+        eic_inst(tree, rng.uniform(170, 320), rng.uniform(-50, 400), -1.8, rng.uniform(0, 6), rng.uniform(0.8, 1.2))
+    for k in range(5):
+        eic_hut(rng.uniform(175, 260), rng.uniform(40, 300), rng.uniform(0, 3), z=-1.8, s=1.2)
     eic_inst(palms[0], -20, 28, 0, 0.3, 1.0)
     eic_inst(palms[1], -24, 22, 0, 1.3, 1.1)
-    eic_boat(60, 50, math.radians(85), "budgerow", z=-2.5)
-    eic_boat(130, 120, math.radians(95), "country", z=-2.5, seed=2)
-    eic_boat(200, 30, math.radians(80), "country", z=-2.5, seed=3)
+    eic_boat(40, 60, math.radians(75), "budgerow", z=-2.5)
+    eic_boat(70, 120, math.radians(95), "country", z=-2.5, seed=2)
+    eic_boat(110, 200, math.radians(80), "country", z=-2.5, seed=3)
     eic_aerial(50, 700, 0.7)
     camera_path([(0.0, (2.5, -12, 2.2)), (1.0, (1.0, -10, 2.2))], lens=26, target_keys=[(0.0, (-1, 22, 3.5)), (1.0, (-1.5, 22, 3.5))])
     return sc
@@ -2717,22 +2755,26 @@ def eic_shot_murshidabad():
 
 def eic_shot_plassey():
     sc = eic_begin()
-    eic_sky("kloofendal_overcast_puresky", 0.55, sun_az=25)
-    eic_sun(25, 1.6, (1, 0.84, 0.62), el=14)
-    exposure(0.0)
+    eic_sky("overcast_soil_puresky", 0.6, sun_az=25)
+    eic_sun(25, 1.8, (1, 0.84, 0.62), el=12)
+    exposure(-0.1)
     rng = random.Random(57)
-    grass = eic_ph("wetgrass", "leafy_grass", 0.3, tint=(0.8, 1.0, 0.7), fallback=(0.2, 0.35, 0.12))
+    grass = eic_ph("wetgrass", "sparse_grass", 0.35, tint=(0.85, 1.0, 0.7), fallback=(0.2, 0.35, 0.12), vary=0.3)
     mud = eic_ph("plmud", "brown_mud", 0.3, tint=(0.85, 0.78, 0.65), fallback=(0.35, 0.28, 0.2))
     brick = eic_ph("lodgebrick", "medieval_red_brick", 0.45, tint=(0.92, 0.72, 0.6), fallback=(0.45, 0.22, 0.15))
     lime = eic_ph("lime", "white_stucco", 0.35, tint=(1.0, 0.95, 0.86))
-    puddle = eic_water_mat("puddle", "#3A4048", rough=0.03, wave=0.04)
+    puddle = eic_water_mat("puddle", "#6A7078", rough=0.02, wave=0.03)
     eic_poly_ground([(-800, -100), (48, -100), (60, 300), (40, 700), (-800, 700)], 0.0, grass)
     eic_poly_ground([(125, -100), (900, -100), (900, 700), (110, 700), (130, 300)], 0.0, grass, name="farbank")
     eic_water((90, 300, -0.6), (90, 400), "#6B6247", rough=0.06, wave=0.12, scale=0.3)
-    for px, py, sx_, sy_ in ((-8, 2, 2.6, 1.6), (5, 8, 1.8, 1.1), (-16, 16, 3.5, 2.0), (12, 22, 2.4, 1.4), (-30, 30, 4, 2.2), (2, 30, 3, 1.5)):
-        r_ = rng.uniform(0, 1)
-        add("plane", (px, py, 0.015), (sx_ * 1.4, sy_ * 1.5, 1), (0, 0, r_), m=mud)
-        add("plane", (px, py, 0.03), (sx_, sy_, 1), (0, 0, r_), m=puddle)
+    for px, py, sx_, sy_ in ((-14, 14, 2.6, 1.2), (4, 22, 1.8, 0.9), (-24, 26, 3.5, 1.4), (14, 30, 2.4, 1.0), (-34, 34, 4, 1.6), (-4, 36, 3, 1.1)):
+        r_ = rng.uniform(-0.3, 0.3)
+        for sc_, m_, z_ in ((1.35, mud, 0.012), (1.0, puddle, 0.025)):
+            o = add("cyl", (px, py, z_), (sx_ * sc_, sy_ * sc_, 0.01), (0, 0, r_), m=m_, vertices=24)
+            for v in o.data.vertices:
+                f = 1 + 0.25 * eic_noise.noise(Vector((v.co.x * 1.7 + px, v.co.y * 1.7, 0)))
+                v.co.x *= f
+                v.co.y *= f
     protos = [eic_tree_proto(s, h=8.5, crown=5.5) for s in (61, 62, 63)]
     for i in range(12):                                                         # Lakshabagh: mango trees in rows
         for j in range(10):
@@ -2761,10 +2803,9 @@ def eic_shot_plassey():
         eic_inst(protos[k % 3] if k % 4 else palms[k % 2], rng.uniform(-700, 40), rng.uniform(260, 700), 0, rng.uniform(0, 6), rng.uniform(0.8, 1.2))
     for k in range(10):
         eic_inst(palms[k % 2], rng.uniform(42, 52), rng.uniform(40, 200), 0, rng.uniform(0, 6), rng.uniform(0.9, 1.2))
-    eic_rain(-260, 520, 420, 140, 0.15)
-    eic_rain(320, 760, 360, 140, -0.2)
-    eic_aerial(40, 380, 0.85)
-    camera_path([(0.0, (-6, -22, 2.3)), (1.0, (-2.5, -20, 2.3))], lens=30, target_keys=[(0.0, (-12, 80, 5.0)), (1.0, (-8, 80, 5.0))])
+    eic_rain(-320, 620, 420, 160, 0.15)
+    eic_aerial(50, 450, 0.75)
+    camera_path([(0.0, (-6, -4, 2.4)), (1.0, (-3, -2.2, 2.4))], lens=30, target_keys=[(0.0, (-12, 90, 6.0)), (1.0, (-9, 90, 6.0))])
     return sc
 
 
@@ -2776,12 +2817,12 @@ def eic_shot_allahabad():
     exposure(0.1)
     rng = random.Random(65)
     ground = eic_ph("campground", "dry_ground_01", 0.2, tint=(0.88, 0.78, 0.62), fallback=(0.5, 0.42, 0.3))
-    lining = eic_pmat("tentlining", lambda: eic_pat_qanat(base="#E9DFC9", line="#C9B48E", accent="#A4302A", n=3), rough=0.9, translucent=0.45,
+    lining = eic_pmat("tentlining", lambda: eic_pat_qanat(base="#E9DFC9", line="#D8C49A", accent="#A4302A", n=6), rough=0.9, translucent=0.45,
                       uv_scale=(3, 1))
     roofl = eic_pmat("tentroof", lambda: eic_pat_stripes(cols=("#A4302A", "#E9DFC9", "#A4302A", "#E9DFC9"), n=10), rough=0.9, translucent=0.45,
                      uv_scale=(2, 1))
     canvas = eic_ph("tentcanvas", "rough_linen", 0.6, tint=(0.95, 0.9, 0.78), fallback=(0.85, 0.8, 0.7))
-    dhurrie = eic_pmat("dhurrie", lambda: eic_pat_stripes(cols=("#2B3F6E", "#E9DFC9", "#2B3F6E", "#D8C9A8"), n=14), rough=0.95, uv_scale=(3, 4))
+    dhurrie = eic_pmat("dhurrie", lambda: eic_pat_stripes(cols=("#5A6A92", "#E9DFC9", "#E9DFC9", "#D8C9A8"), n=24), rough=0.95, uv_scale=(3, 4))
     chintz = eic_pmat("chintz", lambda: eic_pat_chintz(), rough=0.8, sheen=0.3, uv_scale=(2, 2))
     mahog = eic_ph("mahogany", "dark_wood", 1.5, tint=(0.95, 0.55, 0.4), fallback=(0.3, 0.12, 0.08))
     stone = eic_ph("fortstone", "old_stone_wall", 0.15, tint=(0.95, 0.88, 0.75), fallback=(0.6, 0.55, 0.45))
@@ -2835,12 +2876,12 @@ def eic_shot_allahabad():
     eic_rod((0, 2.5, HR - 0.1), (0, 2.5, 4.3), 0.01, eic_col("iron", "#2B2826", 0.45, 0.7), 4)
     add("cube", (0, 2.5, 4.1), (0.13, 0.13, 0.2), m=eic_col("lanternglass", "#FFD9A0", 0.3, emit=3.0))
     light("POINT", (0, 2.5, 4.0), 40, (1, 0.75, 0.45), 0.3)
-    for tx, ty, tr in ((6, 20, 0.2), (14, 28, -0.1), (-2, 32, 0.4), (22, 22, 0.1), (10, 42, 0.0)):   # camp outside
+    for tx, ty, tr in ((4.5, 21, 0.2), (9, 30, -0.1), (1.5, 36, 0.4), (16, 26, 0.1), (12, 44, 0.0)):   # camp outside
         t = eic_mesh("tent", [(-2, -1.6, 0), (2, -1.6, 0), (2, 1.6, 0), (-2, 1.6, 0), (-2, 0, 2.6), (2, 0, 2.6)],
                      [(0, 1, 5, 4), (2, 3, 4, 5), (1, 2, 5), (3, 0, 4)], canvas, recalc=True)
         eic_group([t], (tx, ty, 0), tr, 1.4)
-    eic_rod((8.5, 26, 0), (8.5, 26, 12), 0.08, pole)
-    eic_flag(8.5, 26, 9.6, 3.0, 1.6, "union1707")
+    eic_rod((6.5, 27, 0), (6.5, 27, 12), 0.08, pole)
+    eic_flag(6.5, 27, 9.6, 3.0, 1.6, "union1707")
     add("cube", (60, 150, 8), (70, 4, 8), m=stone)                             # Akbar's fort beyond
     for k in range(6):
         add("cyl", (0 + k * 24, 147, 10), (4, 4, 10), m=stone, vertices=16)
@@ -2851,14 +2892,14 @@ def eic_shot_allahabad():
         eic_inst(trees, rng.uniform(-40, 120), rng.uniform(60, 130), 0, rng.uniform(0, 6), rng.uniform(0.8, 1.2))
     eic_area((0, 2.0, HR - 0.4), 300, (1, 0.86, 0.68), 3, size_y=12)
     eic_area((0, Y0 + 0.6, 1.8), 150, (1, 0.9, 0.78), 4, rot=(math.radians(90), 0, 0))
-    camera_path([(0.0, (-0.6, -4.6, 1.75)), (1.0, (0.1, -3.4, 1.72))], lens=24, target_keys=[(0.0, (-0.5, 10, 1.75)), (1.0, (-0.2, 10, 1.72))])
+    camera_path([(0.0, (2.3, -5.0, 1.75)), (1.0, (1.7, -3.8, 1.72))], lens=24, target_keys=[(0.0, (-0.6, 10, 1.75)), (1.0, (-0.4, 10, 1.72))])
     return sc
 
 
 def eic_shot_hooghly():
     sc = eic_begin()
-    eic_sky("qwantani_sunset_puresky", 0.9, sun_az=55)
-    eic_sun(55, 2.8, (1, 0.7, 0.42), lo=6, hi=14)
+    eic_sky("drackenstein_quarry_puresky", 0.9, sun_az=58)
+    eic_sun(58, 3.0, (1, 0.7, 0.42), lo=6, hi=14)
     exposure(-0.25)
     rng = random.Random(77)
     G = 1.65
@@ -2867,7 +2908,8 @@ def eic_shot_hooghly():
     terra = eic_ph("terracotta", "red_brick_03", 0.9, tint=(1.0, 0.68, 0.48), fallback=(0.6, 0.3, 0.18))
     lime = eic_ph("chunam", "white_stucco", 0.4, tint=(1.0, 0.96, 0.88))
     dark = eic_col("darkdoor", "#16110D", 0.9)
-    eic_poly_ground([(-400, -80), (400, -80), (400, -4), (12, -4), (12, 2), (-8, 2), (-8, -4), (-400, -4)], G - 0.05, bank)
+    eic_poly_ground([(-400, -80), (400, -80), (400, -4), (12, -4), (12, 2), (-8, 2), (-10, 14), (-14, 40), (-30, 70), (-80, 90), (-400, 100)],
+                    G - 0.05, bank)
     add("cube", (2, -9, G - 0.02), (10, 11, 0.06), m=brick)                    # ghat platform and steps
     for k in range(9):
         add("cube", (2, 2.35 + k * 0.7, G - 0.2 * (k + 1)), (10, 0.35, 0.2 * (k + 1) / 2 + 0.05), m=brick)
@@ -2876,7 +2918,7 @@ def eic_shot_hooghly():
         add("cube", (sx, -3.5, G + 0.9), (0.6, 0.6, 0.9), m=lime)
         add("sphere", (sx, -3.5, G + 2.0), (0.5, 0.5, 0.45), m=lime, segments=12, ring_count=8)
     eic_water((0, 300, 0.0), (900, 320), "#6E6142", rough=0.05, wave=0.16, scale=0.25, stretch=4)
-    tx, ty = -16, -7                                                            # terracotta char-chala temple
+    tx, ty = -18, 22                                                            # terracotta char-chala temple
     add("cube", (tx, ty, G + 0.4), (3.4, 3.4, 0.4), m=terra)
     add("cube", (tx, ty, G + 0.8 + 1.8), (2.7, 2.7, 1.8), m=terra)
     for k in range(3):
@@ -2888,11 +2930,11 @@ def eic_shot_hooghly():
     palms = [eic_palm_proto(s, h=rng.uniform(9, 12)) for s in (91, 92, 93)]
     bamboo = eic_bamboo_proto(94)
     banana = eic_banana_proto(95)
-    for px, py, s in ((-23, -11, 1.1), (-29, -2, 1.0), (-20, -18, 0.95), (-36, -12, 1.15), (-45, -3, 1.0), (30, -12, 1.0)):
+    for px, py, s in ((-14, 10, 1.05), (-17, 34, 1.15), (-24, 46, 1.0), (-21, 58, 1.1), (-34, 64, 0.95), (-12, 2, 0.9), (-26, 14, 1.0), (-46, 80, 1.1)):
         eic_inst(palms[rng.randrange(3)], px, py, G, rng.uniform(0, 6), s)
-    for px, py in ((-28, -20), (-42, -8), (-58, -14)):
+    for px, py in ((-28, 34), (-28, 66), (-40, 52)):
         eic_inst(bamboo, px, py, G, rng.uniform(0, 6), rng.uniform(0.9, 1.1))
-    for px, py in ((-11, -13), (-12.5, -15.5), (-26, -6)):
+    for px, py in ((-12.5, 6), (-13.5, 15), (-15, 27)):
         eic_inst(banana, px, py, G, rng.uniform(0, 6), rng.uniform(0.9, 1.2))
     eic_poly_ground([(-1500, 430), (1500, 430), (1500, 1200), (-1500, 1200)], 1.0, eic_ph("farbank2", "leafy_grass", 0.03, tint=(0.7, 0.8, 0.5)), name="far")
     for k in range(90):
@@ -2918,11 +2960,10 @@ def eic_shot_hooghly():
     eic_boat(-45, 130, math.radians(-12), "country", seed=2)
     eic_boat(95, 230, math.radians(5), "country", s=1.1, seed=3)
     eic_boat(-120, 290, math.radians(175), "country", seed=4)
-    eic_boat(-20, 40, math.radians(160), "budgerow", sail=False)
-    eic_boat(15, 9.6, math.radians(80), "country", s=0.6, sail=False, seed=5)
-    eic_boat(-11, 10.5, math.radians(100), "country", s=0.55, sail=False, seed=6)
-    eic_aerial(70, 700, 0.8)
-    camera_path([(0.0, (2, -17, G + 1.65)), (1.0, (3.6, -15, G + 1.6))], lens=30, target_keys=[(0.0, (4, 200, 3.2)), (1.0, (6, 200, 3.2))])
+    eic_boat(30, 110, math.radians(160), "budgerow", sail=False)
+    eic_boat(13, 11, math.radians(75), "country", s=0.6, sail=False, seed=5)
+    eic_aerial(90, 900, 0.55)
+    camera_path([(0.0, (1, -17, G + 1.65)), (1.0, (2.6, -15, G + 1.6))], lens=30, target_keys=[(0.0, (-16, 200, 3.4)), (1.0, (-14, 200, 3.4))])
     return sc
 
 
