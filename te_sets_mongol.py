@@ -842,6 +842,7 @@ def mg_grass(ob, count, length, m, children=8, radius=0.004, seed=1, rand=0.45, 
 
 def mg_render_tweaks(sc, vol=False):
     _try(sc.cycles, blur_glossy=1.0, sample_clamp_indirect=4.0)
+    _try(sc.view_settings, look="AgX - Punchy")
     if vol:
         _try(sc.cycles, volume_step_rate=3.0, volume_max_steps=256)
 
@@ -1136,8 +1137,8 @@ def mg_tree(b, leaves, x, y, z, h, rng, kind="oak"):
     if kind == "oak":                                                           # bare spring oak/ash, faint buds
         mg_branch(b, leaves, (x, y, z - 0.3), (0, 0, 1), h * 0.42, h * 0.035, 4, rng, 40, 0.18, 0.0, 3, h * 0.025, 3)
     elif kind == "willow":
-        mg_branch(b, leaves, (x, y, z - 0.3), (rng.uniform(-0.2, 0.2), 0, 1), h * 0.35, h * 0.045, 3, rng, 45, 0.3, 0.6, 4, h * 0.075, 3,
-                  (1.0, 1.0, 1.3))
+        mg_branch(b, leaves, (x, y, z - 0.3), (rng.uniform(-0.2, 0.2), 0, 1), h * 0.33, h * 0.045, 4, rng, 42, 0.35, 0.5, 3, h * 0.028, 3,
+                  (0.8, 0.8, 1.6))
     elif kind == "poplar":                                                      # columnar, bare
         mg_branch(b, leaves, (x, y, z - 0.3), (0, 0, 1), h * 0.55, h * 0.03, 3, rng, 16, 0.6, 0.0, 4, h * 0.03, 3)
     elif kind == "poplar_leaf":
@@ -1426,7 +1427,7 @@ def shot_m_steppe_dawn():
         x, y = rng.uniform(40, 140), rng.uniform(200, 330)
         mg_ger(x, y, h(x, y), rng.uniform(2.5, 3.0), "white" if k % 2 else "grey", rng.uniform(-0.15, 0.15))
     for i, (x, y, z) in enumerate(smoke_at):
-        mg_smoke(x, y, z + 0.3, 30, 2.6, 0.35, (0.82, 0.78, 0.74), (-0.3, 0.05), seed=i * 3.1)
+        mg_smoke(x, y, z + 0.3, 16, 2.0, 0.22, (0.82, 0.78, 0.74), (-0.5, 0.08), seed=i * 3.1)
     mg_cart_ger(75, 225, h(75, 225), math.pi)
     for k in range(4):                                                          # camel train with felt-covered box carts
         x, y = -130 + k * 9.5, 222
@@ -1438,7 +1439,7 @@ def shot_m_steppe_dawn():
     mg_flock(10, 205, 45, 14, 7, h, rng)
     h0 = h(-4, -20)
     mg_camera([(0.0, (-6, -22, h0 + 2.4)), (1.0, (-2.5, -19.5, h0 + 2.3))], 30, [(0.0, (-20, 200, 6)), (1.0, (-16, 200, 6))])
-    mg_aerial(tuple(c * w for c, w in zip(info["haze"], (1.15, 0.95, 0.8))), 5000, 0.8)
+    mg_aerial(tuple(c * w for c, w in zip(info["haze"], (0.95, 0.97, 1.02))), 4500, 0.7)
     return sc
 
 
@@ -1500,7 +1501,7 @@ def shot_m_ger_inside():
         ib.seg((0.75 * math.cos(a), 0.2 + 0.75 * math.sin(a), 0), (0, 0.2, 1.35), 0.025, n=5)
     ib.lathe([(0.05, 0.62), (0.3, 0.68), (0.4, 0.85), (0.38, 1.02), (0.34, 1.05)], 20, (0, 0.2, 0))
     ib.finish("tripod", iron, True)
-    fire = mg_emit_mat("fire", (1.0, 0.36, 0.06), 5)
+    fire = mg_emit_mat("fire", (1.0, 0.33, 0.05), 2.2)
     fb_ = MgB()
     for k in range(5):
         a = 2 * math.pi * k / 5
@@ -1578,8 +1579,8 @@ def shot_m_karakorum():
     """Karakorum c. 1254 (Rubruck): a modest town inside a low rammed-earth wall in the Orkhon valley; gers outnumber buildings."""
     sc = reset()
     mg_render_tweaks(sc, vol=True)
-    info = mg_sky("evening_road_01_puresky", 0.9, sun_az=150, sun_el=17, sun_power=4.5, sun_col=(1.0, 0.8, 0.58), view_az=90)
-    exposure(0.2)
+    info = mg_sky("evening_road_01_puresky", 0.7, sun_az=150, sun_el=17, sun_power=5.0, sun_col=(1.0, 0.8, 0.58), view_az=90)
+    exposure(0.0)
     rng = random.Random(5)
 
     def h(x, y):
@@ -1667,7 +1668,7 @@ def shot_m_karakorum():
         mg_box_cart(30 + k * 6, 110 + k * 2, h(30 + k * 6, 110), 1.5)
     hz = h(-6, -46)
     mg_camera([(0.0, (-8, -48, hz + 2.6)), (1.0, (-4, -45, hz + 2.5))], 42, [(0.0, (-45, 420, 7)), (1.0, (-41, 420, 7))])
-    mg_aerial(info["haze"], 5000, 0.75)
+    mg_aerial(info["haze"], 7000, 0.6)
     return sc
 
 
@@ -1966,7 +1967,7 @@ def shot_m_mohi():
     rng = random.Random(41)
 
     def riv(x):
-        return 58 + 12 * math.sin(x / 90 + 0.5) + 5 * math.sin(x / 33)
+        return 40 + 10 * math.sin(x / 90 + 0.5) + 4 * math.sin(x / 33)
 
     def h(x, y):
         z = mg_fbm(x / 80, y / 80, 3, 1) * 0.6 + mg_fbm(x / 20, y / 20, 2, 2) * 0.15
@@ -1976,15 +1977,15 @@ def shot_m_mohi():
 
     def dens(x, y):
         return (1 - mg_ss(20, 60, math.hypot(x * 0.8, y + 5))) * mg_ss(-28, -22, y) * mg_ss(14, 20, abs(y - riv(x)))
-    gm = mg_ground_mat("meadow", [("forrest_ground_01", 0.3, (0.95, 0.95, 0.8)), ("grass_ground", 0.3, (0.95, 0.95, 0.8))], 0.01,
+    gm = mg_ground_mat("meadow", [("forrest_ground_01", 0.3, (0.85, 0.95, 0.7)), ("grass_ground", 0.3, (0.85, 0.95, 0.7))], 0.01,
                        extra=[("brown_mud", 0.35, (0.85, 0.8, 0.72), mg_mask_height(-0.2, -0.9, 0.3)),
                               ("farm_furrows", 0.25, (0.9, 0.82, 0.72),
                                lambda nt, pos: _math(nt, "MULTIPLY", _maprange(nt, _noise(nt, pos, 0.004, 2), 0.55, 0.58),
                                                      _maprange(nt, _sep(nt, pos)[1], 300, 380)))],
                        fb=(0.3, 0.35, 0.15))
     ground = mg_terrain("plain", 6000, 420, h, gm, 0, 60, 2.2, dens)
-    mg_grass(ground, 60000, 0.2, mg_grass_mat("springgrass", (0.06, 0.08, 0.03), (0.28, 0.4, 0.12), (0.5, 0.48, 0.25)), 8, 0.003, 5)
-    add("plane", (0, 60, -1.3), (3000, 60, 1), m=mg_water_mat("sajo", (0.07, 0.08, 0.06), 0.05, 0.12))
+    mg_grass(ground, 60000, 0.2, mg_grass_mat("springgrass", (0.04, 0.07, 0.02), (0.2, 0.36, 0.08), (0.38, 0.46, 0.16)), 8, 0.003, 5)
+    add("plane", (0, 42, -1.3), (3000, 40, 1), m=mg_water_mat("sajo", (0.07, 0.08, 0.06), 0.05, 0.12))
     planks = mg_ph("planks", "weathered_planks", 0.6, tint=(0.8, 0.68, 0.55), fb=(0.4, 0.3, 0.2))
     bb = MgB()                                                                  # timber trestle bridge
     BX = 28.0
@@ -2075,7 +2076,7 @@ def shot_m_mohi():
     lv2.finish("buds", mg_leaf_mat("buds", (0.32, 0.3, 0.16), (0.45, 0.45, 0.2), 0.2), True)
     mg_smoke(130, 230, h(130, 230) + 4, 30, 2.5, 0.35, (0.55, 0.53, 0.5), (-0.25, 0.1), seed=2)
     mg_smoke(FX + 5, FY, h(FX, FY) + 1, 22, 2.4, 0.35, (0.55, 0.53, 0.5), (-0.25, 0.1), seed=5)
-    mg_camera([(0.0, (-6, -30, 2.3)), (1.0, (-2.5, -27.5, 2.25))], 30, [(0.0, (12, 160, 3.0)), (1.0, (15, 160, 3.0))])
+    mg_camera([(0.0, (-6, -30, 3.4)), (1.0, (-2.5, -27.5, 3.35))], 30, [(0.0, (12, 160, 2.2)), (1.0, (15, 160, 2.2))])
     mg_aerial(info["haze"], 3000, 0.88)
     return sc
 
@@ -2110,7 +2111,7 @@ def mg_boat(b, sail_b, x, y, z, ang, L=9.0, sail=True):
     b.quads(verts, faces)
     if sail:
         b.seg((x, y, z + 0.5), (x, y, z + 7.5), 0.08, n=5)
-        sail_b.box((x, y, z + 4.8), (0.04, 2.2, 2.4), (0, 0, ang + 0.4))
+        sail_b.quads([(x + 0.3 * c, y + 0.3 * s, z + 7.3), (x + 3.2 * c, y + 3.2 * s, z + 1.6), (x - 2.6 * c, y - 2.6 * s, z + 1.4)], [(0, 1, 2)])
 
 
 def shot_m_baghdad():
@@ -2275,19 +2276,19 @@ def shot_m_hakata():
     oc.time = 1.0 + SECONDS * 0.8
     oc.keyframe_insert("time", frame=N)
     m, nt, b = _mnew("stormsea")
-    b.inputs["Roughness"].default_value = 0.08
+    _bump(nt, b, _noise(nt, _pos(nt), 0.35, 8, 0.6), 0.5, 0.25)
     b.inputs["IOR"].default_value = 1.33
     pos = _pos(nt)
     s = _sep(nt, pos)
     u = _math(nt, "ADD", _math(nt, "ADD", s[0], 34.0), _math(nt, "MULTIPLY", s[1], 0.35))      # x - sl(y)
-    band = _math(nt, "MULTIPLY", _maprange(nt, u, -45, -4), _maprange(nt, u, 3, 0))
-    stripes = _maprange(nt, _noise(nt, pos, 0.07, 6, 0.65), 0.55, 0.68)
+    band = _math(nt, "MULTIPLY", _maprange(nt, u, -30, -3), _maprange(nt, u, 3, 0))
+    stripes = _maprange(nt, _noise(nt, pos, 0.1, 6, 0.7), 0.58, 0.68)
     at = nt.nodes.new("ShaderNodeAttribute")
     at.attribute_name = "foam"
     foam = _math(nt, "MAXIMUM", _math(nt, "MULTIPLY", band, stripes), _maprange(nt, at.outputs["Fac"], 0.55, 0.95), clamp=True)
-    col = _mix(nt, foam, (0.02, 0.045, 0.05), (0.75, 0.78, 0.78))
+    col = _mix(nt, foam, (0.012, 0.03, 0.035), (0.7, 0.73, 0.73))
     nt.links.new(col, b.inputs["Base Color"])
-    nt.links.new(_math(nt, "MULTIPLY_ADD", foam, 0.8, 0.08), b.inputs["Roughness"])
+    nt.links.new(_math(nt, "MULTIPLY_ADD", foam, 0.7, 0.18), b.inputs["Roughness"])
     sea.data.materials.append(m)
     wall = mg_ph("borui", "rock_wall_08", 0.4, tint=(0.95, 0.92, 0.86), fb=(0.45, 0.43, 0.4))
     wb = MgB()                                                                  # stone wall: vertical seaward face, sloped landward
