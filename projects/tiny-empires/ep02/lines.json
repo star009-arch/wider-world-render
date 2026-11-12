@@ -1,0 +1,341 @@
+{
+ "voices": {
+  "atlas": {
+   "id": "IKne3meq5aSn9XLyUdCD",
+   "name": "Charlie",
+   "settings": {
+    "stability": 0.42,
+    "similarity_boost": 0.8,
+    "style": 0.35,
+    "use_speaker_boost": true,
+    "speed": 1.0
+   }
+  },
+  "penny": {
+   "id": "pFZP5JQG7iQjIQuC4Bku",
+   "name": "Lily",
+   "settings": {
+    "stability": 0.5,
+    "similarity_boost": 0.8,
+    "style": 0.3,
+    "use_speaker_boost": true,
+    "speed": 0.97
+   }
+  },
+  "pike": {
+   "id": "TX3LPaxmHKxFdv7VOQHJ",
+   "name": "Liam",
+   "settings": {
+    "stability": 0.3,
+    "similarity_boost": 0.75,
+    "style": 0.55,
+    "use_speaker_boost": true,
+    "speed": 1.08
+   }
+  },
+  "quill": {
+   "id": "onwK4e9ZLuTAKqWW03F9",
+   "name": "Daniel",
+   "settings": {
+    "stability": 0.55,
+    "similarity_boost": 0.8,
+    "style": 0.25,
+    "use_speaker_boost": true,
+    "speed": 0.98
+   }
+  },
+  "zed": {
+   "id": "cgSgspJ2msm6clMCkdW9",
+   "name": "Jessica",
+   "settings": {
+    "stability": 0.42,
+    "similarity_boost": 0.8,
+    "style": 0.45,
+    "use_speaker_boost": true,
+    "speed": 1.02
+   }
+  }
+ },
+ "lines": [
+  {
+   "id": "M01",
+   "who": "penny",
+   "text": "In less than a hundred years, a people from the grasslands of Mongolia built the largest connected land empire in history."
+  },
+  {
+   "id": "M02",
+   "who": "atlas",
+   "text": "From Korea... all the way to Eastern Europe."
+  },
+  {
+   "id": "M03",
+   "who": "penny",
+   "text": "They had no great cities to start with. No navy. No factories. What they had... was horses."
+  },
+  {
+   "id": "M04",
+   "who": "zed",
+   "text": "So the business model was... horses?"
+  },
+  {
+   "id": "M05",
+   "who": "penny",
+   "text": "Horses, discipline, and one very determined man. I'm Penny, this is Tiny Empires, and this is how the Mongols conquered almost everything."
+  },
+  {
+   "id": "M06",
+   "who": "penny",
+   "text": "Picture the Mongolian steppe in the twelfth century. Endless grass, freezing winters, and dozens of rival tribes, constantly raiding each other."
+  },
+  {
+   "id": "M07",
+   "who": "atlas",
+   "text": "The people here were nomads. They moved with their herds, lived in round felt tents called gers, and learned to ride almost before they could walk."
+  },
+  {
+   "id": "M08",
+   "who": "penny",
+   "text": "Around eleven sixty-two, a boy named Temujin was born. When he was still a child, his father was poisoned by Tatar enemies, and his family was abandoned by their own clan."
+  },
+  {
+   "id": "M09",
+   "who": "pike",
+   "text": "That is a terrible start."
+  },
+  {
+   "id": "M10",
+   "who": "penny",
+   "text": "It was. But Temujin survived, made allies, and won rival after rival. Defeated enemies were not only crushed. Many were absorbed into his own people."
+  },
+  {
+   "id": "M11",
+   "who": "quill",
+   "text": "In twelve-oh-six, a great assembly of the tribes proclaimed him Chinggis Khan. In English, we usually say Genghis Khan."
+  },
+  {
+   "id": "M12",
+   "who": "penny",
+   "text": "So how did a people of perhaps a million nomads beat empires with tens of millions? Organisation."
+  },
+  {
+   "id": "M13",
+   "who": "zed",
+   "text": "The army was built in tens. Ten riders, then a hundred, then a thousand, then ten thousand. Clear, simple, and very easy to command."
+  },
+  {
+   "id": "M14",
+   "who": "atlas",
+   "text": "Each warrior usually brought several horses, so he could swap to a fresh one and keep riding. A Mongol army could cover distances that seemed impossible to its enemies."
+  },
+  {
+   "id": "M15",
+   "who": "penny",
+   "text": "They fought with powerful composite bows, from the saddle. And one of their favourite tricks was the fake retreat."
+  },
+  {
+   "id": "M16",
+   "who": "pike",
+   "text": "Wait. Running away was the plan?"
+  },
+  {
+   "id": "M17",
+   "who": "penny",
+   "text": "Running away was the plan. The enemy chased them... straight into a trap."
+  },
+  {
+   "id": "M18",
+   "who": "quill",
+   "text": "Officers were often promoted for ability, not just birth. And the khans later built a network of relay stations, so riders carrying messages could change horses and race across the empire."
+  },
+  {
+   "id": "M19",
+   "who": "penny",
+   "text": "The first big target was northern China. The Jin dynasty was rich, powerful, and protected by walls and fortified cities."
+  },
+  {
+   "id": "M20",
+   "who": "atlas",
+   "text": "Horses are brilliant on open grass. They are less brilliant at climbing city walls."
+  },
+  {
+   "id": "M21",
+   "who": "penny",
+   "text": "So the Mongols adapted. They recruited engineers from the lands they conquered, and learned to build siege weapons."
+  },
+  {
+   "id": "M22",
+   "who": "quill",
+   "text": "In twelve-fifteen, Zhongdu, the great Jin capital in the north, fell to the Mongols. The Jin emperor had already fled south. Today, its ruins lie inside modern Beijing."
+  },
+  {
+   "id": "M23",
+   "who": "penny",
+   "text": "Then the Mongols turned west, to the Khwarazmian Empire, a rich Muslim state in Central Asia and Iran, full of trading cities."
+  },
+  {
+   "id": "M24",
+   "who": "zed",
+   "text": "Genghis Khan actually wanted trade. In twelve-eighteen he sent a large merchant caravan."
+  },
+  {
+   "id": "M25",
+   "who": "penny",
+   "text": "At the border town of Otrar, the governor had the merchants killed. When Genghis sent envoys to demand justice, the Shah had them killed or humiliated too."
+  },
+  {
+   "id": "M26",
+   "who": "pike",
+   "text": "Oh no. That was a mistake."
+  },
+  {
+   "id": "M27",
+   "who": "penny",
+   "text": "A huge one. Between twelve-nineteen and twelve twenty-one, the Mongols swept through Bukhara, Samarkand, Merv and other great cities."
+  },
+  {
+   "id": "M28",
+   "who": "quill",
+   "text": "Many cities were destroyed, and enormous numbers of people were killed. Medieval chroniclers gave huge figures. Historians argue about the exact numbers, but the destruction was real and terrible."
+  },
+  {
+   "id": "M29",
+   "who": "penny",
+   "text": "Genghis Khan died in twelve twenty-seven. But the empire did not fall apart. His sons and grandsons kept expanding it."
+  },
+  {
+   "id": "M30",
+   "who": "atlas",
+   "text": "His son Ogedei became Great Khan. Under him, Mongol armies pushed deep into Russia, and then into Europe."
+  },
+  {
+   "id": "M31",
+   "who": "quill",
+   "text": "In twelve forty-one, they defeated a Polish-led army at Legnica, and a Hungarian army at Mohi, within days of each other."
+  },
+  {
+   "id": "M32",
+   "who": "pike",
+   "text": "Is anyone going to stop them?"
+  },
+  {
+   "id": "M33",
+   "who": "penny",
+   "text": "In twelve forty-two, the armies turned back. One reason often given: Ogedei had died, and the Mongol leaders went home to choose the next Great Khan."
+  },
+  {
+   "id": "M34",
+   "who": "penny",
+   "text": "In the Middle East, Genghis Khan's grandson Hulagu marched on Baghdad, one of the greatest cities in the world, and the seat of the Abbasid caliphs."
+  },
+  {
+   "id": "M35",
+   "who": "quill",
+   "text": "In twelve fifty-eight, Baghdad was captured and sacked, and the Abbasid caliphate there came to an end."
+  },
+  {
+   "id": "M36",
+   "who": "penny",
+   "text": "But even the Mongols had limits. In twelve-sixty, at Ain Jalut, in today's Israel, the Mamluks of Egypt defeated them."
+  },
+  {
+   "id": "M37",
+   "who": "atlas",
+   "text": "And twice, Mongol fleets sailed for Japan, in twelve seventy-four and twelve eighty-one. Both invasions failed, and storms wrecked much of the second fleet."
+  },
+  {
+   "id": "M38",
+   "who": "pike",
+   "text": "Finally! A problem you cannot solve with horses."
+  },
+  {
+   "id": "M39",
+   "who": "penny",
+   "text": "Another grandson, Kublai Khan, founded the Yuan dynasty in twelve seventy-one. By twelve seventy-nine, he had conquered the whole of China."
+  },
+  {
+   "id": "M40",
+   "who": "zed",
+   "text": "At its peak, the empire covered roughly twenty-three to twenty-four million square kilometres. That's about the size of the whole of North America."
+  },
+  {
+   "id": "M41",
+   "who": "penny",
+   "text": "But it was too big for one ruler. It split into four great khanates: the Golden Horde, the Chagatai Khanate, the Ilkhanate, and Kublai's Yuan dynasty in China."
+  },
+  {
+   "id": "M42",
+   "who": "quill",
+   "text": "And across this vast area, trade along the Silk Roads became safer for a time. Merchants, missionaries and travellers like Marco Polo crossed Asia."
+  },
+  {
+   "id": "M43",
+   "who": "zed",
+   "text": "Conquest first... then one of the biggest trade networks the world had ever seen."
+  },
+  {
+   "id": "M44",
+   "who": "penny",
+   "text": "Within about a century, the khanates weakened. In thirteen sixty-eight, the Yuan dynasty was driven out of China by the Ming."
+  },
+  {
+   "id": "M45",
+   "who": "quill",
+   "text": "But the Mongol world changed history. It moved people, ideas and goods across Eurasia... and, many historians believe, it helped diseases like the Black Death spread too."
+  },
+  {
+   "id": "M46",
+   "who": "atlas",
+   "text": "From a boy abandoned on the steppe... to an empire stretching from Korea to Eastern Europe."
+  },
+  {
+   "id": "M47",
+   "who": "penny",
+   "text": "Not bad for a few horses. Next time on Tiny Empires: how Rome became an empire."
+  },
+  {
+   "id": "X01",
+   "who": "penny",
+   "text": "Running an empire this size needed more than soldiers."
+  },
+  {
+   "id": "X02",
+   "who": "atlas",
+   "text": "Ogedei built a capital at Karakorum, in the heart of Mongolia, where envoys and merchants arrived from across Asia and Europe."
+  },
+  {
+   "id": "X03",
+   "who": "zed",
+   "text": "Officials and messengers carried a paiza, a metal tablet that worked a bit like a passport. Show it, and the relay stations had to give you fresh horses and supplies."
+  },
+  {
+   "id": "X04",
+   "who": "quill",
+   "text": "The khans were generally tolerant of different religions. Buddhists, Christians, Muslims and Taoists could all be found at the Mongol court."
+  },
+  {
+   "id": "X05",
+   "who": "penny",
+   "text": "And some of the most powerful people in the empire were women. Sorghaghtani Beki, a Christian princess from the Kerait people, raised four sons. Two became Great Khan, Mongke and Kublai, and a third, Hulagu, ruled Persia."
+  },
+  {
+   "id": "X06",
+   "who": "pike",
+   "text": "So... the real boss was Mum."
+  },
+  {
+   "id": "X07",
+   "who": "penny",
+   "text": "Pretty much."
+  },
+  {
+   "id": "X08",
+   "who": "zed",
+   "text": "In China, Kublai's government ran on paper money, centuries before most of Europe used it."
+  },
+  {
+   "id": "X09",
+   "who": "quill",
+   "text": "And a Venetian merchant named Marco Polo later claimed, in a famous book, that he served at Kublai's court for many years. Historians still debate how much of his story is accurate."
+  }
+ ]
+}

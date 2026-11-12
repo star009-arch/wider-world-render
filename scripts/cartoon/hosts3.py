@@ -253,6 +253,15 @@ def prop(d, kind, x, y, u, f):
     elif kind == "book":
         d.rounded_rectangle([x - 1.0 * u, y - 1.3 * u, x + 1.0 * u, y + 0.3 * u], radius=6, fill=(120, 40, 40), outline=LINE, width=5)
         d.rectangle([x - 0.85 * u, y - 1.15 * u, x + 0.7 * u, y + 0.15 * u], fill=(246, 238, 220))
+    elif kind == "stamp":
+        d.rectangle([x - 0.35 * u, y - 1.3 * u, x + 0.35 * u, y - 0.45 * u], fill=(120, 70, 40), outline=LINE, width=4)
+        d.rounded_rectangle([x - 0.75 * u, y - 0.5 * u, x + 0.75 * u, y - 0.05 * u], radius=6, fill=(190, 40, 40), outline=LINE, width=4)
+    elif kind == "seal":
+        d.ellipse([x - 0.45 * u, y - 0.45 * u, x + 0.45 * u, y + 0.45 * u], fill=(186, 30, 40), outline=LINE, width=4)
+    elif kind == "scroll":
+        d.rounded_rectangle([x - 0.3 * u, y - 1.4 * u, x + 0.3 * u, y + 0.4 * u], radius=0.25 * u, fill=(244, 230, 196), outline=LINE, width=5)
+    elif kind == "pepper":
+        d.ellipse([x - 0.35 * u, y - 0.35 * u, x + 0.35 * u, y + 0.35 * u], fill=(40, 30, 26), outline=LINE, width=3)
     elif kind == "chart":
         d.rounded_rectangle([x - 0.2 * u, y - 2.6 * u, x + f * 2.6 * u if f > 0 else x + 0.2 * u, y], radius=8, fill=(250, 250, 246), outline=LINE, width=5)
         x0 = min(x - 0.2 * u, x + f * 2.6 * u) + 0.4 * u

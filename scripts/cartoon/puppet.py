@@ -205,6 +205,14 @@ def draw(img: Image.Image, s: Spec, p: Pose, x: float, y: float, scale: float = 
             d.ellipse([hx + jx * u - 0.22 * u, hy - 2.25 * u, hx + jx * u + 0.22 * u, hy - 1.85 * u], fill=(200, 30, 60), outline=INK, width=3)
     elif s.hat == "cap":
         d.chord([hx - 2.3 * u, hy - 2.9 * u, hx + 2.3 * u, hy - 0.2 * u], 180, 360, fill=s.hat_color, outline=INK, width=OUT)
+    elif s.hat == "fur":                                                             # Mongol felt hat with a fur brim
+        d.polygon([(hx - 1.9 * u, hy - 1.5 * u), (hx - 0.5 * u, hy - 3.9 * u), (hx + 0.5 * u, hy - 3.9 * u), (hx + 1.9 * u, hy - 1.5 * u)],
+                  fill=s.hat_color, outline=INK)
+        d.ellipse([hx - 0.35 * u, hy - 4.25 * u, hx + 0.35 * u, hy - 3.6 * u], fill=(200, 60, 50), outline=INK, width=3)
+        d.rounded_rectangle([hx - 2.45 * u, hy - 2.0 * u, hx + 2.45 * u, hy - 1.05 * u], radius=0.45 * u, fill=(150, 112, 70), outline=INK, width=OUT)
+        for k in range(9):
+            fx = hx - 2.2 * u + k * 0.55 * u
+            d.arc([fx - 0.3 * u, hy - 1.95 * u, fx + 0.3 * u, hy - 1.1 * u], 200, 340, fill=(118, 86, 52), width=3)
 
 
 # ------------------------------------------------------------------------------------------------- the cast
@@ -232,6 +240,27 @@ CAST = {
                       hat_color=(214, 176, 72), jewel=(40, 120, 70), beard="long", beard_color=(70, 64, 60), sash=(200, 160, 60)),
     "jagat_seth": Spec("Jagat Seth banker", skin=(208, 160, 116), coat=(244, 238, 222), trim=(214, 176, 72), robe=True, hat="turban",
                        hat_color=(200, 60, 50), beard="moustache", beard_color=(40, 34, 30)),
+    "temujin": Spec("Temujin", skin=(214, 172, 132), coat=(70, 90, 130), trim=(200, 170, 90), robe=True, hat="fur", hat_color=(80, 60, 50)),
+    "genghis": Spec("Genghis Khan", skin=(210, 168, 126), coat=(130, 40, 40), trim=(220, 180, 80), robe=True, hat="fur",
+                    hat_color=(60, 50, 46), beard="long", beard_color=(110, 100, 90), sash=(220, 180, 80)),
+    "kublai": Spec("Kublai Khan", skin=(214, 172, 132), coat=(236, 226, 200), trim=(210, 170, 60), robe=True, hat="fur",
+                   hat_color=(214, 176, 72), beard="moustache", beard_color=(40, 34, 30), sash=(210, 170, 60)),
+    "hulagu": Spec("Hulagu", skin=(210, 168, 126), coat=(70, 40, 90), trim=(210, 170, 60), robe=True, hat="fur", hat_color=(50, 40, 40),
+                   beard="short", beard_color=(40, 34, 30)),
+    "shah": Spec("Shah Muhammad II of Khwarazm", skin=(214, 172, 132), coat=(30, 110, 80), trim=(220, 190, 90), robe=True, hat="turban",
+                 hat_color=(240, 236, 226), jewel=(190, 30, 60), beard="short", beard_color=(40, 34, 30)),
+    "mongol": Spec("Mongol rider", skin=(212, 170, 128), coat=(110, 80, 50), trim=(170, 60, 50), hat="helmet", hat_color=(90, 84, 80),
+                   trousers=(70, 60, 50), beard="moustache", beard_color=(40, 34, 30)),
+    "jin": Spec("Jin soldier", skin=(220, 180, 140), coat=(150, 50, 40), trim=(220, 200, 150), hat="helmet", hat_color=(120, 110, 90),
+                trousers=(60, 50, 50)),
+    "knight": Spec("European knight", skin=(240, 210, 180), coat=(170, 172, 180), trim=(200, 40, 40), hat="helmet", hat_color=(160, 162, 170),
+                   trousers=(150, 152, 160)),
+    "mamluk": Spec("Mamluk soldier", skin=(200, 156, 112), coat=(200, 150, 40), trim=(150, 30, 30), hat="turban", hat_color=(240, 236, 226),
+                   trousers=(240, 236, 226), beard="short", beard_color=(40, 34, 30)),
+    "marco": Spec("Marco Polo", skin=(240, 212, 182), coat=(150, 40, 40), trim=(230, 200, 120), hat="cap", hat_color=(120, 30, 30),
+                  beard="short", beard_color=(110, 80, 50)),
+    "sorghaghtani": Spec("Sorghaghtani Beki", skin=(222, 180, 140), coat=(120, 40, 70), trim=(220, 180, 80), robe=True, hat="fur",
+                         hat_color=(150, 40, 50), sash=(220, 180, 80)),
     "csepoy": Spec("Company sepoy", skin=(200, 150, 104), coat=(196, 40, 44), trim=(245, 245, 240), hat="turban",
                    hat_color=(40, 44, 70), beard="moustache", buttons=True),
 }

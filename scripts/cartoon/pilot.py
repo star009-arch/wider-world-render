@@ -200,7 +200,7 @@ def shots():
     t = 0.25
     CUES.append((len(out), "P02", t))
     out.append(Shot("02_paperwork", 2.6, "tabletop",
-                    actors=[P("stampy", 900, 1090, 2.7, lips=lips("P02", t), faces=[(0, {"mouth": "smirk", "brows": -0.3})],
+                    actors=[P("zed", 900, 1090, 2.7, lips=lips("P02", t), faces=[(0, {"mouth": "smirk", "brows": -0.3})],
                               acts=[(1.0, "stamp", None)], props={"prop_l": "stamp"})],
                     camkeys=[(0, 1.12, 0.47, 0.56), (2.6, 1.15, 0.47, 0.56)], shake=[(1.5, 30)]))
     # 3. The five hosts march across the map of Bengal; Pike lags
@@ -210,12 +210,12 @@ def shots():
     g = 1010
     out.append(Shot("03_march", dur, "tabletop",
                     actors=[P("atlas", 200, g, 1.7, speed=1.3, walks=[(0.0, 1180)], lips=lips("P03", t), faces=[(0, {"mouth": "smile"})],
-                              acts=[(3.6, "present", None)], props={"prop_r": "map"}),
+                              acts=[(3.6, "present", None)], props={"prop_l": "map"}),
                             P("penny", 0, g + 10, 1.6, speed=1.4, walks=[(0.0, 900)], faces=[(0, {"brows": -0.4, "mouth": "smirk"})]),
                             P("quill", -220, g - 10, 1.6, speed=1.6, walks=[(0.1, 640)], faces=[(0, {"brows": 0.3})], props={"prop_r": "book"}),
-                            P("stampy", -440, g, 1.6, speed=1.3, walks=[(0.2, 400)], faces=[(0, {"mouth": "smirk"})], props={"prop_l": "scroll"}),
+                            P("zed", -440, g, 1.6, speed=1.3, walks=[(0.2, 400)], faces=[(0, {"mouth": "smirk"})], props={"prop_l": "scroll"}),
                             P("pike", -700, g + 15, 1.7, speed=1.5, walks=[(0.9, 140)], faces=[(0, {"brows": 1.0, "mouth": "worried"})],
-                              props={"prop_l": "musket"})],
+                              props={"prop_l": "rifle"})],
                     camkeys=[(0, 1.0, 0.5, 0.5), (dur, 1.06, 0.55, 0.5)]))
     # 4. Pike trips into the Hooghly
     t = 1.75
@@ -223,15 +223,15 @@ def shots():
     dur = D["P04"] + t + 0.6
     out.append(Shot("04_river", dur, "tabletop",
                     actors=[P("pike", 700, 1080, 2.6, walks=[(0.0, 1000)], faces=[(0, {"brows": 1.0, "mouth": "worried"})],
-                              lips=lips("P04", t), acts=[(0.75, "fall", 0.35), (t + 0.2, "flinch", 0.2)], props={"prop_l": "musket"})],
+                              lips=lips("P04", t), acts=[(0.75, "fall", 0.35), (t + 0.2, "flinch", 0.2)], props={"prop_l": "rifle"})],
                     fx=[drips(1000, 560, t - 0.1, dur)],
-                    camkeys=[(0, 1.35, 0.42, 0.42), (dur, 1.45, 0.5, 0.45)], shake=[(1.1, 16)]))
+                    camkeys=[(0, 1.2, 0.45, 0.6), (dur, 1.25, 0.5, 0.6)], shake=[(1.1, 16)]))
     # 5. Calcutta: Siraj holds the fort (1756); Clive takes it back (Jan 1757)
     t = 0.6
     CUES.append((len(out), "P05", t))
     dur = D["P05"] + t + 0.9
     sw = t + 4.3
-    out.append(Shot("05_calcutta", dur, "fort2",
+    out.append(Shot("05_calcutta", dur, "plate:fort",
                     actors=[P("nawab", 1250, 960, 1.6, faces=[(0, {"brows": -0.6, "mouth": "smirk"}), (sw - 0.3, {"brows": 1.0, "mouth": "o"})],
                               acts=[(0.2, "fold", 2.6), (sw - 0.4, "double_take", 0.0)], walks=[(sw + 0.6, 2300)], speed=2.4),
                             P("clive", -250, 980, 1.6, speed=2.2, walks=[(sw - 2.2, 860)], faces=[(0, {"mouth": "grin", "brows": -0.3})],
@@ -244,7 +244,7 @@ def shots():
     t = 0.4
     CUES.append((len(out), "P06", t))
     dur = D["P06"] + t + 0.9
-    out.append(Shot("06_business", dur, "palace2",
+    out.append(Shot("06_business", dur, "plate:durbar",
                     actors=[P("penny", 800, 1000, 2.6, lips=lips("P06", t), faces=[(0, {"brows": -0.6, "mouth": "grin"})], acts=[(0.1, "rub", None)])],
                     under=[coins(1150, 960, 0.3, dur - 0.3)],
                     camkeys=[(0, 1.1, 0.48, 0.55), (dur, 1.25, 0.5, 0.58)]))
@@ -252,11 +252,11 @@ def shots():
     t = 0.5
     CUES.append((len(out), "P07", t))
     dur = D["P07"] + t + 1.0
-    out.append(Shot("07_tent", dur, "tent",
+    out.append(Shot("07_tent", dur, "plate:camp",
                     actors=[P("mir_jafar", 520, 990, 1.9, faces=[(0, {"brows": 0.2, "mouth": "smirk"}), (t + 3.2, {"brows": 0.8, "mouth": "o"})],
                               acts=[(t + 3.0, "double_take", 0.0)]),
                             P("clive", 1460, 990, 1.9, flip=True, faces=[(0, {"mouth": "smirk", "brows": -0.3})], acts=[(t + 2.0, "present", None)]),
-                            P("stampy", 960, 1010, 2.0, lips=lips("P07", t), faces=[(0, {"mouth": "grin"})], acts=[(t + 3.6, "point", None)],
+                            P("zed", 960, 1010, 2.0, lips=lips("P07", t), faces=[(0, {"mouth": "grin"})], acts=[(t + 3.6, "point", None)],
                               props={"prop_l": "seal"})],
                     fx=[label("SECRET AGREEMENT", 960, 120, t + 0.3, 70, (255, 214, 120))],
                     under=[contract(1020, 1000, t + 3.6, dur - 0.2)],
@@ -267,7 +267,7 @@ def shots():
     dur = D["P08"] + t + 0.8
     small = army("redcoat", 120, 640, 3, 2, 70, 36, 0.55) + army("csepoy", 150, 712, 4, 2, 70, 36, 0.55)
     big = army("sepoy", 980, 600, 12, 6, 70, 30, 0.5, flip=True)
-    out.append(Shot("08_plassey", dur, "plassey",
+    out.append(Shot("08_plassey", dur, "plate:plassey",
                     actors=small + big + [P("atlas", 760, 1060, 2.2, lips=lips("P08", t), faces=[(0, {"brows": 0.6, "mouth": "o"})],
                                               acts=[(t + 3.2, "point", 1.0), (t + 5.0, "shrug", None)])],
                     fx=[label("PLASSEY · 23 JUNE 1757", 960, 110, 0.4, 76, (255, 230, 140)),
@@ -277,7 +277,7 @@ def shots():
     t = 0.9
     CUES.append((len(out), "P09", t))
     dur = D["P09"] + t + 0.8
-    out.append(Shot("09_rain", dur, "plassey_rain",
+    out.append(Shot("09_rain", dur, "plate:plassey_rain",
                     actors=[P("pike", 520, 1040, 2.2, lips=lips("P09", t), faces=[(0, {"brows": 1.0, "mouth": "worried"})],
                               acts=[(0.3, "cower", None)])],
                     under=[cannon(330, 1000, False), tarp(470, 1060, 640, 0.5), cannon(1500, 900, True, fire_at=(0.4, 1.3), fizzle_after=2.0),
@@ -290,7 +290,7 @@ def shots():
     dur = D["P10"] + t + 1.2
     sit = t + 1.6
     troops = army("sepoy", 800, 700, 7, 3, 105, 50, 0.85, flip=True, acts=[(sit, "sit", None)])
-    out.append(Shot("10_mir_jafar", dur, "plassey",
+    out.append(Shot("10_mir_jafar", dur, "plate:plassey",
                     actors=troops + [P("mir_jafar", 1180, 900, 1.5, flip=True, faces=[(0, {"mouth": "smirk"})], acts=[(sit - 0.2, "fold", None)]),
                                      P("nawab", 560, 930, 1.5, faces=[(0, {"brows": -0.5})], acts=[(sit + 0.8, "double_take", 0.0)],
                                        walks=[(sit + 2.4, -400)], speed=2.4),
@@ -301,11 +301,11 @@ def shots():
     t = 0.6
     CUES.append((len(out), "P11", t))
     dur = D["P11"] + t + 1.4
-    out.append(Shot("11_throne", dur, "palace2",
+    out.append(Shot("11_throne", dur, "plate:durbar",
                     actors=[P("mir_jafar", 960, 890, 1.7, faces=[(0, {"mouth": "grin"}), (t + 1.6, {"brows": 1.0, "mouth": "worried", "look": -0.8})]),
                             P("penny", 1560, 1040, 2.0, flip=True, lips=lips("P11", t), faces=[(0, {"brows": -0.7, "mouth": "smirk"})])],
                     under=[penny_shadow(960, 470, 0.8, dur)],
-                    fx=[crown(960, 470, 0.2)],
+                    fx=[crown(960, 560, 0.2)],
                     camkeys=[(0, 1.0, 0.5, 0.5), (dur, 1.15, 0.5, 0.45)]))
     # 12. Quill's correction; everyone looks at us
     t = 0.7
@@ -316,15 +316,15 @@ def shots():
                     actors=[P("atlas", 330, g, 1.8, faces=[(0, {"mouth": "smile"})], acts=[(t + 2.4, "shrug", None)]),
                             P("penny", 640, g + 10, 1.7, faces=[(0, {"brows": -0.4, "mouth": "smirk"})]),
                             P("quill", 960, g - 10, 1.9, lips=lips("P12", t), faces=[(0, {"brows": 0.6})], acts=[(0.15, "hold_up", None)]),
-                            P("stampy", 1280, g, 1.7, flip=True, faces=[(0, {"mouth": "smirk"})], acts=[(t + 2.8, "nod", None)]),
-                            P("pike", 1590, g + 15, 1.8, flip=True, faces=[(0, {"brows": 1.0, "mouth": "worried"})], props={"prop_l": "musket"})],
+                            P("zed", 1280, g, 1.7, flip=True, faces=[(0, {"mouth": "smirk"})], acts=[(t + 2.8, "nod", None)]),
+                            P("pike", 1590, g + 15, 1.8, flip=True, faces=[(0, {"brows": 1.0, "mouth": "worried"})], props={"prop_l": "rifle"})],
                     fx=[sign_card("NOT all of India.|Just Bengal. For now.", 960, 200, 0.4)],
                     camkeys=[(0, 1.0, 0.5, 0.5), (dur, 1.05, 0.5, 0.52)]))
     # 13. End card
     out.append(Shot("13_end", 3.2, "endcard",
                     actors=[P(k, 360 + i * 300, 1030, 1.5, faces=[(0, {"mouth": "grin" if k != "pike" else "worried"})],
                               acts=[(0.3 + i * 0.12, "cheer" if k != "quill" else "hold_up", None)])
-                            for i, k in enumerate(["atlas", "penny", "pike", "quill", "stampy"])]))
+                            for i, k in enumerate(["atlas", "penny", "pike", "quill", "zed"])]))
     return out
 
 

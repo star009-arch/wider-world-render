@@ -53,7 +53,7 @@ jobs:
           ls data/geo/naturalearth/NE1_50M_SR_W/*
       - name: 3D plates
         run: |
-          mkdir -p platevids && gh release download "${{ inputs.plates_tag }}" -p "*.mp4" -D platevids -R "$GITHUB_REPOSITORY"
+          mkdir -p platevids && for T in $(echo "${{ inputs.plates_tag }}" | tr ',' ' '); do gh release download "$T" -p "*.mp4" -D platevids --clobber -R "$GITHUB_REPOSITORY"; done
           python scripts/cartoon/plates_extract.py platevids plates
       - name: voice kit (encrypted)
         env:
