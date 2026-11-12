@@ -144,6 +144,9 @@ def mouth(d, mx, my, u, m, k=0.0, lip=(120, 50, 50), sz=1.0):
 def head_atlas(d, cx, cy, u, face, k):
     skin, hair = (242, 204, 166), (122, 76, 42)
     R = 1.75 * u
+    ph = period_hat("atlas")
+    if ph:
+        _hat(d, "atlas", ph, cx, cy, R, u, k, back=True)
     for side in (-1, 1):                                                        # ears
         if side * k > 0.5:
             continue
@@ -168,6 +171,9 @@ def head_atlas(d, cx, cy, u, face, k):
         if abs(k) < 0.85 or side * k > 0:
             d.ellipse([fx + side * 0.95 * u - 0.25 * u, cy + 0.6 * u, fx + side * 0.95 * u + 0.25 * u, cy + 0.85 * u], fill=(240, 166, 150))
     mouth(d, fx + k * 0.25 * u, cy + 1.05 * u, u, face.mouth, k)
+    if ph:
+        _hat(d, "atlas", ph, cx, cy, R, u, k)
+        return
     if C("atlas", "hat") == "headcloth":                                        # plain white linen headcloth
         top = cy - R * 0.62
         d.chord([cx - R * 1.1 - OUT, cy - R * 1.12 - OUT, cx + R * 1.1 + OUT, cy + R * 0.5 + OUT], 180, 360, fill=LINE)
@@ -188,6 +194,11 @@ def head_atlas(d, cx, cy, u, face, k):
 def head_pike(d, cx, cy, u, face, k):
     skin = (246, 210, 182)
     R = 1.45 * u
+    ph = period_hat("pike")
+    if ph:
+        _hat(d, "pike", ph, cx, cy, R, u, k, back=True)
+        if C("pike", "hair"):
+            _kit().hair_back(d, C("pike", "hair"), cx, cy, R, u, k, C("pike", "hair_col", (110, 74, 44)))
     for side in (-1, 1):
         if side * k > 0.5:
             continue
@@ -201,6 +212,11 @@ def head_pike(d, cx, cy, u, face, k):
             d.ellipse([fx + side * 0.75 * u - 0.24 * u, cy + 0.6 * u, fx + side * 0.75 * u + 0.24 * u, cy + 0.86 * u], fill=(240, 150, 140))
     ell(d, fx + k * 0.45 * u, cy + 0.55 * u, 0.16 * u, 0.15 * u, shade(skin, 0.9), w=3)
     mouth(d, fx + k * 0.2 * u, cy + 0.95 * u, u, face.mouth, k, sz=0.85)
+    if ph:
+        if C("pike", "hair"):
+            _kit().hair_front(d, C("pike", "hair"), cx, cy, R, u, k, C("pike", "hair_col", (110, 74, 44)), skin, hatted=True)
+        _hat(d, "pike", ph, cx, cy, R, u, k)
+        return
     if C("pike", "hat") == "wig":                                               # short black wig, no helmet (Old Kingdom troops)
         wig = (30, 26, 26)
         d.chord([cx - R * 1.12 - OUT, cy - R * 1.2 - OUT, cx + R * 1.12 + OUT, cy + R * 0.55 + OUT], 180, 360, fill=LINE)
@@ -226,12 +242,17 @@ def head_pike(d, cx, cy, u, face, k):
 def head_zed(d, cx, cy, u, face, k):
     g, gd = (154, 224, 72), (112, 182, 46)
     R = 2.35 * u
-    for side in (-1, 1):                                                        # antennae
-        ax = cx + side * 0.9 * u + k * 0.4 * u
-        tx, ty = ax + side * 0.9 * u, cy - R - 1.9 * u
-        d.line([(ax, cy - R * 0.8), (ax + side * 0.25 * u, cy - R - 0.8 * u), (tx, ty)], fill=LINE, width=int(0.36 * u))
-        d.line([(ax, cy - R * 0.8), (ax + side * 0.25 * u, cy - R - 0.8 * u), (tx, ty)], fill=gd, width=int(0.2 * u))
-        shaded_ell(d, tx, ty, 0.48 * u, 0.48 * u, g, 1)
+    ph = period_hat("zed")
+
+    def antennae():
+        for side in (-1, 1):                                                    # antennae
+            ax = cx + side * 0.9 * u + k * 0.4 * u
+            tx, ty = ax + side * 0.9 * u, cy - R - 1.9 * u
+            d.line([(ax, cy - R * 0.8), (ax + side * 0.25 * u, cy - R - 0.8 * u), (tx, ty)], fill=LINE, width=int(0.36 * u))
+            d.line([(ax, cy - R * 0.8), (ax + side * 0.25 * u, cy - R - 0.8 * u), (tx, ty)], fill=gd, width=int(0.2 * u))
+            shaded_ell(d, tx, ty, 0.48 * u, 0.48 * u, g, 1)
+    if not ph:
+        antennae()
     shaded_ell(d, cx, cy, R * 1.08 * (1 - 0.06 * abs(k)), R, g, 1 if k >= 0 else -1)
     fx = cx + k * 0.8 * u
     face2 = type(face)(brows=face.brows, look=face.look, blink=face.blink, mouth=face.mouth, bulge=face.bulge)
@@ -240,14 +261,20 @@ def head_zed(d, cx, cy, u, face, k):
         if abs(k) < 0.85 or side * k > 0:
             d.ellipse([fx + side * 1.45 * u - 0.28 * u, cy + 0.75 * u, fx + side * 1.45 * u + 0.28 * u, cy + 1.0 * u], fill=(236, 150, 140))
     mouth(d, fx + k * 0.3 * u, cy + 1.2 * u, u, face.mouth if face.mouth != "X" else "smile", k, sz=1.5)
+    if ph:                                                                      # a small hat perched on the big head, antennae through it
+        _hat(d, "zed", ph, cx + k * 0.3 * u, cy - 1.15 * u, 1.7 * u, u, k)
+        antennae()
 
 
 HEADS = {"atlas": (head_atlas, 9.0), "pike": (head_pike, 10.0), "zed": (head_zed, 12.0)}
+HEAD_PERIOD = {"atlas": 12.0, "pike": 12.0, "zed": 14.0}                         # roomier canvas for tall period hats
 
 
 @lru_cache(maxsize=6000)
 def head_sprite(key, face, kq, u, world="default"):
     fn, size = HEADS[key]
+    if world != "default" and period_hat(key):
+        size = HEAD_PERIOD[key]
     W = int(size * u)
     im = Image.new("RGBA", (W, W), (0, 0, 0, 0))
     fn(ImageDraw.Draw(im), W / 2, W * 0.62, u, face, kq / 10)
@@ -292,6 +319,8 @@ def prop(d, kind, x, y, u, f):
         x0 = min(x - 0.2 * u, x + f * 2.6 * u) + 0.4 * u
         for i, h in enumerate((0.6, 1.0, 1.5, 2.0)):
             d.rectangle([x0 + i * 0.55 * u, y - 0.3 * u - h * u, x0 + i * 0.55 * u + 0.35 * u, y - 0.3 * u], fill=(70, 150, 210))
+    elif kind:
+        _kit().prop(d, kind, x, y, u, f)                                        # period props (bow, pike, musket, ...)
 
 
 # ------------------------------------------------------------------------------------------------ bodies
@@ -332,6 +361,56 @@ COSTUMES = {
         "zed": {"collar": True},
         "props": {"rifle": "spear", "map": "scroll", "cane": "staff", "chart": "scroll"},
     },
+    "mongol_1200": {                                # steppe, c. 1200-1260 (05_mongol_empire_1160-1368.md)
+        "atlas": {"hat": "mongol_fur", "hat_col": ((120, 84, 52), (176, 138, 96)), "torso": "deel", "hem": 2.0,
+                  "cols": ((163, 135, 78), (107, 66, 38), (92, 56, 34)), "arms": ((163, 135, 78), (163, 135, 78)),
+                  "legs": ((84, 70, 60), (84, 70, 60)), "feet": (107, 66, 38), "socks": False, "boot_h": 0.6},
+        "pike": {"hat": "mongol_helmet", "torso": "lamellar", "hem": 1.8, "cols": ((111, 114, 118), (206, 52, 38), (46, 74, 122)),
+                 "arms": ((206, 52, 38), (206, 52, 38)), "cuff": None, "arm_piece": ("pauldron", (111, 114, 118), (46, 74, 122)),
+                 "legs": ((70, 58, 52), (70, 58, 52)), "feet": (107, 66, 38), "boot_h": 0.65},
+        "penny": {"hat": "mongol_fur", "hat_col": ((158, 43, 37), (184, 150, 104)), "tie": "beads"},
+        "quill": {"hat": "scribe_cap", "hat_col": ((46, 63, 107), (92, 64, 44)), "sash": (158, 43, 37)},
+        "zed": {"torso": "deel", "cols": ((46, 63, 107), (201, 165, 74), (107, 66, 38)), "arms": ((46, 63, 107), (46, 63, 107)),
+                "hat": "fur_cap"},
+        "props": {"rifle": "bow", "cane": "whip", "chart": "scroll", "book": "scroll"},
+    },
+    "london_1600": {                                # London c. 1600 (04_east_india_company_1600-1765.md, 1.4)
+        "atlas": {"hat": "capotain", "torso": "doublet", "hem": 1.0, "flags": ("venetians",),
+                  "cols": ((150, 104, 64), (96, 70, 48), (212, 170, 64)), "neck": "ruff", "cloak": ("short", (70, 58, 50), (190, 160, 100)),
+                  "arms": ((150, 104, 64), (150, 104, 64)), "legs": ((96, 70, 48), (226, 214, 190)), "feet": (60, 40, 28), "socks": False},
+        "pike": {"hat": "morion", "torso": "buffcoat", "hem": 1.25, "cols": ((206, 172, 112), (150, 40, 36), (178, 40, 36)), "neck": "falling_band",
+                 "arms": ((206, 172, 112), (206, 172, 112)), "cuff": None, "legs": ((150, 40, 36), (210, 200, 180)), "feet": (40, 32, 28)},
+        "penny": {"hat": "tudor_bonnet", "tie": "ruff"},
+        "quill": {"hat": "flat_cap", "neck": "ruff"},
+        "zed": {"torso": "doublet", "cols": ((34, 34, 40), (212, 170, 64), (34, 34, 40)), "arms": ((34, 34, 40), (34, 34, 40)), "neck": "ruff",
+                "legs": ((34, 34, 40), (134, 204, 60))},
+        "props": {"rifle": "pike", "chart": "scroll"},
+    },
+    "mughal_1616": {                                # Jahangir's court, Ajmer 1616 (04_, section 3.3)
+        "atlas": {"hat": "mughal_turban", "hat_col": ((240, 234, 214), (212, 170, 64)), "torso": "jama", "hem": 2.1,
+                  "cols": ((236, 220, 180), (143, 36, 48), (212, 170, 64)), "arms": ((236, 220, 180), (236, 220, 180)),
+                  "legs": ((214, 190, 142), (214, 190, 142)), "feet": (150, 40, 40), "socks": False},
+        "pike": {"hat": "mughal_turban", "hat_col": ((240, 236, 226), (212, 170, 64)), "torso": "jama", "hem": 1.9,
+                 "cols": ((176, 37, 42), (212, 170, 64), (120, 24, 30)), "arms": ((176, 37, 42), (176, 37, 42)), "cuff": None,
+                 "legs": ((236, 230, 214), (236, 230, 214)), "feet": (120, 30, 30)},
+        "penny": {"hat": "mughal_turban", "hat_col": ((240, 234, 214), (212, 170, 64)), "jewel": True, "tie": "pearls"},
+        "quill": {"hat": "bengal_turban", "hat_col": ((240, 236, 226), (212, 170, 64)), "sash": (227, 162, 59)},
+        "zed": {"torso": "jama", "cols": ((231, 185, 176), (212, 170, 64), (212, 170, 64)), "arms": ((231, 185, 176), (231, 185, 176)),
+                "hat": "bengal_turban", "hat_col": ((227, 162, 59), (212, 170, 64))},
+        "props": {"rifle": "spear_i", "cane": "staff", "chart": "scroll"},
+    },
+    "bengal_1757": {                                # Bengal and the Company army, 1756-65 (04_, sections 5-6)
+        "atlas": {"hat": "tricorne", "hat_col": ((30, 28, 30), (30, 28, 30)), "torso": "frock", "hem": 1.5,
+                  "cols": ((92, 70, 52), (214, 186, 132), (214, 186, 132)), "neck": "stock", "arms": ((92, 70, 52), (92, 70, 52)),
+                  "legs": ((214, 186, 132), (236, 232, 220)), "feet": (40, 30, 26), "socks": False, "boot_h": 0.8},
+        "pike": {"hat": "tricorne", "hair": "queue", "hair_col": (96, 66, 44), "torso": "redcoat", "hem": 1.45,
+                 "cols": ((178, 42, 42), (92, 138, 74), (178, 42, 42)), "neck": "stock", "arms": ((178, 42, 42), (178, 42, 42)),
+                 "cuff": (92, 138, 74), "legs": ((178, 42, 42), (236, 232, 220)), "feet": (30, 28, 28)},
+        "penny": {"hat": "tricorne", "tie": "jabot"},
+        "quill": {"neck": "jabot"},
+        "zed": {"torso": "waistcoat", "cols": ((214, 186, 132), (226, 194, 96), (214, 186, 132)), "neck": "stock"},
+        "props": {"rifle": "musket", "chart": "scroll"},
+    },
 }
 WORLD = "default"
 
@@ -347,6 +426,26 @@ def set_world(name):
 
 def C(key, field, default=None):
     return COSTUMES[WORLD].get(key, {}).get(field, default)
+
+
+def _kit():
+    import costume
+    return costume
+
+
+def period_hat(key):
+    """The world's hat for a host if it comes from the costume kit (costume.HATS), else None."""
+    h = C(key, "hat")
+    return h if h and h in _kit().HATS else None
+
+
+def _hat(d, key, kind, cx, cy, R, u, k, back=False):
+    K = _kit()
+    c1, c2 = C(key, "hat_col", (None, None))
+    if back:
+        K.hat_back(d, kind, cx, cy, R, u, k, c1, c2)
+    else:
+        K.hat(d, kind, cx, cy, R, u, k, c1, c2, jewel=C(key, "jewel", False))
 
 
 def collar(d, cx, cy, rx, u, n=3):
@@ -392,12 +491,19 @@ def draw(key, p, s=1.0, flip=False, view=0.6):
             if C("atlas", "socks", True):
                 limb(d, [(ankle[0], ankle[1] - 0.4 * u), ankle], [0.7 * u], [shade((236, 228, 210), dk)])
             boot = shade(C("atlas", "feet", (112, 72, 42)), dk)
+            if C("atlas", "boot_h"):
+                bh = C("atlas", "boot_h")
+                limb(d, [(ankle[0] + (knee[0] - ankle[0]) * bh, ankle[1] + (knee[1] - ankle[1]) * bh), ankle], [0.7 * u], [boot])
         elif key == "pike":
             lc = C("pike", "legs", ((40, 40, 48), (40, 40, 48)))
             limb(d, [hp, knee, ankle], [b.leg_w * u, 0.72 * u], [shade(lc[0], dk), shade(lc[1], dk)])
             boot = shade(C("pike", "feet", (24, 24, 28)), dk)
+            if C("pike", "boot_h"):
+                bh = C("pike", "boot_h")
+                limb(d, [(ankle[0] + (knee[0] - ankle[0]) * bh, ankle[1] + (knee[1] - ankle[1]) * bh), ankle], [0.78 * u], [boot])
         elif key == "zed":
-            limb(d, [hp, knee, ankle], [b.leg_w * u, 0.75 * u], [shade((134, 204, 60), dk)] * 2)
+            zl = C("zed", "legs", ((134, 204, 60), (134, 204, 60)))
+            limb(d, [hp, knee, ankle], [b.leg_w * u, 0.75 * u], [shade(zl[0], dk), shade(zl[1], dk)])
             boot = shade((134, 204, 60), dk)
         elif key == "quill":
             limb(d, [hp, knee, ankle], [b.leg_w * u, 0.4 * u], [shade((236, 170, 52), dk)] * 2)
@@ -441,7 +547,8 @@ def draw(key, p, s=1.0, flip=False, view=0.6):
             limb(d, [sh_pt, elbow, cuff, hand], [b.arm_w * u, 0.56 * u, 0.6 * u], [shade(ac[0], dk), shade(ac[1], dk), shade(cc or ac[1], dk)])
             glove = shade((246, 210, 182), dk)
         elif key == "zed":
-            limb(d, [sh_pt, elbow, hand], [b.arm_w * u, 0.55 * u], [shade((150, 220, 70), dk)] * 2)
+            za = C("zed", "arms", ((150, 220, 70), (150, 220, 70)))
+            limb(d, [sh_pt, elbow, hand], [b.arm_w * u, 0.55 * u], [shade(za[0], dk), shade(za[1], dk)])
             glove = shade((150, 220, 70), dk)
         elif key == "quill":
             limb(d, [sh_pt, elbow, hand], [b.arm_w * u, 0.7 * u], [shade((132, 92, 58), dk)] * 2)
@@ -449,6 +556,9 @@ def draw(key, p, s=1.0, flip=False, view=0.6):
         else:
             limb(d, [sh_pt, elbow, hand], [b.arm_w * u, b.arm_w * u], [(34, 40, 50)] * 2)
             glove = (252, 252, 250)
+        if C(key, "arm_piece"):
+            ap = C(key, "arm_piece")
+            _kit().arm_piece(d, ap[0], sh_pt, elbow, hand, u, shade(ap[1], dk), ap[2])
         ell(d, hand[0], hand[1], 0.38 * u if key == "penny" else 0.32 * u, 0.38 * u if key == "penny" else 0.32 * u, glove, w=4)
         if prop_kind:
             prop(d, prop_kind, hand[0], hand[1], u, fdir)
@@ -479,6 +589,14 @@ def draw(key, p, s=1.0, flip=False, view=0.6):
         if C("penny", "tie") == "collar":
             collar(d, bx, by - 0.2 * u, 1.4 * u * (1 - 0.2 * v), u)
             bw = 0
+        elif C("penny", "tie") in ("ruff", "jabot", "stock", "beads", "falling_band"):
+            _kit().neck(d, C("penny", "tie"), bx, by + 0.3 * u, u, k, 0.8)
+            bw = 0
+        elif C("penny", "tie") == "pearls":
+            _kit().pearls(d, bx - k * 0.25 * u, by - 0.1 * u, u, k, n=2, drop=0.5)
+            bw = 0
+        elif C("penny", "tie") == "none":
+            bw = 0
         if bw:
             d.polygon([(bx, by), (bx - bw, by - 0.42 * u), (bx - bw, by + 0.42 * u)], fill=(28, 30, 36), outline=LINE)
             d.polygon([(bx, by), (bx + bw, by - 0.42 * u), (bx + bw, by + 0.42 * u)], fill=(28, 30, 36), outline=LINE)
@@ -496,6 +614,9 @@ def draw(key, p, s=1.0, flip=False, view=0.6):
             hat = None
         if C("penny", "hat") == "nemes":
             pass
+        elif period_hat("penny"):                                               # period hat on the coin (a virtual head at the top)
+            _hat(d, "penny", period_hat("penny"), cx + k * 0.2 * u, cy - 1.05 * u, 2.0 * u, u, k)
+            arm(body_pt(f * (R * wf + 0.15 * u), -R * 0.8), p.sh_l, p.el_l, p.prop_l, False)
         else:
           hat, band = (36, 58, 70), (214, 184, 96)                              # top hat, tilted
           hs = Image.new("RGBA", (int(6 * u), int(6 * u)), (0, 0, 0, 0))
@@ -540,7 +661,15 @@ def draw(key, p, s=1.0, flip=False, view=0.6):
                   fill=(238, 170, 52), outline=LINE)
         if C("quill", "collar"):
             collar(d, bx, cy + 0.35 * u, 1.7 * u * (1 - 0.25 * v), u)
-        if C("quill", "hat", "mortarboard") == "mortarboard":
+        if C("quill", "sash"):                                                  # period sash / patka across the belly
+            sc = C("quill", "sash")
+            d.line([(bx - 1.6 * u, cy + 1.5 * u), (bx + 1.6 * u, cy + 1.5 * u)], fill=LINE, width=int(0.5 * u) + 8)
+            d.line([(bx - 1.6 * u, cy + 1.5 * u), (bx + 1.6 * u, cy + 1.5 * u)], fill=sc, width=int(0.5 * u))
+        if C("quill", "neck"):
+            _kit().neck(d, C("quill", "neck"), bx, cy + 1.0 * u, u, k, 0.8)
+        if period_hat("quill"):
+            _hat(d, "quill", period_hat("quill"), cx + k * 0.6 * u, cy - 1.45 * u, 2.1 * u, u, k)
+        elif C("quill", "hat", "mortarboard") == "mortarboard":
             mb = (30, 30, 36)                                                   # mortarboard and tassel
             d.chord([cx - 1.7 * u, cy - 4.3 * u, cx + 1.7 * u, cy - 2.4 * u], 180, 360, fill=mb, outline=LINE, width=OUT)
             d.polygon([(cx - 2.6 * u, cy - 3.75 * u), (cx + 0.2 * u, cy - 4.55 * u), (cx + 2.6 * u, cy - 3.75 * u), (cx - 0.2 * u, cy - 3.0 * u)],
@@ -594,6 +723,11 @@ def torso_sprite(key, ang, u, k, world="default"):
     d = ImageDraw.Draw(im)
     hx, hy = W / 2, T + 0.6 * u
     top = hy - T
+    cs = COSTUMES[world].get(key, {})
+    if key in ("atlas", "pike") and cs.get("torso") in _kit().GARMENTS:
+        return _period_torso(key, cs, ang, u, k)
+    if key == "zed" and cs.get("torso"):
+        return _zed_torso(cs, ang, u, k)
     if key == "zed":
         g = (150, 220, 70)
         shaded_ell(d, hx, hy - T * 0.42, sw * 1.05, T * 0.62, g, f)
@@ -649,4 +783,75 @@ def torso_sprite(key, ang, u, k, world="default"):
                 ell(d, c, by, 0.12 * u, 0.12 * u, (226, 194, 96), w=2)
         d.rectangle([hx - sw * 0.92, hy - 0.75 * u, hx + sw * 0.92, hy - 0.35 * u], fill=(226, 194, 96), outline=LINE, width=3)
         d.rectangle([c - 0.25 * u, hy - 0.8 * u, c + 0.25 * u, hy - 0.3 * u], fill=(240, 214, 120), outline=LINE, width=3)
+    return rot_sprite(im, (hx, hy), ang)
+
+
+def _period_torso(key, cs, ang, u, k):
+    """Atlas / Pike in a period garment from the costume kit (deel, lamellar, doublet, jama, frock coat, redcoat...)."""
+    K = _kit()
+    b = BUILD[key]
+    T = b.torso * u
+    v = abs(k)
+    f = 1 if k >= 0 else -1
+    sw = b.sw * u * (1 - 0.3 * v)
+    hem = cs.get("hem", 1.0)
+    W = int(2 * sw * 1.6 + 5 * u)
+    top_pad = 1.5 * u
+    H = int(T + top_pad + max(hem, 0.5) * u + 2.0 * u)
+    im = Image.new("RGBA", (W, H), (0, 0, 0, 0))
+    d = ImageDraw.Draw(im)
+    hx, hy = W / 2, T + top_pad
+    top = hy - T
+    c1, c2, c3 = cs["cols"]
+    skin = SKIN_A if key == "atlas" else SKIN_P
+    K.garment(d, cs["torso"], hx, hy, top, sw, u, k, f, c1, c2, c3, hem, cs.get("flags", ()), skin)
+    if cs.get("cloak"):
+        kind, col, trim = cs["cloak"]
+        K.cloak(d, kind, hx, hy, top, sw, u, k, f, col, trim, hem)
+    if cs.get("neck"):
+        K.neck(d, cs["neck"], hx + k * 0.3 * u, top + 0.05 * u, u, k)
+    return rot_sprite(im, (hx, hy), ang)
+
+
+def _zed_torso(cs, ang, u, k):
+    """Zed's round body dressed: deel or jama (robe, trim, sash, short skirt), doublet with ruff, or waistcoat with stock."""
+    K = _kit()
+    b = BUILD["zed"]
+    T = b.torso * u
+    v = abs(k)
+    f = 1 if k >= 0 else -1
+    sw = b.sw * u * (1 - 0.3 * v)
+    W = int(2 * sw + 5 * u)
+    H = int(T + 4.0 * u)
+    im = Image.new("RGBA", (W, H), (0, 0, 0, 0))
+    d = ImageDraw.Draw(im)
+    hx, hy = W / 2, T + 0.6 * u
+    kind = cs["torso"]
+    c1, c2, c3 = cs["cols"]
+    g = (150, 220, 70)
+    ecx, ecy, rx, ry = hx, hy - T * 0.42, sw * 1.05, T * 0.62
+    c = hx + k * 0.35 * u
+
+    def half(y):
+        return rx * math.sqrt(max(0.0, 1 - ((y - ecy) / ry) ** 2))
+    if kind in ("deel", "jama"):
+        hem = 0.95 if kind == "deel" else 1.1
+        K._skirt(d, hx, hy - 0.4 * u, hy + hem * u, rx * 0.75, rx * (0.95 if kind == "deel" else 1.1), c1)
+        shaded_ell(d, ecx, ecy, rx, ry, c1, f)
+        a, bpt = (c + 0.5 * sw, ecy - ry * 0.92), (c - 0.75 * sw, ecy + 0.1 * ry)
+        K.band(d, a, bpt, 0.24 * u, c2)
+        y = hy - 0.15 * u
+        d.rectangle([ecx - half(y) + 2, y - 0.22 * u, ecx + half(y) - 2, y + 0.2 * u], fill=c3, outline=LINE, width=3)
+    elif kind == "doublet":
+        shaded_ell(d, ecx, ecy, rx, ry, c1, f)
+        for i in range(6):
+            ell(d, c, ecy - ry * 0.7 + i * ry * 0.3, 0.09 * u, 0.09 * u, c2, w=2)
+    elif kind == "waistcoat":
+        shaded_ell(d, ecx, ecy, rx, ry, g, f)
+        pts = [(c - 0.75 * u, ecy - ry * 0.85), (c + 0.75 * u, ecy - ry * 0.85), (c + 0.95 * u, ecy + ry * 0.75), (c - 0.95 * u, ecy + ry * 0.75)]
+        K.poly(d, pts, c1)
+        for i in range(5):
+            ell(d, c, ecy - ry * 0.6 + i * ry * 0.3, 0.08 * u, 0.08 * u, c2, w=2)
+    if cs.get("neck"):
+        K.neck(d, cs["neck"], c, hy - T + 0.15 * u, u, k, 0.9)
     return rot_sprite(im, (hx, hy), ang)

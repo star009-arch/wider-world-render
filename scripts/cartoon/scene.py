@@ -124,6 +124,7 @@ class Shot:
     camkeys: list | None = None                      # [(t, zoom, cx, cy)] eased between keys (close-ups, pans)
     shake: list = field(default_factory=list)        # [(t, amplitude px)] decaying camera shakes
     under: list = field(default_factory=list)        # fx drawn on the set before the actors (shadows, props on the ground)
+    world: str | None = None                         # period world for host costumes (hosts3.COSTUMES); None keeps the current one
 
 
 _BG: dict = {}
@@ -171,6 +172,11 @@ def plate_frame(name, t, dur):
 
 
 def render_frame(shot: Shot, t: float) -> Image.Image:
+    if shot.world:
+        import hosts3 as _H3
+        if _H3.WORLD != shot.world:
+            import motions as _M
+            _M.set_world(shot.world)
     if shot.bg.startswith("plate:"):
         frame = plate_frame(shot.bg[6:], t, shot.dur)
     else:

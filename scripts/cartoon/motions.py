@@ -215,9 +215,16 @@ class Performer:
             w, n = self.key.split(":", 1)
             self.ch = None
             self.natural = False
-            self.L = 1.55 * PP.get(w, n).height
+            per = PP.get(w, n)
+            self.L = 1.55 * per.height
             k = self.L / 0.75
             self.pp = replace(DEFAULT, stride=DEFAULT.stride * k * 0.8, lift=DEFAULT.lift * k * 0.7, arm=DEFAULT.arm * 0.9)
+            if getattr(per, "mount", "") or getattr(per, "creature", ""):        # riders and animals: the legs drive the horse/camel cycle
+                gallop = per.gait == "gallop" and not per.creature
+                self.L = 1.55
+                self.pp = replace(DEFAULT, stride=7.0 if gallop else 3.4, lift=0.5, bounce=0.0, arm=3.0 if gallop else 6.0, lean=0.0,
+                                  cadence=1.5 if gallop else 0.75)
+                self.shw = 4.6 if per.creature else 4.2
             self._plan()
             return
         if USE_V3 and self.key in H3.KEYS:                                  # v3 hosts: leg length straight from their build
@@ -363,7 +370,7 @@ class Performer:
         x, y = self.pos_at(t)
         if self.shadow and not pose.rot:                                    # soft contact shadow, shrinks as they jump
             k = max(0.35, 1 - max(0.0, pose.y) * 0.25)
-            w, h = 2.6 * self.upx * k, 0.55 * self.upx * k
+            w, h = getattr(self, "shw", 2.6) * self.upx * k, 0.55 * self.upx * k
             sh = _shadow(int(w), int(h))
             frame.alpha_composite(sh, (int(x - w), int(y - h)))
         tile, ax, ay = tile_for(self.key, pose, self.scale, flip, self.view)
