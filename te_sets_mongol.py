@@ -1407,10 +1407,10 @@ def shot_m_steppe_dawn():
 
     def dens(x, y):
         return (1 - mg_ss(25, 75, math.hypot(x * 0.8, y - 8))) * mg_ss(-26, -18, y) * mg_ss(5, 9, abs(y - riv(x)))
-    gm = mg_ground_mat("steppe", [("leafy_grass", 0.35, (0.92, 0.88, 0.62)), ("withered_grass", 0.3, (1.0, 0.92, 0.7))], 0.008,
-                       extra=[("aerial_grass_rock", 0.012, (0.85, 0.95, 0.7), mg_mask_height(25, 160, 40))])
+    gm = mg_ground_mat("steppe", [("leafy_grass", 0.35, (0.78, 0.92, 0.5)), ("withered_grass", 0.3, (0.95, 0.95, 0.62))], 0.008,
+                       extra=[("aerial_grass_rock", 0.012, (0.75, 0.95, 0.55), mg_mask_height(15, 120, 30))])
     ground = mg_terrain("steppe", 7000, 480, h, gm, 0, 20, 2.2, dens)
-    mg_grass(ground, 70000, 0.3, mg_grass_mat("grass", (0.06, 0.07, 0.03), (0.3, 0.33, 0.1), (0.62, 0.52, 0.24)), 8, 0.0035, 3)
+    mg_grass(ground, 70000, 0.3, mg_grass_mat("grass", (0.05, 0.07, 0.02), (0.26, 0.36, 0.09), (0.58, 0.54, 0.24)), 8, 0.0035, 3)
     add("plane", (0, 80, -1.55), (3000, 160, 1), m=mg_water_mat("river", (0.03, 0.05, 0.06), 0.03, 0.15))
     # the camp: a kuriyen ring round the leader's great white ger, doors to the south
     mg_ger(camp[0], camp[1], 1.0, 3.7, "white", 0.0)
