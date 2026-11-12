@@ -33,7 +33,15 @@ im, pj = K._relief(K.MAPS["m_egypt"], 0.22)
 SC._BG["m_egypt"] = im.convert("RGBA")
 K.PROJ["m_egypt"] = pj
 
-P, scene, at, label, caption, pin, route, timeline = K.P, K.scene, K.at, K.label, K.caption, K.pin, K.route, K.timeline
+P, at, label, caption, pin, route, timeline = K.P, K.at, K.label, K.caption, K.pin, K.route, K.timeline
+
+
+def scene(*a, **kw):
+    """Engine scene, plus a slow push-in on any shot that would otherwise hold a frozen frame."""
+    sh = K.scene(*a, **kw)
+    if kw.get("follow", True) is False and kw.get("cam") is None:
+        sh.camkeys = [(0.0, 1.0, 0.5, 0.5), (sh.dur, 1.045, 0.5, 0.5)]
+    return sh
 G = 1030
 GOLD, SAND, INK = (255, 214, 120), (226, 196, 140), (30, 24, 20, 255)
 
@@ -164,18 +172,19 @@ def compass(t0, cx=760, cy=520):
     return f
 
 
-def sledge(t0, water_t):
+def sledge(t0, water_t, travel=600.0, x_start=1400.0, y=820.0, rope_y=None):
     """Sledge on sand with a big block; a worker pours water ahead (Djehutihotep painting, later; Fall et al. 2014)."""
     def f(t, d, frame):
         if t < t0:
             return
-        x = 1400 - min(1.0, (t - t0) / 9.0) * 600
-        y = 820
+        x = x_start - min(1.0, (t - t0) / 9.0) * travel
+        d.rectangle([0, y + 10, 1920, y + 60], fill=(206, 176, 120, 255))
         d.rectangle([x - 240, y - 16, x + 240, y + 10], fill=(120, 82, 46, 255), outline=INK, width=4)
         d.polygon([(x - 260, y + 10), (x - 240, y - 16), (x - 290, y - 50)], fill=(120, 82, 46, 255), outline=INK)
         d.rectangle([x - 190, y - 230, x + 190, y - 16], fill=(214, 196, 160, 255), outline=INK, width=4)
         for i in range(3):
-            d.line([(x - 290, y - 40 - i * 4), (x - 700, y - 120 + i * 30)], fill=(150, 120, 70, 255), width=5)
+            ry = (y - 120) if rope_y is None else rope_y
+            d.line([(x - 290, y - 40 - i * 4), (x - 700, ry + i * 14)], fill=(150, 120, 70, 255), width=5)
         if t >= water_t:
             for j in range(10):
                 ph = ((t - water_t) * 2 + j / 10) % 1
@@ -334,24 +343,212 @@ def khufu_ship(t0):
     return f
 
 
+def no_list(t0, xs_t, yes_t):
+    """'No steel tools. No cranes. No engines.' crossed out one by one, then 'copper · rope · muscle'."""
+    words = ["STEEL TOOLS", "CRANES", "ENGINES"]
+
+    def f(t, d, frame):
+        for i, w in enumerate(words):
+            ts = t0 + xs_t[i]
+            if t < ts:
+                continue
+            k = M.ease_out_back((t - ts) / 0.3)
+            x, y = 330 + i * 470, 250
+            d.rounded_rectangle([x - 200 * k, y - 60 * k, x + 200 * k, y + 60 * k], radius=22, fill=(30, 24, 20, 230), outline=(230, 80, 60, 255), width=5)
+            if k > 0.8:
+                T(d, x, y, w, 50, anchor="mm")
+                if t > ts + 0.35:
+                    d.line([(x - 180, y + 40), (x + 180, y - 40)], fill=(230, 50, 40, 255), width=12)
+        if t >= t0 + yes_t:
+            k = M.ease_out_back((t - t0 - yes_t) / 0.35)
+            d.rounded_rectangle([960 - 520 * k, 400 - 70 * k, 960 + 520 * k, 400 + 70 * k], radius=26, fill=(30, 24, 20, 230),
+                                outline=(214, 172, 72, 255), width=5)
+            if k > 0.8:
+                T(d, 960, 400, "COPPER  ·  ROPE  ·  MUSCLE", 64, anchor="mm", color=GOLD)
+    return f
+
+
+def year_counter(t0, t1):
+    """Years tick from c. 2560 BC to the AD 1300s while the pyramid stays the tallest."""
+    def f(t, d, frame):
+        if t < t0:
+            return
+        k = min(1.0, (t - t0) / max(0.1, t1 - t0))
+        y = -2560 + int(ease(k) * 3860)
+        txt = f"{-y} BC" if y < 0 else f"AD {max(1, y)}"
+        d.rounded_rectangle([90, 70, 900, 260], radius=26, fill=(30, 24, 20, 220), outline=(214, 172, 72, 255), width=4)
+        T(d, 130, 140, "STILL THE TALLEST BUILDING:", 44)
+        T(d, 130, 214, txt, 72, color=GOLD)
+    return f
+
+
+def budget(t0):
+    def f(t, d, frame):
+        if t < t0:
+            return
+        k = M.ease_out_back((t - t0) / 0.3)
+        x, y = 1180, 360
+        d.polygon([(x - 150 * k, y - 190 * k), (x + 150 * k, y - 190 * k), (x + 150 * k, y + 170 * k), (x - 150 * k, y + 190 * k)],
+                  fill=(244, 238, 224, 255), outline=INK)
+        if k > 0.8:
+            T(d, x, y - 140, "BUDGET", 44, anchor="mm", color=(60, 40, 20))
+            for i in range(4):
+                d.line([(x - 110, y - 70 + i * 50), (x + 110, y - 70 + i * 50)], fill=(170, 160, 140, 255), width=4)
+            T(d, x, y + 120, "???", 64, anchor="mm", color=(200, 40, 40))
+    return f
+
+
+def title_sting(t0):
+    """Channel logo punches in, then the episode title."""
+    def f(t, d, frame):
+        if t < t0:
+            return
+        k = M.ease_out_back((t - t0) / 0.45)
+        d.rectangle([0, 0, 1920, 1080], fill=(12, 10, 16, int(150 * min(1, (t - t0) / 0.3))))
+        sz = int(150 * k)
+        if sz > 10:
+            T(d, 960, 380, "TINY EMPIRES", sz, anchor="mm", color=GOLD)
+        if t > t0 + 0.6:
+            a = ease((t - t0 - 0.6) / 0.4)
+            T(d, 960, 540, "How the Egyptians Built the Great Pyramids", 64, a=a, anchor="mm")
+    return f
+
+
+def next_time(t0):
+    """End tease: next Saturday's episode."""
+    def f(t, d, frame):
+        if t < t0:
+            return
+        k = M.ease_out_back((t - t0) / 0.4)
+        d.rounded_rectangle([960 - 560 * k, 70, 960 + 560 * k, 250], radius=28, fill=(30, 24, 20, 225), outline=(214, 172, 72, 255), width=5)
+        if k > 0.8:
+            T(d, 960, 125, "NEXT SATURDAY", 50, anchor="mm", color=(255, 236, 190))
+            T(d, 960, 200, "THE MONGOLS", 80, anchor="mm", color=GOLD)
+    return f
+
+
+def tomb_goods(t0):
+    """Hetepheres-style burial goods (bible E1): bed, carrying chair, headrest, jars, linen chest."""
+    items = [("bed", "bed"), ("chair", "carrying chair"), ("rest", "headrest"), ("jar", "food & oil jars"), ("box", "linen chest")]
+
+    def icon(d, kind, x, y, k):
+        g = (214, 172, 72, 255)
+        if kind == "bed":
+            d.rectangle([x - 90 * k, y - 20 * k, x + 90 * k, y], fill=g, outline=INK, width=4)
+            for dx in (-80, 70):
+                d.rectangle([x + dx * k, y, x + (dx + 12) * k, y + 50 * k], fill=g, outline=INK, width=3)
+        elif kind == "chair":
+            d.rectangle([x - 50 * k, y - 70 * k, x + 50 * k, y + 10 * k], fill=g, outline=INK, width=4)
+            d.line([(x - 100 * k, y + 10 * k), (x + 100 * k, y + 10 * k)], fill=(120, 82, 46, 255), width=10)
+        elif kind == "rest":
+            d.arc([x - 60 * k, y - 80 * k, x + 60 * k, y - 10 * k], 0, 180, fill=(236, 226, 200, 255), width=14)
+            d.rectangle([x - 12 * k, y - 20 * k, x + 12 * k, y + 40 * k], fill=(236, 226, 200, 255), outline=INK, width=3)
+            d.rectangle([x - 50 * k, y + 40 * k, x + 50 * k, y + 52 * k], fill=(236, 226, 200, 255), outline=INK, width=3)
+        elif kind == "jar":
+            for dx in (-40, 40):
+                d.ellipse([x + dx * k - 32 * k, y - 60 * k, x + dx * k + 32 * k, y + 40 * k], fill=(176, 96, 56, 255), outline=INK, width=4)
+        else:
+            d.rectangle([x - 70 * k, y - 50 * k, x + 70 * k, y + 40 * k], fill=(150, 104, 60, 255), outline=INK, width=4)
+            d.line([(x - 70 * k, y - 20 * k), (x + 70 * k, y - 20 * k)], fill=INK, width=3)
+
+    def f(t, d, frame):
+        for i, (kind, name) in enumerate(items):
+            ts = t0 + i * 0.9
+            if t < ts:
+                continue
+            k = M.ease_out_back((t - ts) / 0.35)
+            x, y = 220 + i * 290, 520
+            d.rounded_rectangle([x - 130, y - 140, x + 130, y + 140], radius=22, fill=(30, 24, 20, 200), outline=(214, 172, 72, 255), width=3)
+            icon(d, kind, x, y - 10, k)
+            if k > 0.8:
+                T(d, x, y + 110, name, 30, anchor="mm", color=(255, 236, 190))
+    return f
+
+
+def sun_rays(t0):
+    def f(t, d, frame):
+        if t < t0:
+            return
+        a = ease((t - t0) / 1.0)
+        for i in range(9):
+            x0 = 300 + i * 160
+            d.polygon([(860, -60), (900, -60), (x0 + 40, 700), (x0 - 40, 700)], fill=(255, 236, 160, int(46 * a)))
+        d.ellipse([800, -140, 960, 20], fill=(255, 230, 140, int(220 * a)))
+    return f
+
+
+def icons_bbm(t0):
+    """Wages in food: bread, beer, meat."""
+    def f(t, d, frame):
+        for i, (nm, col) in enumerate((("BREAD", (214, 160, 90)), ("BEER", (200, 150, 60)), ("MEAT", (190, 80, 70)))):
+            ts = t0 + i * 0.6
+            if t < ts:
+                continue
+            k = M.ease_out_back((t - ts) / 0.35)
+            x, y = 430 + i * 330, 260
+            d.ellipse([x - 110 * k, y - 110 * k, x + 110 * k, y + 110 * k], fill=col + (255,), outline=INK, width=5)
+            if k > 0.8:
+                T(d, x, y, nm, 46, anchor="mm")
+    return f
+
+
+def hatnub(t0):
+    """The 2018 Hatnub find: a steep ramp flanked by two staircases with post holes for hauling."""
+    def f(t, d, frame):
+        if t < t0:
+            return
+        k = ease((t - t0) / 1.0)
+        bx, by, top = 300, 820, 300
+        d.polygon([(bx, by), (bx + 1000, by), (bx + 1000, top)], fill=(206, 176, 120, 255), outline=INK)
+        x1 = bx + 120 + 880 * k
+        y1 = by - (by - top) * 0.88 * k
+        for off, col, w in ((-26, (150, 120, 80), 14), (0, (200, 120, 60), 26), (26, (150, 120, 80), 14)):
+            d.line([(bx + 120, by + off * 0.3), (x1, y1 + off * 0.3)], fill=col + (255,), width=w)
+        if k > 0.6:
+            for i in range(1, 9):
+                px = bx + 120 + i * 880 / 9
+                py = by - (by - top) * 0.88 * i / 9 - 34
+                d.ellipse([px - 9, py - 9, px + 9, py + 9], fill=INK)
+            T(d, 760, 900, "steep ramp + stairs + post holes for hauling", 38, anchor="mm", color=(255, 236, 190))
+    return f
+
+
 # ------------------------------------------------------------------------------------------------ the episode
 def shots():
     K.CUES.clear()
     out = []
-    # cold open: establishing beat on the building site (music fades up), then Penny walks in and speaks
-    OPEN = 2.6
-    L = ["G01", "G02"]
-    out.append(scene("s00_open", "plate:giza_build",
-                     [*crew(["worker", "worker2", "worker", "worker2", "worker"], -700, 1040, 150, 1.3, walk=(0.0, 1150), speed=0.55),
-                      P("penny", 2150, G, 1.9, flip=True, walks=[(OPEN - 1.6, 1500)], speed=1.5, faces=[(0, {"brows": -0.3, "mouth": "smirk"})]),
-                      P("atlas", -250, G, 1.7, walks=[(at(L, 1, OPEN) - 1.4, 1150)], speed=1.6, faces=[(0, {"brows": 0.6, "mouth": "o"})])],
-                     L, lead=OPEN, follow=False, cam=[(0.0, 1.0, 0.5, 0.5), (at(L, 2, OPEN) + 0.6, 1.14, 0.56, 0.55)],
-                     fx=[label("EGYPT · ABOUT 4,600 YEARS AGO", 960, 110, 0.5, 60, GOLD, t1=OPEN + 2.5)]))
-    L = ["G03", "G04", "G05"]
-    out.append(scene("s01_hook", "plate:giza_later",
-                     [P("penny", 960, G, 2.0, faces=[(0, {"brows": -0.3, "mouth": "smirk"})]),
-                      P("zed", 2150, G, 1.7, flip=True, walks=[(at(L, 1) - 1.2, 1520)], speed=1.8, faces=[(0, {"mouth": "grin"})])],
-                     L, fx=[caption("the tallest building on Earth for ~4,000 years", 0.8, at(L, 1)), caption("TINY EMPIRES", at(L, 2) + 2.0)]))
+    # HOOK (the first ~30 s decide retention): voice within 0.2 s over the most striking image, a new picture on every line,
+    # the mystery ("no cranes... so how?") before the title sting.
+    H0 = 0.2
+    L = ["G01"]
+    w_ = scene("s00_wow", "plate:giza_later",
+               [P("penny", 1560, G, 1.9, flip=True, faces=[(0, {"brows": -0.3, "mouth": "smirk"})])],
+               L, lead=H0, follow=False, cam=[(0.0, 1.0, 0.5, 0.5), (4.2, 1.1, 0.47, 0.48)],
+               fx=[shine(0.0), label("GIZA · ABOUT 4,600 YEARS AGO", 760, 110, 0.0, 60, GOLD)])
+    rest = w_.dur - 4.2
+    w_.dur = 4.2                                                                 # "...people in Egypt" | cut | "stacked millions of blocks"
+    out.append(w_)
+    out.append(Shot("s00_blocks", rest, "plate:giza_build",
+                    actors=crew(["worker", "worker2", "worker", "worker2", "worker"], 200, 1040, 150, 1.3, walk=(0.0, 260), speed=0.45),
+                    fx=[label("MILLIONS OF STONE BLOCKS", 960, 110, 0.4, 60, GOLD)], camkeys=[(0.0, 1.3, 0.38, 0.6), (rest, 1.05, 0.5, 0.52)]))
+    L = ["G02"]
+    out.append(scene("s00_no", "plate:giza_build",
+                     [*crew(["worker", "worker2", "worker", "worker2"], 120, 1040, 140, 1.25, walk=(0.0, 180), speed=0.4),
+                      P("atlas", 1620, G, 1.8, flip=True, faces=[(0, {"brows": 0.6, "mouth": "o"})])],
+                     L, lead=H0, follow=False, cam=[(0.0, 1.08, 0.5, 0.5), (at(L, 1, H0) + 0.6, 1.0, 0.5, 0.5)],
+                     fx=[no_list(H0, [0.0, 1.2, 2.2], 3.2)]))
+    L = ["G03", "G04"]
+    out.append(scene("s00_tallest", "plate:giza_later",
+                     [P("penny", 1300, G, 1.8, flip=True),
+                      P("zed", 2150, G, 1.7, flip=True, walks=[(at(L, 1, H0) - 0.9, 1640)], speed=2.0, faces=[(0, {"mouth": "grin"})],
+                        acts=[(at(L, 1, H0), "hold_up", None)])],
+                     L, lead=H0, follow=False, cam=[(0.0, 1.0, 0.5, 0.5), (at(L, 2, H0) + 0.6, 1.1, 0.55, 0.5)],
+                     fx=[year_counter(H0 + 0.3, at(L, 1, H0) - 0.3), budget(at(L, 1, H0) + 0.2)]))
+    L = ["G05"]
+    out.append(scene("s01_title", "plate:giza_build",
+                     [P(k, 420 + i * 270, G, 1.5, faces=[(0, {"mouth": "grin" if k != "pike" else "o"})], acts=[(0.4 + i * 0.1, "wave", 0.6)])
+                      for i, k in enumerate(["atlas", "quill", "penny", "zed", "pike"])],
+                     L, lead=H0, follow=False, extra=0.6, fx=[title_sting(H0 + 3.0)]))
     L = ["G06"]
     out.append(scene("s02_nile_map", "m_egypt", [P("penny", 1720, G, 1.5, flip=True)], L,
                      fx=[route("m_egypt", [(32.9, 24.1), (32.7, 25.7), (31.9, 26.6), (30.8, 28.1), (31.25, 29.85), (31.0, 31.0)], 0.6, 4.6,
@@ -372,11 +569,16 @@ def shots():
                      fx=[timeline([("c. 2650 BC", "Djoser's|step pyramid"), ("c. 2600 BC", "Sneferu's|pyramids"),
                                    ("c. 2600–2550", "Khufu's|Great Pyramid")], 0.5, 1.8),
                          label("THE OLD KINGDOM", 760, 140, 0.3, 70, GOLD)], follow=False))
-    L = ["G10", "G11", "G12", "G13"]
-    out.append(scene("s03_afterlife", "plate:saqqara2",
-                     [P("penny", 1100, G, 1.6), P("quill", 1450, G, 1.6, flip=True),
-                      P("zed", 1760, G, 1.6, flip=True, faces=[(0, {"mouth": "grin"})], acts=[(at(L, 2), "point", None)])],
-                     L, fx=[caption("a journey to the afterlife", at(L, 0) + 2.0, at(L, 2)), shine(at(L, 3))]))
+    L = ["G10"]
+    out.append(scene("s03_why", "plate:saqqara2", [P("penny", 1600, G, 1.7, flip=True)], L, follow=False,
+                     fx=[label("WHY BUILD A MOUNTAIN FOR A TOMB?", 760, 110, 0.3, 58, GOLD), caption("death = a journey", 2.6)]))
+    L = ["G11"]
+    out.append(scene("s03_goods", "plate:palace", [P("quill", 1720, G, 1.6, flip=True)], L, follow=False,
+                     fx=[tomb_goods(1.2), label("WHAT A KING TOOK WITH HIM", 760, 110, 0.4, 56, GOLD)]))
+    L = ["G12", "G13"]
+    out.append(scene("s03_sun", "plate:giza_later",
+                     [P("zed", 1450, G, 1.6, flip=True, faces=[(0, {"mouth": "grin"})], acts=[(0.4, "point", None)]), P("penny", 1760, G, 1.6, flip=True)],
+                     L, fx=[sun_rays(at(L, 1) + 0.6), caption("the shape may echo the sun's rays", at(L, 1) + 1.6)]))
     L = ["G14"]
     out.append(scene("s04_practice", "card", [P("penny", 1700, G, 1.6, flip=True)], L, fx=[evolution(0.4, step=(0.2, 1.0, 1.8, 2.6))],
                      follow=False))
@@ -385,11 +587,14 @@ def shots():
                      [E("djoser", 520, 1000, 1.6, acts=[(1.0, "present", None)]), E("imhotep", 860, 1000, 1.5, acts=[(at(L, 0) + 4.0, "hold_up", None)]),
                       P("atlas", 1650, G, 1.7, flip=True)],
                      L, fx=[label("SAQQARA · c. 2650 BC", 960, 100, 0.4, 62, GOLD), label("IMHOTEP, the architect", 860, 320, 4.0, 46, (255, 236, 190))]))
-    L = ["G16", "G17", "G18"]
-    out.append(scene("s04_sneferu", "card",
-                     [E("sneferu", 1150, 1000, 1.5, flip=True), P("pike", 1450, G, 1.8, flip=True, faces=[(0, {"brows": 1.0, "mouth": "o"})]),
+    L = ["G16"]
+    out.append(scene("s04_sneferu", "card", [E("sneferu", 1250, 1000, 1.6, flip=True, acts=[(1.0, "present", None)]), P("penny", 1720, G, 1.6, flip=True)],
+                     L, fx=[evolution(0.4, which=("bent",), step=(3.0,)), label("KING SNEFERU · DAHSHUR", 760, 120, 0.4, 62, GOLD)], follow=False))
+    L = ["G17", "G18"]
+    out.append(scene("s04_red", "card",
+                     [P("pike", 1450, G, 1.8, flip=True, faces=[(0, {"brows": 1.0, "mouth": "o"})], acts=[(0.3, "double_take", None)]),
                       P("quill", 1760, G + 10, 1.6, flip=True)],
-                     L, fx=[evolution(0.6, which=("bent", "red"), step=(0.6, at(L, 2) + 2.0)), label("DAHSHUR", 760, 120, 0.4, 66, GOLD)],
+                     L, fx=[evolution(0.0, which=("bent", "red"), step=(0.0, at(L, 1) + 3.0)), label("DAHSHUR", 760, 120, 0.0, 66, GOLD)],
                      follow=False))
     L = ["G19"]
     out.append(scene("s05_khufu", "plate:giza_build",
@@ -419,11 +624,16 @@ def shots():
                      [*crew(["baker", "worker", "woman", "worker2"], 160, 990, 200, 1.1), P("atlas", 1350, G, 1.7, flip=True),
                       P("quill", 1700, G, 1.6, flip=True)],
                      L, fx=[label("THE WORKERS' TOWN · GIZA", 760, 100, 0.4, 60, GOLD)]))
-    L = ["G28", "G29", "G30"]
+    L = ["G28"]
     out.append(scene("s06_crews", "plate:giza_build",
-                     [*crew(["worker", "worker2", "worker", "worker2", "worker"], 120, 1000, 150, 1.0, acts=[(at(L, 2), "cheer", None)]),
-                      P("penny", 1150, G, 1.6), P("zed", 1450, G, 1.6, flip=True), P("pike", 1760, G, 1.8, flip=True)],
-                     L, fx=[caption("paid in bread, beer and meat · rotated in and out", 1.0, at(L, 1))]))
+                     [*crew(["worker", "worker2", "worker", "worker2", "worker"], 120, 1030, 150, 1.15, walk=(0.5, 200), speed=0.4),
+                      P("penny", 1700, G, 1.6, flip=True)],
+                     L, follow=False, fx=[icons_bbm(1.2), caption("rotated in and out of the site", 5.0)]))
+    L = ["G29", "G30"]
+    out.append(scene("s06_names", "plate:workers_street",
+                     [*crew(["worker", "worker2", "worker"], 200, 1000, 170, 1.2, acts=[(at(L, 1), "cheer", None)]),
+                      P("zed", 1400, G, 1.6, flip=True), P("pike", 1720, G, 1.8, flip=True, faces=[(0, {"mouth": "grin"})], acts=[(at(L, 1) + 0.4, "shrug", None)])],
+                     L, fx=[label("\"FRIENDS OF KHUFU\"", 600, 330, 2.0, 72, (230, 90, 70))]))
     L = ["Y01", "Y02"]
     out.append(scene("s06b_morning", "plate:workers_street",
                      [*crew(["worker", "worker2", "baker"], 200, 990, 230, 1.15, walk=(1.0, 300), speed=0.8), P("penny", 1300, G, 1.6, flip=True),
@@ -455,25 +665,34 @@ def shots():
     out.append(scene("s07_papyri", "m_egypt", [P("quill", 1720, G, 1.5, flip=True)], L,
                      fx=[pin("m_egypt", 32.6, 28.9, "Wadi al-Jarf · Red Sea harbour", 1.0), pin("m_egypt", 31.13, 29.98, "Giza", 2.4, dx=-140),
                          caption("2013: the oldest inscribed papyri ever found", 3.0)], follow=False))
-    L = ["G34", "G35"]
+    L = ["G34"]
     out.append(scene("s07_merer", "plate:harbour",
                      [E("merer", 640, 1000, 1.6, acts=[(1.0, "hold_up", None)]), *crew(["boatman", "worker"], 220, 1000, 200, 1.2),
-                      P("penny", 1400, G, 1.6, flip=True), P("zed", 1720, G, 1.6, flip=True, faces=[(0, {"mouth": "grin"})])],
-                     L, fx=[label("THE DIARY OF MERER", 760, 100, 0.4, 62, GOLD), caption("Tura to Giza, by boat, on canals and the flood", 4.0, at(L, 1))]))
+                      P("penny", 1700, G, 1.6, flip=True)],
+                     L, fx=[label("THE DIARY OF MERER", 760, 100, 0.4, 62, GOLD), caption("Tura to Giza, by boat, on canals and the flood", 4.0)]))
+    L = ["G35"]
+    out.append(scene("s07_diary", "plate:tura", [P("zed", 1500, G, 1.8, flip=True, faces=[(0, {"mouth": "grin"})], acts=[(0.3, "hold_up", None)])], L,
+                     follow=False, cam=[(0.0, 1.2, 0.7, 0.55), (5.0, 1.05, 0.6, 0.5)], fx=[caption("c. 2560 BC: a delivery log", 0.5)]))
     L = ["G36"]
     out.append(scene("s08_problem", "plate:giza_build", [P("penny", 1700, G, 1.6, flip=True)], L, follow=False))
-    L = ["G37", "G38"]
-    out.append(scene("s08_sledge", "plate:giza_build",
-                     [P("atlas", 1700, G, 1.7, flip=True), P("zed", 260, G, 1.6)],
-                     L, fx=[sledge(0.3, 3.5), caption("wet sand: much less friction", at(L, 1) + 2.0)], follow=False))
+    L = ["G37"]
+    out.append(scene("s08_sledge", "card",
+                     [*crew(["worker", "worker2", "worker", "worker2"], 330, 890, 70, 1.0, flip=True, walk=(0.3, -120), speed=0.12),
+                      E("worker2", 760, 890, 1.0, flip=True), P("atlas", 1720, 890, 1.6, flip=True)],
+                     L, fx=[sledge(0.3, 1.2, travel=120, x_start=1100, y=880, rope_y=770), label("HAULING ON A WOODEN SLEDGE", 760, 110, 0.3, 58, GOLD),
+                            caption("a later tomb painting: water poured ahead of a sledge", 4.5)], follow=False))
+    L = ["G38"]
+    out.append(scene("s08_wet", "card", [P("zed", 1720, G, 1.6, flip=True)], L, fx=[force_bars(0.5)], follow=False))
     L = ["G39"]
     out.append(scene("s08_ramps", "card", [P("penny", 1720, G, 1.6, flip=True)], L, fx=[ramps(1.5)], follow=False))
-    L = ["G40", "G41", "G42"]
-    out.append(scene("s08_hatnub", "plate:quarry",
-                     [P("quill", 1100, G, 1.6), P("pike", 1450, G, 1.8, flip=True, faces=[(0, {"mouth": "grin"})], acts=[(at(L, 1), "shrug", None)]),
-                      P("penny", 1760, G + 10, 1.6, flip=True)],
-                     L, fx=[label("HATNUB ALABASTER QUARRY · 2018", 760, 100, 0.4, 56, GOLD),
-                            caption("a steep ramp with stairs and post holes", 3.0, at(L, 1))]))
+    L = ["G40"]
+    out.append(scene("s08_hatnub", "card", [P("quill", 1720, G, 1.6, flip=True)], L,
+                     fx=[hatnub(0.8), label("HATNUB ALABASTER QUARRY · FOUND 2018", 760, 100, 0.3, 54, GOLD)], follow=False))
+    L = ["G41", "G42"]
+    out.append(scene("s08_tired", "plate:giza_build",
+                     [*crew(["worker", "worker2", "worker"], 200, 1030, 170, 1.15, acts=[(at(L, 1) + 0.8, "sit", None)]),
+                      P("pike", 1400, G, 1.8, flip=True, faces=[(0, {"mouth": "grin"})], acts=[(0.4, "shrug", None)]), P("penny", 1720, G, 1.6, flip=True)],
+                     L))
     L = ["G43"]
     out.append(scene("s09_shine", "plate:giza_later", [P("penny", 1720, G, 1.6, flip=True)], L,
                      fx=[shine(0.5), caption("polished white Tura limestone", 1.0)], follow=False))
@@ -492,12 +711,21 @@ def shots():
                      fx=[label("GIZA: THREE KINGS", 760, 120, 0.3, 64, GOLD), evolution(0.6, which=("khufu", "khafre", "menkaure"), step=(0.3, 1.8, 3.6))],
                      follow=False))
     L = ["G45"]
-    out.append(scene("s09_wonder", "plate:giza_later", [P("quill", 1700, G, 1.6, flip=True)], L,
-                     fx=[caption("the last of the Seven Wonders still standing", 3.5)], follow=False))
+    out.append(scene("s09_wonder", "plate:giza_later", [P("quill", 1700, G, 1.6, flip=True)], L, follow=False,
+                     cam=[(0.0, 1.22, 0.55, 0.5), (at(L, 1) + 0.6, 1.0, 0.5, 0.5)],
+                     fx=[shine(0.0), caption("the last of the Seven Wonders still standing", 3.5)]))
+    # ending: payoff on Giza, then the tease cuts to next week's world while Penny keeps talking (one line spans the cut)
     L = ["G46"]
-    out.append(scene("s09_outro", "plate:nile",
-                     [P(k, 300 + i * 330, G, 1.6, flip=i > 2, faces=[(0, {"mouth": "grin" if k != "pike" else "worried"})])
-                      for i, k in enumerate(["atlas", "penny", "quill", "zed", "pike"])], L, extra=0.8))
+    cut = 0.2 + 3.9
+    a_ = scene("s09_outro", "plate:giza_later",
+               [P(k, 300 + i * 330, G, 1.6, flip=i > 2, faces=[(0, {"mouth": "grin"})], acts=[(0.6 + i * 0.12, "cheer", None)])
+                for i, k in enumerate(["atlas", "penny", "quill", "zed", "pike"])], L, lead=0.2, follow=False)
+    rest = a_.dur - cut + 0.4
+    a_.dur = cut
+    out.append(a_)
+    riders = K.PL_army("mongol", -900, 1010, 6, 2, 200, 50, 1.25, walk=(0.0, 2000), speed=2.4)
+    out.append(Shot("s09_next", rest, "plate:steppe", actors=riders,
+                    fx=[next_time(0.4)], camkeys=[(0.0, 1.0, 0.5, 0.5), (rest, 1.12, 0.5, 0.55)]))
     out.append(Shot("s10_endcard", 3.5, "endcard",
                     actors=[P(k, 360 + i * 300, 1030, 1.4, acts=[(0.3 + i * 0.12, "cheer" if k != "quill" else "hold_up", None)])
                             for i, k in enumerate(["penny", "atlas", "quill", "zed", "pike"])]))
