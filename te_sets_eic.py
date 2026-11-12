@@ -1922,9 +1922,9 @@ def eic_shot_spice_quay():
     """Bantam/Banda-style spice port, c.1600, late afternoon: pepper, nutmeg, mace and cloves on the quay, Javanese
     warehouses and palms, perahus and a junk, an English galleon at anchor, a volcano island beyond (Gunung Api)."""
     sc = eic_begin()
-    eic_sky("hilly_terrain_01_puresky", 0.8, sun_az=215)
-    eic_sun(215, 4.6, (1, 0.68, 0.4), el=10)
-    exposure(-0.2)
+    eic_sky("drackenstein_quarry_puresky", 0.9, sun_az=58)
+    eic_sun(58, 4.2, (1, 0.7, 0.42), el=9)
+    exposure(-0.15)
     sand = eic_ph("quaysand", "coast_sand_01", 0.22, tint=(1.0, 0.9, 0.75), fallback=(0.75, 0.62, 0.45))
     planks = eic_ph("wharf", "weathered_planks", 0.45, tint=(0.85, 0.72, 0.58), fallback=(0.45, 0.35, 0.25))
     post = eic_col("pilepost", "#3A2C20", 0.8)
@@ -2162,7 +2162,8 @@ def eic_shot_whitehall():
     for a, b in zip(edges[0::2], edges[1::2]):
         add("cube", (-7.8, (a + b) / 2, 4.85), (0.3, (b - a) / 2, 2.65), m=plaster)
     for c in wins:
-        add("plane", (-7.65, c, 4.85), (2.6 / 2, 5.3 / 2, 1), (math.radians(90), 0, math.radians(90)), m=glass)
+        gl = add("plane", (-7.65, c, 4.85), (2.6 / 2, 5.3 / 2, 1), (math.radians(90), 0, math.radians(90)), m=glass)
+        gl.visible_shadow = False                                               # let the sun through the leaded lights
         for dy in (-0.43, 0.43):
             add("cube", (-7.62, c + dy, 4.85), (0.12, 0.08, 2.65), m=stonew)
         add("cube", (-7.62, c, 5.9), (0.12, 1.3, 0.08), m=stonew)
@@ -2624,8 +2625,10 @@ def eic_shot_calcutta():
     add("cube", (30, fy0 - 0.2, G + 1.4), (1.85, 0.4, 1.4), m=dark)
     gun = eic_col("gun", "#202020", 0.4, 0.6)
     for bx, by in ((fx0, fy0), (fx0, fy1), (fx1, fy0), (fx1, fy1)):
-        add("cube", (bx, by, (G + 7.6 - 0.8) / 2), (7.0, 7.0, (G + 7.6 + 0.8) / 2), (0, 0, math.radians(45)), m=brick)
-        add("cube", (bx, by, G + 7.8), (7.3, 7.3, 0.2), (0, 0, math.radians(45)), m=brick)
+        bo = frustum(bx, by, 15.2, 13.6, -0.8, G + 7.6, brick)                 # battered brick bastion
+        bo.rotation_euler.z = math.radians(45)
+        add("cube", (bx, by, G + 2.0), (7.65, 7.65, 0.18), (0, 0, math.radians(45)), m=brick)
+        add("cube", (bx, by, G + 7.8), (7.1, 7.1, 0.2), (0, 0, math.radians(45)), m=brick)
         for k in range(4):
             a = math.radians(45) + k * math.pi / 2
             add("cube", (bx + math.cos(a) * 6.6, by + math.sin(a) * 6.6, G + 8.4), (1.6, 0.6, 0.5), (0, 0, a + math.pi / 2), m=brick)
