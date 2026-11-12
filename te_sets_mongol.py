@@ -78,10 +78,21 @@ def _try(obj, **kw):
 
 
 class MgB:
-    """Accumulates primitives into one bmesh -> one object (fast, few objects)."""
+    """Accumulates primitives into bmesh chunks -> few objects. bmesh ops cost grows with the mesh size, so a new chunk
+    starts every CHUNK primitives (otherwise a forest of 40k branch segments takes half an hour to build)."""
+    CHUNK = 300
 
     def __init__(self):
-        self.bm = bmesh.new()
+        self._bms = [bmesh.new()]
+        self._n = 0
+
+    @property
+    def bm(self):
+        self._n += 1
+        if self._n > self.CHUNK:
+            self._bms.append(bmesh.new())
+            self._n = 0
+        return self._bms[-1]
 
     @staticmethod
     def _mtx(loc, rot=(0, 0, 0), scale=(1, 1, 1)):
@@ -114,10 +125,11 @@ class MgB:
             self.seg(pts[i], pts[i + 1], r + (r2 - r) * i / k, r + (r2 - r) * (i + 1) / k, n)
 
     def quads(self, verts, faces):
-        vs = [self.bm.verts.new(v) for v in verts]
+        bm = self.bm
+        vs = [bm.verts.new(v) for v in verts]
         for f in faces:
             try:
-                self.bm.faces.new([vs[i] for i in f])
+                bm.faces.new([vs[i] for i in f])
             except ValueError:
                 pass
 
@@ -153,20 +165,26 @@ class MgB:
         self.quads(v, [(0, 1, 5, 4), (2, 3, 4, 5), (3, 0, 4), (1, 2, 5), (0, 3, 2, 1)])
 
     def finish(self, name, m=None, smooth=False, loc=None, rot=0.0):
-        me = bpy.data.meshes.new(name)
-        self.bm.normal_update()
-        self.bm.to_mesh(me)
-        self.bm.free()
-        if m is not None:
-            me.materials.append(m)
-        if smooth:
-            me.polygons.foreach_set("use_smooth", [True] * len(me.polygons))
-        ob = mg_link(bpy.data.objects.new(name, me))
-        if loc is not None:
-            ob.location = loc
-        if rot:
-            ob.rotation_euler = (0, 0, rot)
-        return ob
+        first = None
+        for bm in self._bms:
+            if not bm.verts and first is not None:
+                bm.free()
+                continue
+            me = bpy.data.meshes.new(name)
+            bm.normal_update()
+            bm.to_mesh(me)
+            bm.free()
+            if m is not None:
+                me.materials.append(m)
+            if smooth:
+                me.polygons.foreach_set("use_smooth", [True] * len(me.polygons))
+            ob = mg_link(bpy.data.objects.new(name, me))
+            if loc is not None:
+                ob.location = loc
+            if rot:
+                ob.rotation_euler = (0, 0, rot)
+            first = first or ob
+        return first
 
 
 def mg_mesh(name, verts, faces, m=None, smooth=True, uvs=None):
@@ -2422,7 +2440,7 @@ def shot_m_dadu_hall():
     for (x, y) in ((-7.5, 12), (7.5, 12), (-2.5, 4), (2.5, 4)):                 # hanging lanterns
         lan.seg((x, y, CEIL), (x, y, 7.4), 0.02, n=4)
         lan.ico((x, y, 7.0), 0.32, (1, 1, 1.3), 2)
-    lan.bm.free()
+    lan.finish("lanterns_unused").hide_render = True
     ct = MgB()                                                                  # the courtyard and rear hall seen through the doors
     ct.box((0, 46, -0.2), (60, 22, 0.2))
     for k in range(40):
