@@ -75,13 +75,22 @@ def plan(module):
         start[sh.name] = acc
         acc += sh.dur
     when = {lid: start[nm] + t0 for nm, lid, t0 in K.CUES}
+    where = {lid: (nm, t0) for nm, lid, t0 in K.CUES}
+    by_name = {sh.name: sh for sh in ss}
     segs, t = [], 0.0
     for lid in CUTS[module]["lines"]:
         d = K.dur(lid)
         a = max(0.0, when[lid] - PRE)
         b = when[lid] + d + POST
-        segs.append({"lid": lid, "src": (a, b), "at": t, "voice_at": t + (when[lid] - a), "dur": d,
-                     "who": K.LINES[lid]["who"], "text": digits(K.LINES[lid]["text"])})
+        who = K.LINES[lid]["who"]
+        nm, t0 = where[lid]
+        sx = None                                                                # where the speaker stands in that shot
+        for p in by_name[nm].actors:
+            if getattr(p, "key", None) == who:
+                sx = p.pos_at(t0 + d / 2)[0]
+                break
+        segs.append({"lid": lid, "src": (a, b), "at": t, "voice_at": t + (when[lid] - a), "dur": d, "sx": sx,
+                     "who": who, "text": digits(K.LINES[lid]["text"])})
         t += b - a
     return K, segs, t
 
@@ -127,17 +136,25 @@ def sound(K, segs, total, music, work, ff):
 def layout(cut, audio, segs, total, out, W, H, cfg, ff):
     """Compose each frame: blurred backdrop, badge + title, the full 16:9 picture, captions, end card."""
     vert = H > 1500
+    CW = 1440                                                                    # 4:3 window of the 16:9 frame -> a bigger picture
     pw = W
-    ph = int(pw * 9 / 16)
-    py = 430 if vert else 330
-    cap_y = py + ph + (110 if vert else 50)
-    fh = S.font(84 if vert else 62, "impact")
-    fb = S.font(56 if vert else 50)
-    fs = S.font(46 if vert else 42)
-    fn = S.font(38 if vert else 34)
+    ph = int(pw * 3 / 4)
+    py = 430 if vert else 215
+    cap_y = py + ph + (100 if vert else 40)
+    fh = S.font(84 if vert else 56, "impact")
+    fb = S.font(56 if vert else 44)
+    fs = S.font(46 if vert else 38)
+    fn = S.font(38 if vert else 30)
+
+    def window(t):
+        """Crop centre: keep the speaker in frame (host on the right -> show the right part), else the middle."""
+        cur = [s for s in segs if s["at"] <= t]
+        sx = cur[-1]["sx"] if cur else None
+        cx = 960 if sx is None else sx - CW * 0.22
+        return int(min(max(cx, CW / 2), 1920 - CW / 2))
     dec = subprocess.Popen([ff, "-nostdin", "-loglevel", "error", "-i", str(cut), "-f", "rawvideo", "-pix_fmt", "rgb24", "-"], stdout=subprocess.PIPE)
     enc = subprocess.Popen([ff, "-nostdin", "-loglevel", "error", "-y", "-f", "rawvideo", "-pix_fmt", "rgb24", "-s", f"{W}x{H}", "-r", str(FPS),
-                            "-i", "-", "-i", str(audio), "-map", "0:v", "-map", "1:a", "-c:v", "libx264", "-preset", "medium", "-crf", "19",
+                            "-i", "-", "-i", str(audio), "-map", "0:v", "-map", "1:a", "-c:v", "libx264", "-profile:v", "high", "-level", "4.1", "-preset", "medium", "-crf", "19",
                             "-pix_fmt", "yuv420p", "-c:a", "copy", "-movflags", "+faststart", "-t", f"{total + END:.2f}", str(out)],
                            stdin=subprocess.PIPE)
     last = None
@@ -153,28 +170,40 @@ def layout(cut, audio, segs, total, out, W, H, cfg, ff):
         x0 = (bg.width - W) // 2
         bg = bg.crop((x0, 0, x0 + W, H)).filter(ImageFilter.GaussianBlur(30))
         bg = Image.blend(bg, Image.new("RGB", (W, H), (12, 10, 16)), 0.5)
-        bg.paste(fr.resize((pw, ph), Image.LANCZOS), (0, py))
+        cx = window(t) if t < total else 960
+        win = fr.crop((cx - CW // 2, 0, cx + CW // 2, 1080)) if t < total else fr.crop((240, 0, 1680, 1080))
+        bg.paste(win.resize((pw, ph), Image.LANCZOS), (0, py))
         dr = ImageDraw.Draw(bg)
         dr.rounded_rectangle([W / 2 - 200, 40, W / 2 + 200, 104], radius=18, fill=(180, 40, 40))
         dr.text((W / 2, 72), "TINY EMPIRES", font=S.font(40), fill=(255, 236, 190), anchor="mm")
         for i, ln in enumerate(cfg["title"]):
-            dr.text((W / 2, (190 if vert else 150) + i * (92 if vert else 68)), ln, font=fh, fill=(255, 255, 255) if i == 0 else (255, 206, 60),
+            dr.text((W / 2, (190 if vert else 128) + i * (92 if vert else 58)), ln, font=fh, fill=(255, 255, 255) if i == 0 else (255, 206, 60),
                     anchor="mm", stroke_width=7, stroke_fill=(16, 12, 16))
         if t < total:
             cur = [s for s in segs if s["voice_at"] - 0.05 <= t < s["voice_at"] + s["dur"] + 0.2]
             sec = [s for s in segs if s["at"] <= t and s["lid"] in cfg["chapters"]]
             if sec:
-                dr.text((W / 2, py - 34), cfg["chapters"][sec[-1]["lid"]].upper(), font=fn, fill=(255, 206, 60), anchor="mm",
-                        stroke_width=4, stroke_fill=(16, 12, 16))
+                lab = cfg["chapters"][sec[-1]["lid"]].upper()
+                ly = py - 34 if vert else py + 30
+                if not vert:
+                    tw = dr.textlength(lab, font=fn)
+                    dr.rounded_rectangle([W / 2 - tw / 2 - 22, ly - 24, W / 2 + tw / 2 + 22, ly + 24], radius=14, fill=(16, 12, 16))
+                dr.text((W / 2, ly), lab, font=fn, fill=(255, 206, 60), anchor="mm", stroke_width=4, stroke_fill=(16, 12, 16))
             if cur:
                 s = cur[-1]
                 dr.text((W / 2, cap_y), NAMES.get(s["who"], s["who"].upper()), font=fn, fill=(255, 206, 60), anchor="mm",
                         stroke_width=4, stroke_fill=(16, 12, 16))
-                wrap = textwrap.wrap(s["text"], 30 if vert else 34)
-                f = fb if len(wrap) <= 4 else fs
-                step = 70 if len(wrap) <= 4 else 58
-                for i, ln in enumerate(wrap[:6 if vert else 5]):
-                    dr.text((W / 2, cap_y + 70 + i * step), ln, font=f, fill=(255, 255, 255), anchor="mm", stroke_width=6, stroke_fill=(16, 12, 16))
+                if vert:
+                    wrap = textwrap.wrap(s["text"], 30)
+                    f, step, top = (fb, 70, 70) if len(wrap) <= 5 else (fs, 58, 64)
+                else:
+                    wrap = textwrap.wrap(s["text"], 40)
+                    f, step, top = (fb, 58, 56) if len(wrap) <= 3 else (fs, 48, 52)
+                    if len(wrap) > 5:
+                        wrap = textwrap.wrap(s["text"], 48)
+                        f, step = S.font(32), 40
+                for i, ln in enumerate(wrap):                                    # always the whole line, never cut
+                    dr.text((W / 2, cap_y + top + i * step), ln, font=f, fill=(255, 255, 255), anchor="mm", stroke_width=6, stroke_fill=(16, 12, 16))
         else:
             k = min(1.0, (t - total) / 0.4)
             ov = Image.new("RGBA", (W, H), (12, 10, 16, int(200 * k)))
@@ -185,9 +214,63 @@ def layout(cut, audio, segs, total, out, W, H, cfg, ff):
                     stroke_width=6, stroke_fill=(16, 12, 16))
             dr.rounded_rectangle([W / 2 - 400, cy - 70, W / 2 + 400, cy + 70], radius=30, fill=(200, 30, 30))
             dr.text((W / 2, cy), "on YouTube: Tiny Empires", font=S.font(58), fill=(255, 255, 255), anchor="mm")
-            dr.text((W / 2, cy + 150), "New episode every Saturday", font=S.font(48), fill=(255, 206, 60), anchor="mm")
+            dr.text((W / 2, cy + 150), "Animated history, made with care", font=S.font(48), fill=(255, 206, 60), anchor="mm")
         enc.stdin.write(bg.tobytes())
         n += 1
+    enc.stdin.close()
+    enc.wait()
+    dec.kill()
+    print("wrote", out, round(total + END, 1), "s")
+
+
+def layout_wide(cut, audio, segs, total, out, cfg, ff):
+    """16:9 version for laptops and TVs: the full picture, a small badge, the section name, captions on a band at the bottom."""
+    W, H = 1920, 1080
+    fb, fs, fn = S.font(46), S.font(40), S.font(32)
+    dec = subprocess.Popen([ff, "-nostdin", "-loglevel", "error", "-i", str(cut), "-f", "rawvideo", "-pix_fmt", "rgb24", "-"], stdout=subprocess.PIPE)
+    enc = subprocess.Popen([ff, "-nostdin", "-loglevel", "error", "-y", "-f", "rawvideo", "-pix_fmt", "rgb24", "-s", f"{W}x{H}", "-r", str(FPS),
+                            "-i", "-", "-i", str(audio), "-map", "0:v", "-map", "1:a", "-c:v", "libx264", "-profile:v", "high", "-level", "4.1",
+                            "-preset", "medium", "-crf", "19", "-pix_fmt", "yuv420p", "-c:a", "copy", "-movflags", "+faststart",
+                            "-t", f"{total + END:.2f}", str(out)], stdin=subprocess.PIPE)
+    last = None
+    for n in range(int((total + END) * FPS)):
+        t = n / FPS
+        raw = dec.stdout.read(W * H * 3) if t < total else b""
+        if len(raw) == W * H * 3:
+            last = Image.frombytes("RGB", (W, H), raw)
+        bg = last.copy()
+        if t < total:
+            ov = Image.new("RGBA", (W, H), (0, 0, 0, 0))
+            od = ImageDraw.Draw(ov)
+            od.rounded_rectangle([30, 26, 330, 82], radius=14, fill=(180, 40, 40, 235))
+            cur = [s for s in segs if s["voice_at"] - 0.05 <= t < s["voice_at"] + s["dur"] + 0.2]
+            if cur:
+                wrap = textwrap.wrap(cur[-1]["text"], 62)
+                f, step = (fb, 56) if len(wrap) <= 3 else (fs, 46)
+                band = 40 + len(wrap) * step
+                od.rectangle([0, H - band - 30, W, H], fill=(10, 8, 12, 170))
+            bg = Image.alpha_composite(bg.convert("RGBA"), ov).convert("RGB")
+            dr = ImageDraw.Draw(bg)
+            dr.text((180, 54), "TINY EMPIRES", font=S.font(34), fill=(255, 236, 190), anchor="mm")
+            sec = [s for s in segs if s["at"] <= t and s["lid"] in cfg["chapters"]]
+            if sec:
+                dr.text((360, 54), cfg["chapters"][sec[-1]["lid"]].upper(), font=fn, fill=(255, 206, 60), anchor="lm",
+                        stroke_width=4, stroke_fill=(16, 12, 16))
+            if cur:
+                top = H - band - 30 + 20 + step / 2
+                for i, ln in enumerate(wrap):
+                    dr.text((W / 2, top + i * step), ln, font=f, fill=(255, 255, 255), anchor="mm", stroke_width=5, stroke_fill=(16, 12, 16))
+        else:
+            k = min(1.0, (t - total) / 0.4)
+            ov = Image.new("RGBA", (W, H), (12, 10, 16, int(200 * k)))
+            bg = Image.alpha_composite(bg.convert("RGBA"), ov).convert("RGB")
+            dr = ImageDraw.Draw(bg)
+            dr.text((W / 2, H / 2 - 150), "WATCH THE FULL EPISODE", font=S.font(90, "impact"), fill=(255, 255, 255), anchor="mm",
+                    stroke_width=6, stroke_fill=(16, 12, 16))
+            dr.rounded_rectangle([W / 2 - 460, H / 2 - 70, W / 2 + 460, H / 2 + 70], radius=30, fill=(200, 30, 30))
+            dr.text((W / 2, H / 2), "on YouTube: Tiny Empires", font=S.font(64), fill=(255, 255, 255), anchor="mm")
+            dr.text((W / 2, H / 2 + 150), "Animated history, made with care", font=S.font(50), fill=(255, 206, 60), anchor="mm")
+        enc.stdin.write(bg.tobytes())
     enc.stdin.close()
     enc.wait()
     dec.kill()
@@ -212,6 +295,8 @@ def main():
         layout(cut, audio, segs, total, outdir / f"{tag} - Facebook (2 min, 4x5 feed).mp4", 1080, 1350, cfg, ff)
     if only in ("both", "9x16"):
         layout(cut, audio, segs, total, outdir / f"{tag} - Facebook (2 min, 9x16 reel).mp4", 1080, 1920, cfg, ff)
+    if only in ("both", "16x9"):
+        layout_wide(cut, audio, segs, total, outdir / f"{tag} - Facebook (2 min, 16x9 laptop and TV).mp4", cfg, ff)
 
 
 if __name__ == "__main__":

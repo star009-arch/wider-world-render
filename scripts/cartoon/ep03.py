@@ -415,14 +415,14 @@ def title_sting(t0):
 
 
 def next_time(t0):
-    """End tease: next Saturday's episode."""
+    """End tease: the next episode (no weekday: release days can change)."""
     def f(t, d, frame):
         if t < t0:
             return
         k = M.ease_out_back((t - t0) / 0.4)
         d.rounded_rectangle([960 - 560 * k, 70, 960 + 560 * k, 250], radius=28, fill=(30, 24, 20, 225), outline=(214, 172, 72, 255), width=5)
         if k > 0.8:
-            T(d, 960, 125, "NEXT SATURDAY", 50, anchor="mm", color=(255, 236, 190))
+            T(d, 960, 125, "NEXT ON TINY EMPIRES", 50, anchor="mm", color=(255, 236, 190))
             T(d, 960, 200, "THE MONGOLS", 80, anchor="mm", color=GOLD)
     return f
 
@@ -723,7 +723,14 @@ def shots():
     rest = a_.dur - cut + 0.4
     a_.dur = cut
     out.append(a_)
-    riders = K.PL_army("mongol", -900, 1010, 6, 2, 200, 50, 1.25, walk=(0.0, 2000), speed=2.4)
+    riders = []
+    for r in range(2):                                                           # Mongol horsemen (same cast as the Mongols episode)
+        for c in range(5):
+            x = -1200 + c * 300 + r * 150
+            p = M.Performer("mongol_1200:" + ("rider_mounted" if (c + r) % 2 else "rider2_mounted"), x=x, ground=1000 + r * 50, scale=1.15,
+                            walks=[(0.0 + c * 0.05, x + 2400)], speed=2.4)
+            p.shadow = True
+            riders.append(p)
     out.append(Shot("s09_next", rest, "plate:steppe", actors=riders,
                     fx=[next_time(0.4)], camkeys=[(0.0, 1.0, 0.5, 0.5), (rest, 1.12, 0.5, 0.55)]))
     out.append(Shot("s10_endcard", 3.5, "endcard",

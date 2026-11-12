@@ -112,7 +112,7 @@ jobs:
     runs-on: windows-latest
     strategy:
       matrix:
-        fmt: [4x5, 9x16]
+        fmt: [4x5, 9x16, 16x9]
     defaults:
       run:
         shell: bash

@@ -63,7 +63,7 @@ def title_sting(t0, title, sub=None):
     return f
 
 
-def next_time(t0, title, kicker="NEXT SATURDAY"):
+def next_time(t0, title, kicker="NEXT ON TINY EMPIRES"):
     def f(t, d, frame):
         if t < t0:
             return
