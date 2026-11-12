@@ -84,6 +84,11 @@ jobs:
         with:
           name: terrain
           path: terrain
+      - uses: actions/cache@v4
+        with:
+          path: textures
+          key: te-tex-v1-${{ matrix.shot }}
+          restore-keys: te-tex-v1-
       - name: render
         env:
           YTG_THREADS: '4'

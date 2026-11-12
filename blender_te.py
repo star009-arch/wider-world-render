@@ -945,24 +945,154 @@ def shot_saqqara():
     return sc
 
 
+# ------------------------------------------------------------------------------------------------ Poly Haven (CC0)
+TEXDIR = Path(os.environ.get("TE_TEX", "textures"))
+PH_UA = {"User-Agent": "tiny-empires-render"}
+
+
+def _fetch(url, dst):
+    import urllib.request
+    if dst.exists() and dst.stat().st_size > 1000:
+        return dst
+    dst.parent.mkdir(parents=True, exist_ok=True)
+    for attempt in range(4):
+        try:
+            req = urllib.request.Request(url, headers=PH_UA)
+            dst.write_bytes(urllib.request.urlopen(req, timeout=120).read())
+            return dst
+        except Exception:
+            import time
+            time.sleep(3 + attempt * 3)
+    return None
+
+
+def _ph_files(asset):
+    import urllib.request
+    meta = TEXDIR / asset / "files.json"
+    if not meta.exists():
+        meta.parent.mkdir(parents=True, exist_ok=True)
+        req = urllib.request.Request(f"https://api.polyhaven.com/files/{asset}", headers=PH_UA)
+        meta.write_bytes(urllib.request.urlopen(req, timeout=60).read())
+    return json.loads(meta.read_text())
+
+
+def ph_mat(name, asset, scale=1.0, tint=None, rough_mult=1.0, res="1k"):
+    """Photo-scanned CC0 material from Poly Haven, box-projected in world space (scale = texture repeats per metre)."""
+    try:
+        f = _ph_files(asset)
+        diff = _fetch(f["Diffuse"][res]["jpg"]["url"], TEXDIR / asset / f"diff_{res}.jpg")
+        nor = _fetch(f["nor_gl"][res]["jpg"]["url"], TEXDIR / asset / f"nor_{res}.jpg")
+        rgh = _fetch(f["Rough"][res]["jpg"]["url"], TEXDIR / asset / f"rough_{res}.jpg")
+    except Exception as e:
+        print("polyhaven fallback", asset, e)
+        return noisy(name, tint or (0.7, 0.6, 0.5), tuple(min(1, c * 1.15) for c in (tint or (0.7, 0.6, 0.5))), 2, 0.9, 0.2)
+    m = bpy.data.materials.new(name)
+    m.use_nodes = True
+    nt = m.node_tree
+    b = nt.nodes["Principled BSDF"]
+    geo = nt.nodes.new("ShaderNodeNewGeometry")
+    mp = nt.nodes.new("ShaderNodeMapping")
+    mp.inputs["Scale"].default_value = (scale, scale, scale)
+    nt.links.new(geo.outputs["Position"], mp.inputs["Vector"])
+
+    def img(path, color=True):
+        n = nt.nodes.new("ShaderNodeTexImage")
+        n.image = bpy.data.images.load(str(path))
+        if not color:
+            n.image.colorspace_settings.name = "Non-Color"
+        n.projection = "BOX"
+        n.projection_blend = 0.25
+        nt.links.new(mp.outputs["Vector"], n.inputs["Vector"])
+        return n
+    d = img(diff)
+    col = d.outputs["Color"]
+    if tint:
+        mix = nt.nodes.new("ShaderNodeMix")
+        mix.data_type = "RGBA"
+        mix.blend_type = "MULTIPLY"
+        mix.inputs["Factor"].default_value = 1.0
+        mix.inputs["B"].default_value = (*tint, 1)
+        nt.links.new(col, mix.inputs["A"])
+        col = mix.outputs["Result"]
+    nt.links.new(col, b.inputs["Base Color"])
+    if rgh:
+        r = img(rgh, False)
+        mm = nt.nodes.new("ShaderNodeMath")
+        mm.operation = "MULTIPLY"
+        mm.inputs[1].default_value = rough_mult
+        nt.links.new(r.outputs["Color"], mm.inputs[0])
+        nt.links.new(mm.outputs[0], b.inputs["Roughness"])
+    if nor:
+        n = img(nor, False)
+        nm = nt.nodes.new("ShaderNodeNormalMap")
+        nm.inputs["Strength"].default_value = 0.8
+        nt.links.new(n.outputs["Color"], nm.inputs["Color"])
+        nt.links.new(nm.outputs["Normal"], b.inputs["Normal"])
+    return m
+
+
+def ph_sky(hdri="kloofendal_43d_clear_puresky", strength=0.7, rot=0.0, res="2k"):
+    """Real photographed sky (CC0 Poly Haven HDRI) as world light; falls back to the Nishita sky."""
+    try:
+        f = _ph_files(hdri)
+        path = _fetch(f["hdri"][res]["hdr"]["url"], TEXDIR / hdri / f"{res}.hdr")
+        w = bpy.data.worlds.new("w")
+        bpy.context.scene.world = w
+        w.use_nodes = True
+        nt = w.node_tree
+        env = nt.nodes.new("ShaderNodeTexEnvironment")
+        env.image = bpy.data.images.load(str(path))
+        mp = nt.nodes.new("ShaderNodeMapping")
+        tc = nt.nodes.new("ShaderNodeTexCoord")
+        mp.inputs["Rotation"].default_value = (0, 0, math.radians(rot))
+        nt.links.new(tc.outputs["Generated"], mp.inputs["Vector"])
+        nt.links.new(mp.outputs["Vector"], env.inputs["Vector"])
+        nt.links.new(env.outputs["Color"], nt.nodes["Background"].inputs["Color"])
+        nt.nodes["Background"].inputs["Strength"].default_value = strength
+        return w
+    except Exception as e:
+        print("hdri fallback", e)
+        return sky(28, 230, 0.9)
+
+
+def exposure(ev):
+    bpy.context.scene.view_settings.exposure = ev
+
+
 # ================================================================================ Egypt v2 (01_egypt_old_kingdom_2600BC.md)
 WHITEWASH = (0.93, 0.91, 0.86)
 
 
 def mudbrick_white():
-    return noisy("whitewash", (0.86, 0.83, 0.76), (0.95, 0.93, 0.88), 2.0, 0.9, 0.15)
+    return ph_mat("whitewash", "white_rough_plaster", 0.35, tint=(0.9, 0.86, 0.78))
+
+
+def mud_plaster():
+    return ph_mat("mudplaster", "clay_plaster", 0.35, tint=(0.85, 0.72, 0.56))
 
 
 def bedrock():
-    return noisy("bedrock", (0.66, 0.56, 0.42), (0.78, 0.68, 0.52), 0.35, 0.95, 0.3)
+    return ph_mat("bedrock", "dry_ground_rocks", 0.08, tint=(0.95, 0.85, 0.7))
 
 
 def casing():
-    return noisy("tura", (0.9, 0.88, 0.82), (0.97, 0.96, 0.92), 3.0, 0.35, 0.05)
+    return ph_mat("tura", "white_sandstone_blocks_02", 0.18, tint=(0.95, 0.93, 0.88), rough_mult=0.7)
 
 
 def core():
-    return noisy("core", (0.66, 0.56, 0.4), (0.76, 0.66, 0.48), 1.5, 0.9, 0.5)
+    return ph_mat("core", "large_sandstone_blocks", 0.12, tint=(0.85, 0.72, 0.52))
+
+
+def street_dirt():
+    return ph_mat("street", "raked_dirt", 0.25, tint=(0.85, 0.72, 0.55))
+
+
+def wood_rough():
+    return ph_mat("wood", "rough_wood", 0.6, tint=(0.75, 0.55, 0.38))
+
+
+def reed_mat():
+    return ph_mat("reedmat", "reed_roof_03", 0.5, tint=(0.95, 0.85, 0.6))
 
 
 def stepped_core(x, y, base, h, courses=14, m=None):
@@ -994,6 +1124,9 @@ def plank_boat(x, y, s=1.0, heading=0.0, sail=True):
 
 def cattle(x, y, s=1.0, heading=0.0):
     horse(x, y, s * 0.95, heading, (0.62, 0.48, 0.34))
+    body = add("sphere", (x, y, 1.5 * s), (1.35 * s, 0.62 * s, 0.66 * s), (0, 0, heading), m=noisy("hide", (0.6, 0.46, 0.32), (0.72, 0.58, 0.42), 4, 0.8, 0.1),
+               segments=16, ring_count=8)
+    smooth(body)
     ch, sh = math.cos(heading), math.sin(heading)
     hx, hy = x + 1.5 * ch * s, y + 1.5 * sh * s
     for side in (-1, 1):                                                        # lyre-shaped long horns
@@ -1003,18 +1136,18 @@ def cattle(x, y, s=1.0, heading=0.0):
 
 def shot_giza_build():
     sc = reset()
-    sky(26, 245, 0.9)
-    sun(26, 245, 3.8, (1, 0.9, 0.74))
+    ph_sky(); exposure(-0.6)  # was sky(26, 245, 0.9)
+    sun_obj = sun(26, 245, 3.8, (1, 0.9, 0.74))
     ground(500, bedrock(), 4, 1.2, 0.02)
     stepped_core(0, 60, 46, 22)
     frustum(0, 60, 47, 35.5, 0, 7.5, casing())                                  # white casing going on from the bottom
-    ramp = add("cube", (0, 60 - 23 - 34, 10), (4.0, 34, 10), m=noisy("rampbrick", (0.5, 0.38, 0.25), (0.6, 0.47, 0.32), 1.5, 0.95, 0.3))
+    ramp = add("cube", (14, 60 - 23 - 20, 5.5), (2.4, 20, 5.5), m=mud_plaster())
     for v in ramp.data.vertices:
         if v.co.y < 0:
             v.co.z = -1.0
     for i, qx in enumerate((32, 32, 32)):                                       # queens' pyramids (G1a-c) on the east
         pyramid(qx, 40 + i * 12, 9, 6, casing())
-    mb = noisy("mastaba", (0.8, 0.74, 0.62), (0.88, 0.83, 0.72), 2, 0.85, 0.2)
+    mb = ph_mat("mastaba", "white_sandstone_bricks", 0.2, tint=(0.92, 0.88, 0.8))
     for r in range(4):                                                          # cemetery of mastaba tombs to the west
         for c in range(6):
             add("cube", (-40 - c * 7, 40 + r * 9, 1.6), (2.6, 3.6, 1.6), m=mb)
@@ -1022,7 +1155,7 @@ def shot_giza_build():
     add("plane", (60, -110, 0.24), (6, 40, 1), m=mat("canal", (0.12, 0.3, 0.32), 0.05))
     for k in range(3):
         plank_boat(50 + k * 10, -40 + k * 6, 0.8, math.radians(80), sail=k == 0)
-    wall = noisy("crowwall", (0.7, 0.62, 0.48), (0.8, 0.72, 0.56), 1.2, 0.95, 0.4)
+    wall = ph_mat("crowwall", "rustic_stone_wall", 0.15, tint=(0.95, 0.85, 0.7))
     add("cube", (10, -40, 5), (60, 2.5, 5), m=wall)                             # Wall of the Crow
     add("cube", (10, -40, 4), (3, 2.6, 4), m=mat("gate", (0.3, 0.22, 0.14), 0.8))
     for r in range(3):                                                          # workers' town galleries
@@ -1038,8 +1171,8 @@ def shot_giza_build():
 
 def shot_giza_later():
     sc = reset()
-    sky(18, 250, 0.9)
-    sun(18, 250, 3.6, (1, 0.86, 0.66))
+    ph_sky(); exposure(-0.6)  # was sky(18, 250, 0.9)
+    sun_obj = sun(18, 250, 3.6, (1, 0.86, 0.66))
     ground(500, bedrock(), 4, 2.0, 0.015)
     frustum(0, 60, 46, 0.1, 0, 29.2, casing())
     frustum(-40, 95, 43, 0.1, 0, 28.6, casing())
@@ -1056,11 +1189,11 @@ def shot_giza_later():
 
 def shot_harbour():
     sc = reset()
-    sky(24, 230, 0.9)
-    sun(24, 230, 3.6, (1, 0.9, 0.74))
+    ph_sky(); exposure(-0.6)  # was sky(24, 230, 0.9)
+    sun_obj = sun(24, 230, 3.6, (1, 0.9, 0.74))
     ground(300, bedrock(), 3, 0.6, 0.03)
     water_plane((0, 30, 0.3), (120, 26, 1), (0.12, 0.3, 0.32))
-    add("cube", (0, 2, 1.0), (60, 4, 1.0), m=noisy("quay", (0.7, 0.62, 0.48), (0.8, 0.72, 0.56), 1.2, 0.95, 0.3))
+    add("cube", (0, 2, 1.0), (60, 4, 1.0), m=ph_mat("quay", "large_sandstone_blocks", 0.2, tint=(0.95, 0.88, 0.75)))
     for k in range(5):
         plank_boat(-40 + k * 18, 28 + (k % 2) * 8, 1.1, math.radians(5 if k % 2 else -5), sail=k % 2 == 0)
     blk = casing()
@@ -1076,13 +1209,13 @@ def shot_harbour():
 
 def shot_workers_street():
     sc = reset()
-    sky(30, 220, 0.9)
-    sun(30, 220, 3.6, (1, 0.9, 0.74))
-    ground(200, noisy("street", (0.55, 0.44, 0.3), (0.65, 0.53, 0.38), 0.8, 0.95, 0.3))
+    ph_sky(); exposure(-0.6)  # was sky(30, 220, 0.9)
+    sun_obj = sun(30, 220, 3.6, (1, 0.9, 0.74))
+    ground(200, street_dirt())
     for side in (-1, 1):                                                        # long galleries either side of a street
         for c in range(6):
             add("cube", (side * 7, c * 10, 2.0), (3.5, 4.6, 2.0), m=mudbrick_white())
-            add("cube", (side * 7, c * 10, 4.05), (3.7, 4.8, 0.08), m=mat("roofmat", (0.6, 0.5, 0.32), 0.9))
+            add("cube", (side * 7, c * 10, 4.05), (3.7, 4.8, 0.08), m=reed_mat())
     for c in range(3):                                                          # bakery ovens with bread-mould pits
         ox = 2.5
         add("cyl", (ox, 8 + c * 6, 0.6), (0.8, 0.8, 0.6), m=noisy("oven", (0.45, 0.32, 0.22), (0.55, 0.4, 0.28), 2, 0.95, 0.3), vertices=16)
@@ -1098,14 +1231,16 @@ def shot_workers_street():
 
 def shot_memphis():
     sc = reset()
-    sky(28, 230, 0.9)
-    sun(28, 230, 3.6, (1, 0.9, 0.74))
-    ground(200, noisy("street", (0.55, 0.44, 0.3), (0.65, 0.53, 0.38), 0.8, 0.95, 0.3))
+    ph_sky(); exposure(-0.6)  # was sky(28, 230, 0.9)
+    sun_obj = sun(28, 230, 3.6, (1, 0.9, 0.74))
+    ground(200, street_dirt())
     rng = random.Random(5)
     for side in (-1, 1):
         for c in range(8):
             h = rng.uniform(2.6, 4.2)
-            add("cube", (side * rng.uniform(6.5, 8), c * 7, h / 2), (3.0, 3.2, h / 2), m=mudbrick_white())
+            add("cube", (side * rng.uniform(6.5, 8), c * 7, h / 2), (3.0, 3.2, h / 2), m=mudbrick_white() if c % 3 else mud_plaster())
+            for b_ in range(4):                                                 # palm-beam ends under the parapet
+                add("cyl", (side * 4.95, c * 7 - 2.4 + b_ * 1.6, h - 0.35), (0.09, 0.09, 0.25), (0, math.radians(90), 0), m=wood_rough(), vertices=8)
             add("cube", (side * 4.9, c * 7, 1.0), (0.08, 0.5, 1.0), m=mat("door", (0.42, 0.28, 0.16), 0.8))
             add("cube", (side * 4.9, c * 7 + 1.6, h - 0.6), (0.08, 0.3, 0.2), m=mat("win", (0.15, 0.12, 0.1), 0.9))
     camera_path([(0.0, (0, -12, 2.6)), (1.0, (0.3, -4, 2.5))], lens=26, target_keys=[(0.0, (0, 40, 2.2)), (1.0, (0, 46, 2.4))])
@@ -1123,13 +1258,13 @@ def lion_bed(x, y, m):
 def shot_house_interior():
     sc = reset()
     flat_world((0.9, 0.85, 0.75), 0.3)
-    add("plane", (0, 0, 0), (12, 12, 1), m=noisy("matfloor", (0.66, 0.56, 0.36), (0.74, 0.64, 0.42), 6, 0.9, 0.2))
+    add("plane", (0, 0, 0), (12, 12, 1), m=reed_mat())
     for x, y, sx, sy in ((0, 8, 8, 0.3), (-8, 0, 0.3, 8), (8, 0, 0.3, 8)):
         add("cube", (x, y, 3.5), (sx, sy, 3.5), m=mudbrick_white())
     add("cube", (0, 8, 5.6), (8, 0.32, 0.6), m=noisy("frieze", (0.18, 0.5, 0.45), (0.8, 0.62, 0.25), 8, 0.8, 0.05))
     for x in (-3, 3):                                                           # wooden columns (palm-log)
         add("cyl", (x, 3, 3.5), (0.28, 0.28, 3.5), m=noisy("palmlog", (0.4, 0.28, 0.16), (0.5, 0.36, 0.2), 6, 0.8, 0.3), vertices=12)
-    wood = noisy("bedwood", (0.42, 0.28, 0.14), (0.52, 0.36, 0.18), 6, 0.6, 0.2)
+    wood = wood_rough()
     lion_bed(-4, 4, wood)
     add("cube", (-4, 2.0, 1.0), (0.4, 0.15, 0.25), m=wood)                       # headrest
     add("cube", (4, 5, 0.6), (1.0, 0.7, 0.6), m=wood)                            # chest
@@ -1148,7 +1283,8 @@ def shot_palace():
     Hetepheres-style gilded canopy, bed, chair and carrying chair."""
     sc = reset()
     flat_world((0.95, 0.9, 0.8), 0.3)
-    add("plane", (0, 0, 0), (20, 20, 1), m=noisy("gypsumfloor", (0.85, 0.82, 0.75), (0.92, 0.9, 0.84), 3, 0.5, 0.05))
+    add("plane", (0, 0, 0), (20, 20, 1), m=ph_mat("gypsumfloor", "white_plaster_02", 0.3, tint=(0.95, 0.92, 0.85)))
+    exposure(-0.5)
     for i in range(9):                                                          # niched palace-facade back wall
         add("cube", (-12 + i * 3, 14 + (i % 2) * 0.5, 4.5), (1.4, 0.5, 4.5), m=mudbrick_white())
     for x in (-6, -2, 2, 6):
@@ -1167,7 +1303,9 @@ def shot_palace():
     add("cube", (0, 11, 1.1), (0.7, 0.7, 0.45), m=gold)                          # chair
     add("cube", (0, 11.6, 1.9), (0.7, 0.08, 0.8), m=gold)
     lion_bed(-6, 11, gold)
-    add("cube", (0, 2, 0.02), (2.0, 7, 0.02), m=mat("rushmat", (0.66, 0.56, 0.32), 0.9))
+    add("cube", (0, 2, 0.02), (2.0, 7, 0.02), m=reed_mat())
+    for i in range(9):                                                          # painted dado band (blue-green, red, ochre)
+        add("cube", (-12 + i * 3, 13.4 + (i % 2) * 0.5, 1.2), (1.4, 0.05, 0.35), m=mat("dado", [(0.18, 0.55, 0.5), (0.65, 0.22, 0.15), (0.78, 0.55, 0.25)][i % 3], 0.7))
     light("AREA", (0, 6, 9.5), 3500, (1, 0.9, 0.75), 16)
     light("AREA", (0, 12, 6), 800, (1, 0.85, 0.6), 6)
     camera_path([(0.0, (0, -14, 4.5)), (1.0, (0, -8, 3.8))], lens=26, target_keys=[(0.0, (0, 10, 2.8)), (1.0, (0, 11, 2.6))])
@@ -1176,11 +1314,11 @@ def shot_palace():
 
 def shot_tura():
     sc = reset()
-    sky(26, 230, 0.9)
-    sun(26, 230, 3.8, (1, 0.9, 0.74))
+    ph_sky(); exposure(-0.6)  # was sky(26, 230, 0.9)
+    sun_obj = sun(26, 230, 3.8, (1, 0.9, 0.74))
     ls = casing()
     ground(300, noisy("riverbank", (0.5, 0.42, 0.3), (0.6, 0.5, 0.36), 0.6, 0.95, 0.3), 3, 0.5, 0.03)
-    add("cube", (0, 60, 18), (90, 14, 18), m=ls)                                 # white limestone cliff
+    add("cube", (0, 60, 18), (90, 14, 18), m=ph_mat("cliff", "rock_wall_10", 0.06, tint=(1.0, 0.97, 0.9)))   # white limestone cliff
     for i in range(5):                                                          # cut gallery mouths
         add("cube", (-40 + i * 20, 46.2, 4), (3, 0.6, 4), m=mat("dark", (0.08, 0.07, 0.06), 0.9))
     rng = random.Random(3)
@@ -1195,8 +1333,8 @@ def shot_tura():
 
 def shot_fields():
     sc = reset()
-    sky(20, 240, 0.9)
-    sun(20, 240, 3.6, (1, 0.88, 0.7))
+    ph_sky(); exposure(-0.6)  # was sky(20, 240, 0.9)
+    sun_obj = sun(20, 240, 3.6, (1, 0.88, 0.7))
     add("plane", (0, 0, 0), (300, 300, 1), m=noisy("blacksoil", (0.18, 0.15, 0.11), (0.26, 0.21, 0.15), 0.8, 0.95, 0.2))
     green = noisy("fields", (0.25, 0.42, 0.12), (0.36, 0.52, 0.18), 1.2, 0.9, 0.2)
     for r in range(6):
@@ -1218,8 +1356,8 @@ def shot_fields():
 
 def shot_saqqara2():
     sc = reset()
-    sky(26, 230, 0.9)
-    sun(26, 230, 3.8, (1, 0.88, 0.7))
+    ph_sky(); exposure(-0.6)  # was sky(26, 230, 0.9)
+    sun_obj = sun(26, 230, 3.8, (1, 0.88, 0.7))
     desert_ground(500, 1.5)
     ls = casing()
     steps = [(40, 0, 4), (34, 4, 8), (28, 8, 11.5), (22, 11.5, 14.5), (16, 14.5, 17), (10, 17, 19)]
