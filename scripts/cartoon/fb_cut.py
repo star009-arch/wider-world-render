@@ -109,9 +109,9 @@ def layout(cut, audio, segs, total, out, W, H, cfg, ff):
     vert = H > 1500
     pw = W
     ph = int(pw * 9 / 16)
-    py = 430 if vert else 300
-    cap_y = py + ph + (110 if vert else 70)
-    fh = S.font(84 if vert else 70, "impact")
+    py = 430 if vert else 330
+    cap_y = py + ph + (110 if vert else 50)
+    fh = S.font(84 if vert else 62, "impact")
     fb = S.font(56 if vert else 50)
     fs = S.font(46 if vert else 42)
     fn = S.font(38 if vert else 34)
@@ -138,7 +138,7 @@ def layout(cut, audio, segs, total, out, W, H, cfg, ff):
         dr.rounded_rectangle([W / 2 - 200, 40, W / 2 + 200, 104], radius=18, fill=(180, 40, 40))
         dr.text((W / 2, 72), "TINY EMPIRES", font=S.font(40), fill=(255, 236, 190), anchor="mm")
         for i, ln in enumerate(cfg["title"]):
-            dr.text((W / 2, (190 if vert else 160) + i * (92 if vert else 78)), ln, font=fh, fill=(255, 255, 255) if i == 0 else (255, 206, 60),
+            dr.text((W / 2, (190 if vert else 150) + i * (92 if vert else 68)), ln, font=fh, fill=(255, 255, 255) if i == 0 else (255, 206, 60),
                     anchor="mm", stroke_width=7, stroke_fill=(16, 12, 16))
         if t < total:
             cur = [s for s in segs if s["voice_at"] - 0.05 <= t < s["voice_at"] + s["dur"] + 0.2]
@@ -153,7 +153,7 @@ def layout(cut, audio, segs, total, out, W, H, cfg, ff):
                 wrap = textwrap.wrap(s["text"], 30 if vert else 34)
                 f = fb if len(wrap) <= 4 else fs
                 step = 70 if len(wrap) <= 4 else 58
-                for i, ln in enumerate(wrap[:6]):
+                for i, ln in enumerate(wrap[:6 if vert else 5]):
                     dr.text((W / 2, cap_y + 70 + i * step), ln, font=f, fill=(255, 255, 255), anchor="mm", stroke_width=6, stroke_fill=(16, 12, 16))
         else:
             k = min(1.0, (t - total) / 0.4)
@@ -186,8 +186,11 @@ def main():
     audio = sound(K, segs, total, music, work, ff)
     outdir.mkdir(parents=True, exist_ok=True)
     tag = cfg["ep"]
-    layout(cut, audio, segs, total, outdir / f"{tag} - Facebook (2 min, 4x5 feed).mp4", 1080, 1350, cfg, ff)
-    layout(cut, audio, segs, total, outdir / f"{tag} - Facebook (2 min, 9x16 reel).mp4", 1080, 1920, cfg, ff)
+    only = sys.argv[5] if len(sys.argv) > 5 else "both"
+    if only in ("both", "4x5"):
+        layout(cut, audio, segs, total, outdir / f"{tag} - Facebook (2 min, 4x5 feed).mp4", 1080, 1350, cfg, ff)
+    if only in ("both", "9x16"):
+        layout(cut, audio, segs, total, outdir / f"{tag} - Facebook (2 min, 9x16 reel).mp4", 1080, 1920, cfg, ff)
 
 
 if __name__ == "__main__":
