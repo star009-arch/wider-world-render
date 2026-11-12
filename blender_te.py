@@ -649,9 +649,163 @@ def shot_camp():
     return sc
 
 
+def shot_terrain_generic(name, exag, lonlat, back=(-6, -60, 32), fwd=(-2, -38, 20), sun_az=200):
+    sc = reset()
+    g, size, bbox = terrain(name, exag)
+    sky(28, 160, 0.7)
+    sun(30, sun_az, 4.0)
+    tx, ty = lonlat_to_xy(*lonlat, size, bbox)
+    camera_path([(0.0, (tx + back[0], ty + back[1], back[2])), (1.0, (tx + fwd[0], ty + fwd[1], fwd[2]))], lens=30,
+                target_keys=[(0.0, (tx, ty + 4, 0)), (1.0, (tx + 2, ty + 10, 0))])
+    return sc
+
+
+def shot_globe_to(lon_from, lat_from, lon_to, lat_to):
+    sc = shot_globe()
+    for ob in bpy.data.objects:
+        if ob.type == "MESH" and ob.name.startswith("Sphere"):
+            ob.animation_data_clear()
+            for f in range(1, N + 1, 2):
+                fr = ease((f - 1) / max(1, N - 1))
+                lon = lon_from + (lon_to - lon_from) * fr
+                lat = lat_from + (lat_to - lat_from) * fr
+                ob.rotation_euler = (math.radians(lat), 0, math.radians(-90 - lon))
+                ob.keyframe_insert("rotation_euler", frame=f)
+    return sc
+
+
+def ger(x, y, s=1.0):
+    felt = noisy("felt", (0.86, 0.83, 0.76), (0.94, 0.92, 0.86), 3, 0.95, 0.1)
+    add("cyl", (x, y, 1.0 * s), (2.2 * s, 2.2 * s, 1.0 * s), m=felt, vertices=24)
+    add("cone", (x, y, 2.6 * s), (2.35 * s, 2.35 * s, 0.6 * s), m=felt, vertices=24)
+    add("cube", (x, y - 2.15 * s, 0.75 * s), (0.45 * s, 0.1 * s, 0.75 * s), m=mat("door", (0.6, 0.15, 0.1), 0.6))
+    add("cyl", (x, y, 1.45 * s), (2.23 * s, 2.23 * s, 0.06 * s), m=mat("rope", (0.25, 0.15, 0.08)), vertices=24)
+
+
+def horse(x, y, s=1.0, heading=0.0, coat=(0.35, 0.2, 0.1)):
+    m = noisy("coat", coat, tuple(min(1.0, c * 1.25) for c in coat), 4, 0.7, 0.1)
+    ch, sh = math.cos(heading), math.sin(heading)
+    body = add("sphere", (x, y, 1.45 * s), (1.15 * s, 0.42 * s, 0.48 * s), (0, 0, heading), m=m, segments=16, ring_count=8)
+    smooth(body)
+    for dx, dy in ((0.75, 0.22), (0.75, -0.22), (-0.75, 0.22), (-0.75, -0.22)):
+        lx, ly = x + (dx * ch - dy * sh) * s, y + (dx * sh + dy * ch) * s
+        add("cyl", (lx, ly, 0.55 * s), (0.09 * s, 0.09 * s, 0.55 * s), m=m, vertices=8)
+    add("cyl", (x + 1.2 * ch * s, y + 1.2 * sh * s, 1.95 * s), (0.17 * s, 0.17 * s, 0.45 * s), (0, math.radians(35), heading), m=m, vertices=10)
+    hd = add("sphere", (x + 1.5 * ch * s, y + 1.5 * sh * s, 2.25 * s), (0.42 * s, 0.17 * s, 0.17 * s), (0, math.radians(25), heading), m=m,
+             segments=12, ring_count=6)
+    smooth(hd)
+
+
+def shot_steppe():
+    sc = reset()
+    sky(30, 210, 0.9)
+    sun(30, 210, 3.6)
+    ground(260, noisy("steppe", (0.36, 0.42, 0.16), (0.5, 0.52, 0.24), 0.3, 0.95, 0.2), 6, 3.5, 0.015)
+    rng = random.Random(6)
+    for i in range(9):
+        ger(rng.uniform(-30, 30), rng.uniform(20, 55), rng.uniform(0.9, 1.15))
+    coats = [(0.35, 0.2, 0.1), (0.12, 0.09, 0.07), (0.55, 0.42, 0.28), (0.7, 0.66, 0.6)]
+    for i in range(26):
+        horse(rng.uniform(-45, 45), rng.uniform(0, 30), rng.uniform(0.9, 1.1), rng.uniform(0, 6.28), rng.choice(coats))
+    for k in range(4):
+        add("sphere", (-160 + k * 110, 230, -30), (90, 40, 60), m=noisy("hill", (0.3, 0.36, 0.2), (0.4, 0.44, 0.26), 0.2, 0.95, 0.1),
+            segments=24, ring_count=12)
+    camera_path([(0.0, (-26, -36, 7)), (1.0, (-6, -32, 6))], lens=30, target_keys=[(0.0, (0, 30, 2)), (1.0, (6, 32, 2))])
+    return sc
+
+
+def dome(x, y, z, r, m):
+    o = add("sphere", (x, y, z), (r, r, r * 1.15), m=m, segments=24, ring_count=12)
+    smooth(o)
+    return o
+
+
+def shot_city():
+    sc = reset()
+    sky(26, 240, 0.9)
+    sun(26, 240, 3.5, (1, 0.9, 0.75))
+    ground(220, noisy("dust", (0.6, 0.5, 0.34), (0.72, 0.62, 0.44), 0.4, 0.95, 0.2), 4, 0.4, 0.05)
+    mud = noisy("mudbrick", (0.62, 0.48, 0.3), (0.74, 0.6, 0.4), 2.5, 0.9, 0.3)
+    tile = noisy("tile", (0.05, 0.45, 0.55), (0.15, 0.62, 0.7), 6, 0.25, 0.1)
+    walls_rect(0, 40, 90, 60, 8, 2.2, mud, mud, bastion=True)
+    rng = random.Random(12)
+    for _ in range(40):
+        x, y = rng.uniform(-38, 38), rng.uniform(16, 64)
+        h = rng.uniform(2.5, 5)
+        add("cube", (x, y, h / 2), (rng.uniform(2, 4), rng.uniform(2, 4), h / 2), m=mud)
+    add("cube", (0, 44, 6), (9, 9, 6), m=mud)
+    dome(0, 44, 13.5, 6.5, tile)
+    for x in (-22, 18):
+        add("cube", (x, 52, 4), (5, 5, 4), m=mud)
+        dome(x, 52, 9.5, 4, tile)
+    add("cyl", (14, 34, 18), (1.6, 1.6, 18), m=noisy("minaret", (0.66, 0.52, 0.34), (0.78, 0.64, 0.44), 4, 0.8, 0.3), vertices=20)
+    add("cyl", (14, 34, 36.6), (2.1, 2.1, 0.6), m=tile, vertices=20)
+    add("cone", (14, 34, 38.5), (1.6, 1.6, 1.4), m=tile, vertices=20)
+    camera_path([(0.0, (-40, -50, 14)), (1.0, (-14, -44, 11))], lens=30, target_keys=[(0.0, (0, 40, 8)), (1.0, (6, 42, 9))])
+    return sc
+
+
+def shot_hall():
+    """Chinese-style imperial hall (generic Yuan-period reconstruction): stone terraces, red columns, hipped golden roof."""
+    sc = reset()
+    sky(32, 200, 0.9)
+    sun(32, 200, 3.5)
+    ground(200, noisy("paving", (0.6, 0.58, 0.54), (0.7, 0.68, 0.64), 1.5, 0.8, 0.2))
+    stone = noisy("stone", (0.78, 0.76, 0.72), (0.88, 0.86, 0.82), 3, 0.7, 0.2)
+    for k, (w, d, h) in enumerate(((44, 26, 1.2), (38, 22, 1.2), (32, 18, 1.2))):
+        add("cube", (0, 30, h / 2 + k * 1.2), (w / 2, d / 2, h / 2), m=stone)
+    red = mat("red", (0.55, 0.06, 0.05), 0.5)
+    for i in range(8):
+        for j in range(2):
+            add("cyl", (-12.6 + i * 3.6, 23 + j * 12, 3.6 + 4.5), (0.45, 0.45, 4.5), m=red, vertices=16)
+    add("cube", (0, 29, 8.0), (13, 6, 4.5), m=mat("wall", (0.6, 0.12, 0.08), 0.6))
+    roof = mat("roof", (0.75, 0.55, 0.12), 0.35, 0.3)
+    r = add("cube", (0, 29, 15.5), (19, 11, 3.0), m=roof)
+    for v in r.data.vertices:
+        if v.co.z > 0:
+            v.co.x *= 0.45
+            v.co.y *= 0.15
+    add("cube", (0, 29, 12.6), (20, 12, 0.35), m=roof)
+    camera_path([(0.0, (-28, -34, 8)), (1.0, (-8, -28, 7))], lens=30, target_keys=[(0.0, (0, 29, 8)), (1.0, (2, 29, 9))])
+    return sc
+
+
+def shot_storm():
+    sc = reset()
+    flat_world((0.16, 0.18, 0.22), 1.0)
+    sun(20, 230, 0.8, (0.8, 0.85, 0.95), 20)
+    bpy.ops.mesh.primitive_plane_add(size=2)
+    o = bpy.context.active_object
+    oc = o.modifiers.new("ocean", "OCEAN")
+    oc.size = 2.0
+    oc.spatial_size = 200
+    oc.resolution = 12
+    oc.wave_scale = 4.0
+    oc.choppiness = 1.6
+    oc.repeat_x = oc.repeat_y = 2
+    oc.time = 1.0
+    oc.keyframe_insert("time", frame=1)
+    oc.time = 1.0 + SECONDS * 1.2
+    oc.keyframe_insert("time", frame=N)
+    o.data.materials.append(mat("sea", (0.03, 0.07, 0.09), 0.08))
+    smooth(o)
+    sh = [ship(-15, 40, 1.4, math.radians(25), (0.2, 0.2, 0.25)), ship(30, 70, 1.2, math.radians(-15), (0.2, 0.2, 0.25))]
+    for i, s_ in enumerate(sh):
+        z = s_.rotation_euler.z
+        for f in range(1, N + 1, 6):
+            s_.rotation_euler = (math.radians(8 * math.sin(f / 9 + i)), math.radians(6 * math.sin(f / 7 + i)), z)
+            s_.keyframe_insert("rotation_euler", frame=f)
+    camera_path([(0.0, (-50, -30, 8)), (1.0, (-30, -24, 7))], lens=35, target_keys=[(0.0, (0, 50, 4)), (1.0, (6, 55, 4))])
+    return sc
+
+
 SHOTS = {"globe": shot_globe, "india": shot_india, "bengal": shot_bengal, "spice": shot_spice, "ocean": shot_ocean, "fort": shot_fort,
          "durbar": shot_durbar, "court": shot_court, "plassey": lambda: shot_plassey(False), "plassey_rain": lambda: shot_plassey(True),
-         "camp": shot_camp}
+         "camp": shot_camp, "steppe": shot_steppe, "city": shot_city, "hall": shot_hall, "storm": shot_storm,
+         "mongolia": lambda: shot_terrain_generic("mongolia", 14.0, (104, 46)),
+         "centralasia": lambda: shot_terrain_generic("centralasia", 14.0, (64, 39)),
+         "eurasia": lambda: shot_terrain_generic("eurasia", 10.0, (70, 40), back=(-4, -70, 42), fwd=(0, -48, 30)),
+         "globe_mongol": lambda: shot_globe_to(20, 20, 104, 46)}
 
 if __name__ == "__main__":
     sc = SHOTS[SHOT]()
