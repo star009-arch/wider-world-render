@@ -945,6 +945,294 @@ def shot_saqqara():
     return sc
 
 
+# ================================================================================ Egypt v2 (01_egypt_old_kingdom_2600BC.md)
+WHITEWASH = (0.93, 0.91, 0.86)
+
+
+def mudbrick_white():
+    return noisy("whitewash", (0.86, 0.83, 0.76), (0.95, 0.93, 0.88), 2.0, 0.9, 0.15)
+
+
+def bedrock():
+    return noisy("bedrock", (0.66, 0.56, 0.42), (0.78, 0.68, 0.52), 0.35, 0.95, 0.3)
+
+
+def casing():
+    return noisy("tura", (0.9, 0.88, 0.82), (0.97, 0.96, 0.92), 3.0, 0.35, 0.05)
+
+
+def core():
+    return noisy("core", (0.66, 0.56, 0.4), (0.76, 0.66, 0.48), 1.5, 0.9, 0.5)
+
+
+def stepped_core(x, y, base, h, courses=14, m=None):
+    m = m or core()
+    for i in range(courses):
+        b = base * (1 - i / courses)
+        z0 = h * i / courses
+        add("cube", (x, y, z0 + h / courses / 2), (b / 2, b / 2, h / courses / 2), m=m)
+
+
+def plank_boat(x, y, s=1.0, heading=0.0, sail=True):
+    """Old Kingdom plank boat: long hull with raised ends, steering oars at the stern, bipod mast and tall narrow sail."""
+    wood = noisy("cedar", (0.42, 0.28, 0.15), (0.55, 0.38, 0.2), 4, 0.7, 0.2)
+    h = add("cube", (x, y, 0.55 * s), (5.0 * s, 1.0 * s, 0.4 * s), (0, 0, heading), m=wood)
+    for v in h.data.vertices:
+        if abs(v.co.x) > 0.55:
+            v.co.z += 0.9 * (abs(v.co.x) - 0.55) * 2
+    ch, sh = math.cos(heading), math.sin(heading)
+    for side in (-1, 1):                                                        # steering oars at the stern
+        ox, oy = x - 4.3 * s * ch - side * 0.8 * s * sh, y - 4.3 * s * sh + side * 0.8 * s * ch
+        add("cyl", (ox, oy, 1.2 * s), (0.08 * s, 0.08 * s, 1.6 * s), (math.radians(35), 0, heading + side * 0.3), m=wood, vertices=6)
+    if sail:
+        for side in (-1, 1):                                                    # bipod mast
+            add("cyl", (x + side * 0.4 * s * -sh, y + side * 0.4 * s * ch, 4.0 * s), (0.08 * s, 0.08 * s, 3.6 * s),
+                (side * math.radians(6), 0, heading), m=wood, vertices=6)
+        add("plane", (x, y, 4.6 * s), (1.2 * s, 3.0 * s, 1), (math.radians(90), 0, heading + math.radians(90)),
+            m=noisy("linen", (0.88, 0.85, 0.76), (0.95, 0.93, 0.86), 2, 0.9, 0.05))
+
+
+def cattle(x, y, s=1.0, heading=0.0):
+    horse(x, y, s * 0.95, heading, (0.62, 0.48, 0.34))
+    ch, sh = math.cos(heading), math.sin(heading)
+    hx, hy = x + 1.5 * ch * s, y + 1.5 * sh * s
+    for side in (-1, 1):                                                        # lyre-shaped long horns
+        add("cyl", (hx + side * 0.35 * s * -sh, hy + side * 0.35 * s * ch, 2.75 * s), (0.05 * s, 0.05 * s, 0.6 * s),
+            (side * math.radians(30), 0, heading), m=mat("horn", (0.85, 0.8, 0.68), 0.5), vertices=6)
+
+
+def shot_giza_build():
+    sc = reset()
+    sky(26, 245, 0.9)
+    sun(26, 245, 3.8, (1, 0.9, 0.74))
+    ground(500, bedrock(), 4, 1.2, 0.02)
+    stepped_core(0, 60, 46, 22)
+    frustum(0, 60, 47, 35.5, 0, 7.5, casing())                                  # white casing going on from the bottom
+    ramp = add("cube", (0, 60 - 23 - 34, 10), (4.0, 34, 10), m=noisy("rampbrick", (0.5, 0.38, 0.25), (0.6, 0.47, 0.32), 1.5, 0.95, 0.3))
+    for v in ramp.data.vertices:
+        if v.co.y < 0:
+            v.co.z = -1.0
+    for i, qx in enumerate((32, 32, 32)):                                       # queens' pyramids (G1a-c) on the east
+        pyramid(qx, 40 + i * 12, 9, 6, casing())
+    mb = noisy("mastaba", (0.8, 0.74, 0.62), (0.88, 0.83, 0.72), 2, 0.85, 0.2)
+    for r in range(4):                                                          # cemetery of mastaba tombs to the west
+        for c in range(6):
+            add("cube", (-40 - c * 7, 40 + r * 9, 1.6), (2.6, 3.6, 1.6), m=mb)
+    water_plane((60, -40, 0.25), (50, 30, 1), (0.12, 0.3, 0.32))                # harbour basin and canal
+    add("plane", (60, -110, 0.24), (6, 40, 1), m=mat("canal", (0.12, 0.3, 0.32), 0.05))
+    for k in range(3):
+        plank_boat(50 + k * 10, -40 + k * 6, 0.8, math.radians(80), sail=k == 0)
+    wall = noisy("crowwall", (0.7, 0.62, 0.48), (0.8, 0.72, 0.56), 1.2, 0.95, 0.4)
+    add("cube", (10, -40, 5), (60, 2.5, 5), m=wall)                             # Wall of the Crow
+    add("cube", (10, -40, 4), (3, 2.6, 4), m=mat("gate", (0.3, 0.22, 0.14), 0.8))
+    for r in range(3):                                                          # workers' town galleries
+        for c in range(7):
+            add("cube", (-30 + c * 9, -60 - r * 12, 1.5), (3.6, 4.6, 1.5), m=mudbrick_white())
+    rng = random.Random(4)
+    blk = casing()
+    for _ in range(30):
+        add("cube", (rng.uniform(-30, 30), rng.uniform(5, 30), 0.6), (0.9, 0.7, 0.6), m=blk)
+    camera_path([(0.0, (-80, -110, 60)), (1.0, (-55, -90, 48))], lens=32, target_keys=[(0.0, (0, 30, 6)), (1.0, (6, 34, 8))])
+    return sc
+
+
+def shot_giza_later():
+    sc = reset()
+    sky(18, 250, 0.9)
+    sun(18, 250, 3.6, (1, 0.86, 0.66))
+    ground(500, bedrock(), 4, 2.0, 0.015)
+    frustum(0, 60, 46, 0.1, 0, 29.2, casing())
+    frustum(-40, 95, 43, 0.1, 0, 28.6, casing())
+    frustum(-70, 125, 21, 0.1, 0, 13.2, casing())
+    sx, sy = 25, 30
+    stone = noisy("sphinx", (0.72, 0.6, 0.42), (0.82, 0.7, 0.5), 1.0, 0.9, 0.3)
+    add("cube", (sx, sy, 1.6), (2.0, 7.0, 1.6), m=stone)
+    add("cube", (sx, sy - 6.2, 3.8), (1.4, 1.2, 1.8), m=stone)
+    for side in (-1, 1):
+        add("cube", (sx + side * 0.9, sy - 9.5, 0.6), (0.4, 3.0, 0.6), m=stone)
+    camera_path([(0.0, (70, -70, 14)), (1.0, (45, -55, 11))], lens=30, target_keys=[(0.0, (-10, 70, 14)), (1.0, (-14, 74, 16))])
+    return sc
+
+
+def shot_harbour():
+    sc = reset()
+    sky(24, 230, 0.9)
+    sun(24, 230, 3.6, (1, 0.9, 0.74))
+    ground(300, bedrock(), 3, 0.6, 0.03)
+    water_plane((0, 30, 0.3), (120, 26, 1), (0.12, 0.3, 0.32))
+    add("cube", (0, 2, 1.0), (60, 4, 1.0), m=noisy("quay", (0.7, 0.62, 0.48), (0.8, 0.72, 0.56), 1.2, 0.95, 0.3))
+    for k in range(5):
+        plank_boat(-40 + k * 18, 28 + (k % 2) * 8, 1.1, math.radians(5 if k % 2 else -5), sail=k % 2 == 0)
+    blk = casing()
+    rng = random.Random(9)
+    for _ in range(20):
+        add("cube", (rng.uniform(-50, 50), rng.uniform(-6, 2), 2.6), (0.9, 0.7, 0.6), m=blk)
+    for c in range(6):
+        add("cube", (-50 + c * 18, -20, 2.2), (6, 5, 2.2), m=mudbrick_white())
+    pyr = add("cone", (20, 150, 28), (60, 60, 28), (0, 0, math.radians(45)), m=core(), vertices=4)
+    camera_path([(0.0, (-30, -30, 8)), (1.0, (-12, -24, 7))], lens=30, target_keys=[(0.0, (0, 30, 3)), (1.0, (10, 34, 4))])
+    return sc
+
+
+def shot_workers_street():
+    sc = reset()
+    sky(30, 220, 0.9)
+    sun(30, 220, 3.6, (1, 0.9, 0.74))
+    ground(200, noisy("street", (0.55, 0.44, 0.3), (0.65, 0.53, 0.38), 0.8, 0.95, 0.3))
+    for side in (-1, 1):                                                        # long galleries either side of a street
+        for c in range(6):
+            add("cube", (side * 7, c * 10, 2.0), (3.5, 4.6, 2.0), m=mudbrick_white())
+            add("cube", (side * 7, c * 10, 4.05), (3.7, 4.8, 0.08), m=mat("roofmat", (0.6, 0.5, 0.32), 0.9))
+    for c in range(3):                                                          # bakery ovens with bread-mould pits
+        ox = 2.5
+        add("cyl", (ox, 8 + c * 6, 0.6), (0.8, 0.8, 0.6), m=noisy("oven", (0.45, 0.32, 0.22), (0.55, 0.4, 0.28), 2, 0.95, 0.3), vertices=16)
+        add("cyl", (ox, 8 + c * 6, 1.25), (0.5, 0.5, 0.05), m=mat("ember", (1, 0.4, 0.1), emit=(1, 0.45, 0.12), strength=6), vertices=12)
+    rng = random.Random(2)
+    jar = mat("jar", (0.6, 0.36, 0.22), 0.8)
+    for _ in range(16):
+        o = add("sphere", (rng.uniform(-3.5, -1.5), rng.uniform(0, 50), 0.5), (0.35, 0.35, 0.5), m=jar, segments=12, ring_count=6)
+    pyr = add("cone", (10, 220, 30), (60, 60, 30), (0, 0, math.radians(45)), m=core(), vertices=4)
+    camera_path([(0.0, (0, -14, 2.8)), (1.0, (0.4, -6, 2.6))], lens=26, target_keys=[(0.0, (0, 40, 2.5)), (1.0, (0, 46, 2.6))])
+    return sc
+
+
+def shot_memphis():
+    sc = reset()
+    sky(28, 230, 0.9)
+    sun(28, 230, 3.6, (1, 0.9, 0.74))
+    ground(200, noisy("street", (0.55, 0.44, 0.3), (0.65, 0.53, 0.38), 0.8, 0.95, 0.3))
+    rng = random.Random(5)
+    for side in (-1, 1):
+        for c in range(8):
+            h = rng.uniform(2.6, 4.2)
+            add("cube", (side * rng.uniform(6.5, 8), c * 7, h / 2), (3.0, 3.2, h / 2), m=mudbrick_white())
+            add("cube", (side * 4.9, c * 7, 1.0), (0.08, 0.5, 1.0), m=mat("door", (0.42, 0.28, 0.16), 0.8))
+            add("cube", (side * 4.9, c * 7 + 1.6, h - 0.6), (0.08, 0.3, 0.2), m=mat("win", (0.15, 0.12, 0.1), 0.9))
+    camera_path([(0.0, (0, -12, 2.6)), (1.0, (0.3, -4, 2.5))], lens=26, target_keys=[(0.0, (0, 40, 2.2)), (1.0, (0, 46, 2.4))])
+    return sc
+
+
+def lion_bed(x, y, m):
+    add("cube", (x, y, 0.75), (1.0, 2.0, 0.08), (math.radians(-4), 0, 0), m=m)
+    for sx in (-0.9, 0.9):
+        for sy in (-1.8, 1.8):
+            add("cyl", (x + sx, y + sy, 0.38), (0.09, 0.09, 0.38), m=m, vertices=8)
+    add("cube", (x, y + 2.0, 1.0), (1.0, 0.06, 0.3), m=m)                        # footboard
+
+
+def shot_house_interior():
+    sc = reset()
+    flat_world((0.9, 0.85, 0.75), 0.3)
+    add("plane", (0, 0, 0), (12, 12, 1), m=noisy("matfloor", (0.66, 0.56, 0.36), (0.74, 0.64, 0.42), 6, 0.9, 0.2))
+    for x, y, sx, sy in ((0, 8, 8, 0.3), (-8, 0, 0.3, 8), (8, 0, 0.3, 8)):
+        add("cube", (x, y, 3.5), (sx, sy, 3.5), m=mudbrick_white())
+    add("cube", (0, 8, 5.6), (8, 0.32, 0.6), m=noisy("frieze", (0.18, 0.5, 0.45), (0.8, 0.62, 0.25), 8, 0.8, 0.05))
+    for x in (-3, 3):                                                           # wooden columns (palm-log)
+        add("cyl", (x, 3, 3.5), (0.28, 0.28, 3.5), m=noisy("palmlog", (0.4, 0.28, 0.16), (0.5, 0.36, 0.2), 6, 0.8, 0.3), vertices=12)
+    wood = noisy("bedwood", (0.42, 0.28, 0.14), (0.52, 0.36, 0.18), 6, 0.6, 0.2)
+    lion_bed(-4, 4, wood)
+    add("cube", (-4, 2.0, 1.0), (0.4, 0.15, 0.25), m=wood)                       # headrest
+    add("cube", (4, 5, 0.6), (1.0, 0.7, 0.6), m=wood)                            # chest
+    add("cube", (3.2, 1.5, 0.5), (0.5, 0.5, 0.05), m=wood)                       # stool
+    for i in range(4):
+        add("sphere", (6.5, -2 + i, 0.5), (0.35, 0.35, 0.5), m=mat("jar", (0.6, 0.36, 0.22), 0.8), segments=12, ring_count=6)
+    add("plane", (0, 7.7, 5.0), (1.2, 1, 0.3), (math.radians(90), 0, 0), m=mat("window", (1, 0.92, 0.8), emit=(1, 0.9, 0.75), strength=6))
+    light("AREA", (0, 4, 6.8), 1500, (1, 0.9, 0.75), 6)
+    light("POINT", (0, 7, 5), 300, (1, 0.85, 0.6), 1)
+    camera_path([(0.0, (0, -8, 3.2)), (1.0, (0.6, -6, 3.0))], lens=24, target_keys=[(0.0, (0, 5, 1.6)), (1.0, (-0.5, 5, 1.5))])
+    return sc
+
+
+def shot_palace():
+    """Royal audience hall: an INTERPRETATION (no Old Kingdom palace excavated) - niched white walls, palm columns,
+    Hetepheres-style gilded canopy, bed, chair and carrying chair."""
+    sc = reset()
+    flat_world((0.95, 0.9, 0.8), 0.3)
+    add("plane", (0, 0, 0), (20, 20, 1), m=noisy("gypsumfloor", (0.85, 0.82, 0.75), (0.92, 0.9, 0.84), 3, 0.5, 0.05))
+    for i in range(9):                                                          # niched palace-facade back wall
+        add("cube", (-12 + i * 3, 14 + (i % 2) * 0.5, 4.5), (1.4, 0.5, 4.5), m=mudbrick_white())
+    for x in (-6, -2, 2, 6):
+        add("cyl", (x, 6, 4), (0.4, 0.4, 4), m=noisy("palmcol", (0.86, 0.82, 0.74), (0.93, 0.9, 0.84), 4, 0.6, 0.1), vertices=16)
+        add("cone", (x, 6, 8.4), (0.9, 0.9, 0.5), m=mat("palmcap", (0.25, 0.55, 0.45), 0.6), vertices=16)
+    gold = mat("gold", (0.85, 0.65, 0.2), 0.3, 0.9)
+    add("cube", (0, 11, 0.3), (4, 3, 0.3), m=noisy("dais", (0.85, 0.82, 0.75), (0.92, 0.9, 0.84), 3, 0.5, 0.05))
+    for sx in (-2.5, 2.5):                                                      # canopy frame
+        for sy in (-2, 2):
+            add("cyl", (sx, 11 + sy, 2.6), (0.1, 0.1, 2.2), m=gold, vertices=8)
+    for sy in (-2, 2):
+        add("cube", (0, 11 + sy, 4.8), (2.6, 0.1, 0.1), m=gold)
+    for sx in (-2.5, 2.5):
+        add("cube", (sx, 11, 4.8), (0.1, 2.1, 0.1), m=gold)
+    add("plane", (0, 11, 4.85), (2.6, 2.1, 1), m=noisy("linen", (0.9, 0.87, 0.78), (0.96, 0.94, 0.88), 2, 0.9, 0.05))
+    add("cube", (0, 11, 1.1), (0.7, 0.7, 0.45), m=gold)                          # chair
+    add("cube", (0, 11.6, 1.9), (0.7, 0.08, 0.8), m=gold)
+    lion_bed(-6, 11, gold)
+    add("cube", (0, 2, 0.02), (2.0, 7, 0.02), m=mat("rushmat", (0.66, 0.56, 0.32), 0.9))
+    light("AREA", (0, 6, 9.5), 3500, (1, 0.9, 0.75), 16)
+    light("AREA", (0, 12, 6), 800, (1, 0.85, 0.6), 6)
+    camera_path([(0.0, (0, -14, 4.5)), (1.0, (0, -8, 3.8))], lens=26, target_keys=[(0.0, (0, 10, 2.8)), (1.0, (0, 11, 2.6))])
+    return sc
+
+
+def shot_tura():
+    sc = reset()
+    sky(26, 230, 0.9)
+    sun(26, 230, 3.8, (1, 0.9, 0.74))
+    ls = casing()
+    ground(300, noisy("riverbank", (0.5, 0.42, 0.3), (0.6, 0.5, 0.36), 0.6, 0.95, 0.3), 3, 0.5, 0.03)
+    add("cube", (0, 60, 18), (90, 14, 18), m=ls)                                 # white limestone cliff
+    for i in range(5):                                                          # cut gallery mouths
+        add("cube", (-40 + i * 20, 46.2, 4), (3, 0.6, 4), m=mat("dark", (0.08, 0.07, 0.06), 0.9))
+    rng = random.Random(3)
+    for _ in range(26):
+        add("cube", (rng.uniform(-50, 50), rng.uniform(30, 44), 0.6), (0.9, 0.7, 0.6), m=ls)
+    water_plane((0, 0, 0.3), (200, 14, 1), (0.12, 0.3, 0.32))
+    plank_boat(-10, 2, 1.1, 0.0, sail=False)
+    plank_boat(18, -3, 1.0, 0.0, sail=True)
+    camera_path([(0.0, (-40, -40, 10)), (1.0, (-20, -34, 9))], lens=30, target_keys=[(0.0, (0, 40, 8)), (1.0, (8, 42, 9))])
+    return sc
+
+
+def shot_fields():
+    sc = reset()
+    sky(20, 240, 0.9)
+    sun(20, 240, 3.6, (1, 0.88, 0.7))
+    add("plane", (0, 0, 0), (300, 300, 1), m=noisy("blacksoil", (0.18, 0.15, 0.11), (0.26, 0.21, 0.15), 0.8, 0.95, 0.2))
+    green = noisy("fields", (0.25, 0.42, 0.12), (0.36, 0.52, 0.18), 1.2, 0.9, 0.2)
+    for r in range(6):
+        for c in range(8):
+            if (r + c) % 3:
+                add("plane", (-70 + c * 20, -10 + r * 16, 0.05), (9, 7, 1), m=green)
+    add("plane", (0, -25, 0.06), (300, 1.5, 1), m=mat("canal", (0.12, 0.3, 0.32), 0.05))
+    desert_ground(400, 2.0).location = (0, 210, 0)
+    rng = random.Random(6)
+    for _ in range(8):
+        cattle(rng.uniform(-30, 30), rng.uniform(-20, 10), 0.9, rng.uniform(0, 6.28))
+    for _ in range(4):
+        horse(rng.uniform(-20, 20), rng.uniform(-20, 0), 0.7, rng.uniform(0, 6.28), (0.45, 0.42, 0.4))     # donkeys (small, grey)
+    for _ in range(10):
+        palm(rng.uniform(-100, 100), rng.uniform(60, 90), rng.uniform(0.8, 1.1))
+    camera_path([(0.0, (-40, -60, 9)), (1.0, (-18, -52, 8))], lens=30, target_keys=[(0.0, (0, 20, 2)), (1.0, (8, 24, 2))])
+    return sc
+
+
+def shot_saqqara2():
+    sc = reset()
+    sky(26, 230, 0.9)
+    sun(26, 230, 3.8, (1, 0.88, 0.7))
+    desert_ground(500, 1.5)
+    ls = casing()
+    steps = [(40, 0, 4), (34, 4, 8), (28, 8, 11.5), (22, 11.5, 14.5), (16, 14.5, 17), (10, 17, 19)]
+    for b, z0, z1 in steps:
+        add("cube", (-30, 70, (z0 + z1) / 2), (b / 2, b * 0.8 / 2, (z1 - z0) / 2), m=ls)
+    for i in range(16):                                                         # niched enclosure wall
+        add("cube", (-60 + i * 4, 40 + (i % 2) * 0.6, 3), (1.8, 0.8, 3), m=ls)
+    frustum(50, 85, 40, 20, 0, 14, ls)                                           # Bent Pyramid at Dahshur (distance)
+    o = add("cone", (50, 85, 19), (20 / 1.4142, 20 / 1.4142, 5), (0, 0, math.radians(45)), m=ls, vertices=4)
+    camera_path([(0.0, (-10, -40, 12)), (1.0, (0, -32, 10))], lens=28, target_keys=[(0.0, (0, 60, 8)), (1.0, (6, 64, 9))])
+    return sc
+
+
 SHOTS = {"globe": shot_globe, "india": shot_india, "bengal": shot_bengal, "spice": shot_spice, "ocean": shot_ocean, "fort": shot_fort,
          "durbar": shot_durbar, "court": shot_court, "plassey": lambda: shot_plassey(False), "plassey_rain": lambda: shot_plassey(True),
          "camp": shot_camp, "steppe": shot_steppe, "city": shot_city, "hall": shot_hall, "storm": shot_storm,
@@ -953,7 +1241,10 @@ SHOTS = {"globe": shot_globe, "india": shot_india, "bengal": shot_bengal, "spice
          "eurasia": lambda: shot_terrain_generic("eurasia", 10.0, (70, 40), back=(-4, -70, 42), fwd=(0, -48, 30)),
          "globe_mongol": lambda: shot_globe_to(20, 20, 104, 46),
          "giza": shot_giza, "build": shot_build, "nile": shot_nile, "quarry": shot_quarry, "saqqara": shot_saqqara,
-         "egypt": lambda: shot_terrain_generic("egypt", 12.0, (31.2, 27.5), back=(-4, -66, 34), fwd=(0, -44, 22))}
+         "egypt": lambda: shot_terrain_generic("egypt", 12.0, (31.2, 27.5), back=(-4, -66, 34), fwd=(0, -44, 22)),
+         "giza_build": shot_giza_build, "giza_later": shot_giza_later, "harbour": shot_harbour, "workers_street": shot_workers_street,
+         "memphis": shot_memphis, "house_interior": shot_house_interior, "palace": shot_palace, "tura": shot_tura, "fields": shot_fields,
+         "saqqara2": shot_saqqara2}
 
 if __name__ == "__main__":
     sc = SHOTS[SHOT]()
