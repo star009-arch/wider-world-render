@@ -8,6 +8,9 @@ on:
         description: release with the encrypted voice kit
       film_tag:
         description: release with film.enc; the Facebook cuts are uploaded back to it
+      fmts:
+        description: JSON list of formats
+        default: '["4x5", "9x16", "16x9"]'
 permissions:
   contents: write
 jobs:
@@ -15,7 +18,7 @@ jobs:
     runs-on: windows-latest
     strategy:
       matrix:
-        fmt: [4x5, 9x16, 16x9]
+        fmt: ${{ fromJson(inputs.fmts) }}
     defaults:
       run:
         shell: bash

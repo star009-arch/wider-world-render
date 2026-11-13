@@ -149,13 +149,29 @@ def layout(cut, audio, segs, total, out, W, H, cfg, ff):
     vert = H > 1500
     CW = 1600                                                                    # 3:2-ish window of the 16:9 frame -> a bigger picture
     pw = W
-    ph = int(pw * 1080 / CW)
-    py = 430 if vert else 215
-    cap_y = py + ph + (100 if vert else 40)
+    ph = 1100 if vert else int(pw * 1080 / CW)                                   # vertical: a tall picture area (about 57% of the screen)
+    py = 335 if vert else 215
+    cap_y = py + ph + (60 if vert else 40)
+    CWV = int(1080 * 1080 / ph)                                                  # narrowest window that fills the tall area
     fh = S.font(84 if vert else 56, "impact")
     fb = S.font(56 if vert else 44)
     fs = S.font(46 if vert else 38)
     fn = S.font(38 if vert else 30)
+
+    def window_v(t):
+        """Vertical: the tightest window that still holds the whole cast (bigger people when few are on screen)."""
+        cur = [s for s in segs if s["at"] <= t]
+        if not cur:
+            return 960, 1920
+        sg = cur[-1]
+        if sg["span"]:
+            cw = int(min(1920, max(CWV, sg["span"][1] - sg["span"][0])))
+            cx = (sg["span"][0] + sg["span"][1]) / 2
+        elif sg["sx"] is not None:
+            cw, cx = CWV, sg["sx"]
+        else:
+            cw, cx = 1920, 960
+        return int(min(max(cx, cw / 2), 1920 - cw / 2)), cw
 
     def window(t):
         """Crop centre: keep the speaker in frame (host on the right -> show the right part), else the middle."""
@@ -192,10 +208,15 @@ def layout(cut, audio, segs, total, out, W, H, cfg, ff):
         if t < total and cur_seg and cur_seg[-1]["full"]:
             fh_ = int(pw * 9 / 16)                                               # whole 16:9 frame, centred in the picture area
             bg.paste(fr.resize((pw, fh_), Image.LANCZOS), (0, py + (ph - fh_) // 2))
+        elif vert and t < total:
+            cx, cw = window_v(t)
+            win = fr.crop((cx - cw // 2, 0, cx - cw // 2 + cw, 1080))
+            h_ = int(pw * 1080 / cw)
+            bg.paste(win.resize((pw, h_), Image.LANCZOS), (0, py + (ph - h_) // 2))
         else:
             cx = window(t) if t < total else 960
             win = fr.crop((cx - CW // 2, 0, cx + CW // 2, 1080)) if t < total else fr.crop((240, 0, 1680, 1080))
-            bg.paste(win.resize((pw, ph), Image.LANCZOS), (0, py))
+            bg.paste(win.resize((pw, ph if not vert else int(pw * 1080 / CW)), Image.LANCZOS), (0, py if not vert else py + (ph - int(pw * 1080 / CW)) // 2))
         dr = ImageDraw.Draw(bg)
         dr.rounded_rectangle([W / 2 - 200, 40, W / 2 + 200, 104], radius=18, fill=(180, 40, 40))
         dr.text((W / 2, 72), "TINY EMPIRES", font=S.font(40), fill=(255, 236, 190), anchor="mm")
