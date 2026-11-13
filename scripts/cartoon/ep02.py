@@ -251,7 +251,7 @@ def shots():
                      L, fx=[caption("engineers recruited from conquered lands: siege engines", at(L, 1) + 1.0)]))
     L = ["M22"]
     out.append(scene("s04_zhongdu", "plate:m_zhongdu", [P("quill", 1720, G, 1.6, flip=True)], L, follow=False,
-                     fx=[label("ZHONGDU · 1215", 760, 110, 0.4, 70, GOLD), FX.smoke(500, 520, 3.0), caption("today its ruins lie inside Beijing", 9.0)]))
+                     fx=[label("ZHONGDU · 1215", 760, 110, 0.4, 70, GOLD), caption("today its ruins lie inside Beijing", 9.0)]))
     # ---- 4. Khwarazm
     L = ["M23"]
     out.append(scene("s05_khwarazm", "m_ca", [P("penny", 1720, G, 1.6, flip=True)], L, follow=False,
@@ -273,7 +273,7 @@ def shots():
                          label("1219–1221", 420, 110, 0.4, 70, GOLD)]))
     L = ["M28"]
     out.append(scene("s05_ruin", "plate:m_bukhara", [P("quill", 1720, G, 1.6, flip=True)], L, follow=False,
-                     fx=[FX.smoke(300, 560, 0.0, n=8), caption("historians argue about the numbers; the destruction was real", 6.0)]))
+                     fx=[caption("historians argue about the numbers; the destruction was real", 6.0)]))
     # ---- 5. after Genghis: Europe
     L = ["M29"]
     out.append(scene("s06_1227", "card", [P("penny", 1720, G, 1.6, flip=True)], L,
@@ -324,7 +324,7 @@ def shots():
                      L, follow=False, fx=[label("BAGHDAD · SEAT OF THE ABBASID CALIPHS", 760, 100, 0.4, 54, GOLD)]))
     L = ["M35"]
     out.append(scene("s08_1258", "plate:m_baghdad", [E("caliph", 700, 1000, 1.5, faces=[(0, {"mouth": "worried"})]), P("quill", 1720, G, 1.6, flip=True)],
-                     L, follow=False, fx=[label("1258", 760, 110, 0.3, 90, GOLD), FX.smoke(200, 520, 0.6, n=8)]))
+                     L, follow=False, fx=[label("1258", 760, 110, 0.3, 90, GOLD)]))
     L = ["M36"]
     out.append(scene("s08_ainjalut", "m_levant",
                      [*riders(150, 980, 4, 150, 0.8), *riders(1100, 980, 5, 150, 0.8, key="mamluk", flip=True), P("penny", 1780, G, 1.4, flip=True)],

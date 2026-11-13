@@ -177,9 +177,9 @@ def shots():
                      fx=[pin("m_world", -0.1, 51.5, "London", 0.4), pin("m_world", 18.4, -34.4, "Cape of Good Hope", 1.0),
                          label("EAST OF THE CAPE: COMPANY ONLY", 1150, 160, 2.0, 56, (255, 214, 60))]))
     L = ["E10", "E11"]
-    out.append(scene("s02_investors", "storm", [P("pike", 1600, G, 1.8, flip=True, faces=[(0, {"brows": 1.0, "mouth": "worried"})],
-                                                  acts=[(at(L, 1) + 0.2, "flinch", 0.5)])], L, world=LON,
-                     under=[K.sinking(700, 560, at(L, 0) + 2.2)], fx=[K.PL_drips(1600, 380, at(L, 1), 99)], follow=False))
+    out.append(scene("s02_investors", "plate:ocean", [P("pike", 1600, G, 1.8, flip=True, faces=[(0, {"brows": 1.0, "mouth": "worried"})],
+                                                        acts=[(at(L, 1) + 0.2, "flinch", 0.5)])], L, world=LON,
+                     fx=[caption("investors share the risk of each voyage", 1.0, at(L, 1)), K.PL_drips(1600, 380, at(L, 1), 99)], follow=False))
     # ---- 2. ships and spices
     L = ["E12"]
     out.append(scene("s03_spice", "plate:e_spice_quay", [P("penny", 1720, G, 1.6, flip=True)], L, follow=False, world=LON,
@@ -259,7 +259,7 @@ def shots():
                      [E(BEN, "nawab", -300, 960, 1.5, walks=[(sw - 1.5, 820)], speed=2.0, acts=[(sw + 0.4, "celebrate", None)]),
                       *FX.people(BEN, ["sepoy"] * 4, -900, 1000, 140, 1.2, walk=(sw - 1.6, 900), speed=2.0),
                       P("pike", 1500, G, 1.8, flip=True, faces=[(0, {"brows": 1.0, "mouth": "worried"})]), P("penny", 1780, G + 10, 1.6, flip=True)],
-                     L, world=BEN, fx=[K.PL_flag(1660, 70, sw, invert=True, s=1.6), label("CALCUTTA · JUNE 1756", 420, 110, 0.3, 60)]))
+                     L, world=BEN, fx=[label("CALCUTTA · JUNE 1756", 420, 110, 0.3, 60), caption("the Nawab takes Calcutta", sw + 0.6)]))
     # ---- 6. Clive and the secret deal
     L = ["E32"]
     out.append(scene("s07_clive", "plate:ocean", [E(BEN, "clive", 1100, 1000, 1.7, flip=True, faces=[(0, {"mouth": "smirk"})]), P("penny", 1720, G, 1.6, flip=True)],
@@ -269,19 +269,19 @@ def shots():
     out.append(scene("s07_retake", "plate:e_calcutta",
                      [E(BEN, "clive", -250, 1000, 1.6, speed=2.2, walks=[(sw - 2.0, 760)], acts=[(sw + 0.2, "point", None)]),
                       *FX.people(BEN, ["csepoy", "redcoat", "csepoy"], -800, 1010, 150, 1.3, walk=(sw - 2.1, 900), speed=2.2), P("quill", 1720, G, 1.7, flip=True)],
-                     L, world=BEN, fx=[K.PL_flag(1660, 70, sw, s=1.6), label("2 JANUARY 1757", 400, 110, 0.4, 64, GOLD)]))
+                     L, world=BEN, fx=[label("2 JANUARY 1757", 400, 110, 0.4, 64, GOLD), caption("Clive and Watson retake Calcutta", sw + 0.4)]))
     L = ["E34"]
     out.append(scene("s07_plotters", "plate:e_murshidabad",
                      [E(BEN, "mir_jafar", 700, 1000, 1.6, faces=[(0, {"mouth": "smirk", "brows": -0.4})], acts=[(1.4, "think", None)]),
                       E(BEN, "jagat_seth", 1100, 1000, 1.5, flip=True, faces=[(0, {"mouth": "smirk"})]), P("penny", 1720, G, 1.5, flip=True)],
                      L, follow=False, world=BEN, fx=[label("MIR JAFAR", 700, 300, dur("E34") * 0.45, 52), label("THE JAGAT SETH BANKERS", 1100, 300, dur("E34") * 0.7, 46)]))
     L = ["E35", "E36"]
-    out.append(scene("s07_deal", "plate:camp",
+    out.append(scene("s07_deal", "plate:e_murshidabad",
                      [E(BEN, "mir_jafar", 520, 1000, 1.7, faces=[(0, {"mouth": "smirk"})]), E(BEN, "clive", 1050, 1000, 1.7, flip=True, faces=[(0, {"mouth": "smirk"})]),
                       P("zed", 1450, G, 1.6, flip=True), P("penny", 1760, G + 10, 1.6, flip=True)],
                      L, world=BEN, fx=[label("SECRET AGREEMENT · JUNE 1757", 960, 90, 0.4, 60, GOLD)], under=[K.PL_contract(800, 1010, at(L, 1) + 0.5, at(L, 1) + 4.0)]))
     L = ["E37", "E38"]
-    out.append(scene("s07_bought", "plate:camp", [P("pike", 1300, G, 1.9, flip=True, faces=[(0, {"brows": 1.0, "mouth": "worried"})]), P("penny", 1700, G, 1.6, flip=True)],
+    out.append(scene("s07_bought", "plate:e_murshidabad", [P("pike", 1300, G, 1.9, flip=True, faces=[(0, {"brows": 1.0, "mouth": "worried"})]), P("penny", 1700, G, 1.6, flip=True)],
                      L, follow=False, world=BEN))
     # ---- 7. Plassey
     L = ["E39"]
@@ -310,7 +310,7 @@ def shots():
     out.append(scene("s09_throne", "plate:e_murshidabad",
                      [E(BEN, "mir_jafar", 960, 1000, 1.7, faces=[(0, {"mouth": "grin"}), (at(L, 1), {"brows": 1.0, "mouth": "worried"})]),
                       P("zed", 1700, G, 1.7, flip=True)],
-                     L, follow=False, world=BEN, under=[K.PL_shadow(960, 470, 0.8, at(L, 1) + dur("E46"))], fx=[K.PL_crown(960, 560, 0.2)]))
+                     L, follow=False, world=BEN, fx=[K.PL_crown(960, 560, 0.2), caption("the Company: money, rulers and an army", at(L, 1) + 0.6)]))
     L = ["E47"]
     out.append(scene("s09_buxar", "plate:e_plassey",
                      [*FX.people(BEN, ["redcoat"] * 3 + ["csepoy"] * 4, 120, 800, 75, 0.6), *FX.people(BEN, ["sepoy"] * 10, 950, 760, 75, 0.55, flip=True),
