@@ -89,7 +89,8 @@ def plan(module):
             if getattr(p, "key", None) == who:
                 sx = p.pos_at(t0 + d / 2)[0]
                 break
-        segs.append({"lid": lid, "src": (a, b), "at": t, "voice_at": t + (when[lid] - a), "dur": d, "sx": sx,
+        full = not by_name[nm].bg.startswith("plate:")                         # cards and maps: never crop (text and pins at the edges)
+        segs.append({"lid": lid, "src": (a, b), "at": t, "voice_at": t + (when[lid] - a), "dur": d, "sx": sx, "full": full,
                      "who": who, "text": digits(K.LINES[lid]["text"])})
         t += b - a
     return K, segs, t
@@ -170,9 +171,14 @@ def layout(cut, audio, segs, total, out, W, H, cfg, ff):
         x0 = (bg.width - W) // 2
         bg = bg.crop((x0, 0, x0 + W, H)).filter(ImageFilter.GaussianBlur(30))
         bg = Image.blend(bg, Image.new("RGB", (W, H), (12, 10, 16)), 0.5)
-        cx = window(t) if t < total else 960
-        win = fr.crop((cx - CW // 2, 0, cx + CW // 2, 1080)) if t < total else fr.crop((240, 0, 1680, 1080))
-        bg.paste(win.resize((pw, ph), Image.LANCZOS), (0, py))
+        cur_seg = [s for s in segs if s["at"] <= t]
+        if t < total and cur_seg and cur_seg[-1]["full"]:
+            fh_ = int(pw * 9 / 16)                                               # whole 16:9 frame, centred in the picture area
+            bg.paste(fr.resize((pw, fh_), Image.LANCZOS), (0, py + (ph - fh_) // 2))
+        else:
+            cx = window(t) if t < total else 960
+            win = fr.crop((cx - CW // 2, 0, cx + CW // 2, 1080)) if t < total else fr.crop((240, 0, 1680, 1080))
+            bg.paste(win.resize((pw, ph), Image.LANCZOS), (0, py))
         dr = ImageDraw.Draw(bg)
         dr.rounded_rectangle([W / 2 - 200, 40, W / 2 + 200, 104], radius=18, fill=(180, 40, 40))
         dr.text((W / 2, 72), "TINY EMPIRES", font=S.font(40), fill=(255, 236, 190), anchor="mm")

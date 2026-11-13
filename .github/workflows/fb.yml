@@ -1,0 +1,46 @@
+name: fb
+on:
+  workflow_dispatch:
+    inputs:
+      module:
+        description: storyboard module (ep03 | ep02 | eic)
+      kit_tag:
+        description: release with the encrypted voice kit
+      film_tag:
+        description: release with film.enc; the Facebook cuts are uploaded back to it
+permissions:
+  contents: write
+jobs:
+  facebook:
+    runs-on: windows-latest
+    strategy:
+      matrix:
+        fmt: [4x5, 9x16, 16x9]
+    defaults:
+      run:
+        shell: bash
+    env:
+      GH_TOKEN: ${{ github.token }}
+      TE_VOICE: ${{ github.workspace }}/work/voice
+      FB_WORK: ${{ github.workspace }}/fbwork
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: pip install -q imageio-ffmpeg pyshp pillow numpy
+      - run: |
+          curl -sSL -o ne.zip https://naciscdn.org/naturalearth/50m/raster/NE1_50M_SR_W.zip
+          mkdir -p data/geo/naturalearth/NE1_50M_SR_W && unzip -q ne.zip -d data/geo/naturalearth/NE1_50M_SR_W
+      - env:
+          KIT_KEY: ${{ secrets.KIT_KEY }}
+        run: |
+          mkdir -p work fb && gh release download "${{ inputs.kit_tag }}" -p kit.enc -D work -R "$GITHUB_REPOSITORY"
+          openssl enc -d -aes-256-cbc -pbkdf2 -iter 200000 -in work/kit.enc -out work/kit.tar -pass env:KIT_KEY
+          tar -xf work/kit.tar -C work && rm work/kit.enc work/kit.tar
+          gh release download "${{ inputs.film_tag }}" -p film.enc -D work -R "$GITHUB_REPOSITORY"
+          openssl enc -d -aes-256-cbc -pbkdf2 -iter 200000 -in work/film.enc -out work/film.mp4 -pass env:KIT_KEY && rm work/film.enc
+          python scripts/cartoon/fb_cut.py ${{ inputs.module }} work/film.mp4 fb work/voice/music.mp3 ${{ matrix.fmt }}
+          f=$(ls fb/*.mp4 | head -1)
+          openssl enc -aes-256-cbc -pbkdf2 -iter 200000 -salt -in "$f" -out fb_${{ matrix.fmt }}.enc -pass env:KIT_KEY
+          gh release upload "${{ inputs.film_tag }}" fb_${{ matrix.fmt }}.enc --clobber -R "$GITHUB_REPOSITORY"
