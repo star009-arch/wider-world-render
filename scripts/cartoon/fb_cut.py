@@ -140,7 +140,7 @@ def sound(K, segs, total, music, work, ff):
            "[mus][key]sidechaincompress=threshold=0.03:ratio=6:attack=20:release=400[duck]",
            f"[duck][dia]amix=inputs=2:normalize=0:duration=first,{{LN}},alimiter=limit=0.89,afade=t=in:d=0.15,atrim=0:{total:.2f}[a]"]
     K.two_pass_loudnorm([ff, "-nostdin", "-y", "-loglevel", "error"], ["-i", str(bus), "-i", str(bus), "-stream_loop", "-1", "-i", str(music)],
-                        ";".join(flt), ["-map", "[a]", "-c:a", "aac", "-b:a", "192k", str(mixd)])
+                        ";".join(flt), ["-map", "[a]", "-c:a", "aac", "-b:a", "192k", "-ar", "48000", str(mixd)])
     return mixd
 
 
