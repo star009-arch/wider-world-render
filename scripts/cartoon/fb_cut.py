@@ -85,12 +85,22 @@ def plan(module):
         who = K.LINES[lid]["who"]
         nm, t0 = where[lid]
         sx = None                                                                # where the speaker stands in that shot
+        xs = []                                                                  # where everyone stands (on screen)
         for p in by_name[nm].actors:
-            if getattr(p, "key", None) == who:
-                sx = p.pos_at(t0 + d / 2)[0]
-                break
-        full = not by_name[nm].bg.startswith("plate:")                         # cards and maps: never crop (text and pins at the edges)
-        segs.append({"lid": lid, "src": (a, b), "at": t, "voice_at": t + (when[lid] - a), "dur": d, "sx": sx, "full": full,
+            x = p.pos_at(t0 + d / 2)[0]
+            if -60 < x < 1980:
+                xs.append(x)
+            if getattr(p, "key", None) == who and sx is None:
+                sx = x
+        span = (min(xs) - 110, max(xs) + 110) if xs else None
+        if span and span[1] - span[0] > 1600 + 60:                               # wide casts (riders, crews, armies): show everything
+            span = None
+            sx = None
+            wide = True
+        else:
+            wide = False
+        full = wide or not by_name[nm].bg.startswith("plate:")                 # cards, maps and wide casts: never crop
+        segs.append({"lid": lid, "src": (a, b), "at": t, "voice_at": t + (when[lid] - a), "dur": d, "sx": sx, "span": span, "full": full,
                      "who": who, "text": digits(K.LINES[lid]["text"])})
         t += b - a
     return K, segs, t
@@ -137,9 +147,9 @@ def sound(K, segs, total, music, work, ff):
 def layout(cut, audio, segs, total, out, W, H, cfg, ff):
     """Compose each frame: blurred backdrop, badge + title, the full 16:9 picture, captions, end card."""
     vert = H > 1500
-    CW = 1440                                                                    # 4:3 window of the 16:9 frame -> a bigger picture
+    CW = 1600                                                                    # 3:2-ish window of the 16:9 frame -> a bigger picture
     pw = W
-    ph = int(pw * 3 / 4)
+    ph = int(pw * 1080 / CW)
     py = 430 if vert else 215
     cap_y = py + ph + (100 if vert else 40)
     fh = S.font(84 if vert else 56, "impact")
@@ -150,8 +160,15 @@ def layout(cut, audio, segs, total, out, W, H, cfg, ff):
     def window(t):
         """Crop centre: keep the speaker in frame (host on the right -> show the right part), else the middle."""
         cur = [s for s in segs if s["at"] <= t]
-        sx = cur[-1]["sx"] if cur else None
-        cx = 960 if sx is None else sx - CW * 0.22
+        if not cur:
+            return 960
+        sg = cur[-1]
+        if sg["span"] and sg["span"][1] - sg["span"][0] <= CW + 60:             # the whole cast fits: frame them all
+            cx = (sg["span"][0] + sg["span"][1]) / 2
+        elif sg["sx"] is not None:                                               # too wide: keep the speaker and as much as possible
+            cx = sg["sx"] - CW * 0.22
+        else:
+            cx = 960
         return int(min(max(cx, CW / 2), 1920 - CW / 2))
     dec = subprocess.Popen([ff, "-nostdin", "-loglevel", "error", "-i", str(cut), "-f", "rawvideo", "-pix_fmt", "rgb24", "-"], stdout=subprocess.PIPE)
     enc = subprocess.Popen([ff, "-nostdin", "-loglevel", "error", "-y", "-f", "rawvideo", "-pix_fmt", "rgb24", "-s", f"{W}x{H}", "-r", str(FPS),
