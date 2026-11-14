@@ -381,6 +381,76 @@ def main(module, folder):
              if re.search(r"every (week|day|saturday|sunday)", p.read_text(encoding="utf-8"), re.I)]
     check("no schedule promises ('every Saturday' etc.) in texts", not promo, ", ".join(promo))
 
+    # 9. added 15 Nov 2026 (owner + outside review): cinematic camera, living places, personality, sources, publishing pack
+    epn = int(re.search(r"Episode (\d+)", folder.name).group(1))
+    strict = epn >= 4                                                            # rules that every NEW episode must meet
+    if getattr(SC, "LIVE_CAM", False):
+        locked = []
+        for s_ in shots:
+            if s_.bg == "endcard" or s_.dur < 2.0:
+                continue
+            cams = [SC.cam_at(s_, s_.dur * f_ / 24) for f_ in range(1, 24)]                # anywhere in the shot counts
+            if max(max(c_[i] for c_ in cams) - min(c_[i] for c_ in cams) for i in range(3)) < 0.004:
+                locked.append(s_.name)
+        check("no locked camera: every shot moves", not locked, ", ".join(locked[:8]))
+    else:
+        check("camera moves on still shots (switched off for this published episode)", not strict)
+    try:
+        import life as LF
+        thin = [s_.name for s_ in shots if s_.bg.startswith("plate:") and s_.bg[6:] in LF.LIFE
+                and sum(1 for a_ in s_.actors if getattr(a_, "bg_extra", False)) < 2]
+        used_life = any(getattr(a_, "bg_extra", False) for s_ in shots for a_ in s_.actors)
+        if used_life or strict:
+            check("places are alive: background people in every town/camp/dock shot", used_life and not thin, ", ".join(thin[:8]))
+    except Exception as e_:
+        check("places are alive: background people", False, str(e_))
+    who = [K.LINES[lid]["who"] for _nm, lid, _t in K.CUES]
+    hosts = {"penny", "atlas", "quill", "zed", "pike"}
+    spoke = {h_: who.count(h_) for h_ in hosts}
+    others = sum(v for k_, v in spoke.items() if k_ != "penny")
+    share = others / max(1, len(who))
+    check("every host speaks (personality on screen)", all(v >= (2 if strict else 1) for v in spoke.values()),
+          ", ".join(f"{k_} {v}" for k_, v in sorted(spoke.items())))
+    check("hosts talk to each other: at least 35% of lines are not the presenter's", share >= 0.35, f"{share:.0%}")
+    closeups = sum(1 for s_ in shots if any(SC.cam_at(s_, s_.dur * f_)[0] >= 1.25 for f_ in (0.2, 0.4, 0.6, 0.8)))
+    check("close-ups: at least 8 shots go in close on a character", closeups >= 8, f"{closeups} shots")
+    if strict:
+        mod = sys.modules[module]
+        serious = getattr(mod, "SERIOUS", None)
+        check("serious scenes are declared (SERIOUS = {...} in the storyboard)", serious is not None)
+        if serious is not None:
+            jokes = [f"{nm}:{lid}" for nm, lid, _t in K.CUES if nm in serious and K.LINES[lid]["who"] in ("pike", "zed")]
+            check("no comic lines in scenes marked serious", not jokes, ", ".join(jokes[:6]))
+        air = {s_.bg[6:-4] for s_ in shots if s_.bg.startswith("plate:") and s_.bg.endswith("_air")}
+        from collections import Counter
+        mains = [p_ for p_, n_ in Counter(s_.bg[6:] for s_ in shots if s_.bg.startswith("plate:") and not s_.bg.endswith("_air")).items()
+                 if n_ >= 3 and not floors.get(p_, {}).get("interior") and not floors.get(p_, {}).get("map")]
+        miss = [p_ for p_ in mains if p_ not in air]
+        check("each main place opens with an aerial establishing shot", not miss, ", ".join(miss))
+        facts = Path(__file__).parent / "facts" / f"{module}.json"
+        if facts.exists():
+            fj = json.loads(facts.read_text(encoding="utf-8"))
+            weak = [lid for _nm, lid, _t in K.CUES if not fj.get(lid, {}).get("no_claim") and len(fj.get(lid, {}).get("sources", [])) < 2]
+            check("every factual line has two sources recorded", not weak, ", ".join(weak[:10]))
+        else:
+            check("fact sheet with two sources per line (scripts/cartoon/facts/<module>.json)", False, "missing")
+    want_langs = ["Hindi", "Spanish", "Portuguese", "Arabic", "Indonesian", "French", "German", "Japanese", "Italian"]
+    have = [l_ for l_ in want_langs if (folder / "YouTube" / "Subtitles - other languages" / f"{ep} - Subtitles ({l_}).srt").exists()]
+    for lang in want_langs[5:]:
+        tr = folder / "YouTube" / "Subtitles - other languages" / f"{ep} - Subtitles ({lang}).srt"
+        errs = CT.check(en, tr, maxlen=24 if lang == "Japanese" else 46) if (tr.exists() and en.exists()) else ["missing"]
+        check(f"subtitles ({lang}): same cues and timings as English", not errs, "; ".join(errs[:3]))
+    if up.exists():
+        s = up.read_text(encoding="utf-8")
+        check("upload text has 3 title options and a community post", "TITLE OPTIONS" in s and "COMMUNITY POST" in s)
+    try:
+        import sound_design as SD_
+        man = json.loads((SD_.SFX / "manifest.json").read_text(encoding="utf-8"))
+        nolic = [e_["name"] for e_ in man if not (e_.get("licence") and e_.get("source_url")) and not e_.get("exclude")]
+        check("licence and source recorded for every sound", not nolic, ", ".join(nolic[:6]))
+    except Exception as e_:
+        check("licence record for sounds readable", False, str(e_)[:80])
+
     fails = [r for r in results if not r[0]]
     print(f"\n{len(results) - len(fails)}/{len(results)} checks passed" + ("" if not fails else f"  ({len(fails)} FAILED)"))
     sys.exit(1 if fails else 0)

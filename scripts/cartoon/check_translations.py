@@ -18,7 +18,7 @@ def cues(path):
     return out
 
 
-def check(en_path, tr_path):
+def check(en_path, tr_path, maxlen=46):
     en, tr = cues(en_path), cues(tr_path)
     errs = []
     if len(en) != len(tr):
@@ -31,7 +31,7 @@ def check(en_path, tr_path):
         if len(x2) > 2:
             errs.append(f"cue {n1}: {len(x2)} lines")
         for line in x2:
-            if len(line) > 46:
+            if len(line) > maxlen:
                 errs.append(f"cue {n1}: line of {len(line)} characters")
         for yr in re.findall(r"\b1\d{3}\b|\b20\d{2}\b", " ".join(x1)):
             if yr not in " ".join(x2):
