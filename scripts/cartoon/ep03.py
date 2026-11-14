@@ -534,7 +534,7 @@ def shots():
     L = ["G02"]
     out.append(scene("s00_no", "plate:giza_build",
                      [*crew(["worker", "worker2", "worker", "worker2"], 120, 1040, 140, 1.25, walk=(0.0, 180), speed=0.4),
-                      P("atlas", 1620, G, 1.8, flip=True, faces=[(0, {"brows": 0.6, "mouth": "o"})])],
+                      P("atlas", 1180, G, 1.8, flip=True, faces=[(0, {"brows": 0.6, "mouth": "o"})])],
                      L, lead=H0, follow=False, cam=[(0.0, 1.08, 0.5, 0.5), (at(L, 1, H0) + 0.6, 1.0, 0.5, 0.5)],
                      fx=[no_list(H0, [0.0, 1.2, 2.2], 3.2)]))
     L = ["G03", "G04"]
@@ -546,7 +546,7 @@ def shots():
                      fx=[year_counter(H0 + 0.3, at(L, 1, H0) - 0.3), budget(at(L, 1, H0) + 0.2)]))
     L = ["G05"]
     out.append(scene("s01_title", "plate:giza_build",
-                     [P(k, 420 + i * 270, G, 1.5, faces=[(0, {"mouth": "grin" if k != "pike" else "o"})], acts=[(0.4 + i * 0.1, "wave", 0.6)])
+                     [P(k, 300 + i * 240, G, 1.5, faces=[(0, {"mouth": "grin" if k != "pike" else "o"})], acts=[(0.4 + i * 0.1, "wave", 0.6)])
                       for i, k in enumerate(["atlas", "quill", "penny", "zed", "pike"])],
                      L, lead=H0, follow=False, extra=0.6, fx=[title_sting(H0 + 3.0)]))
     L = ["G06"]
@@ -599,7 +599,7 @@ def shots():
     L = ["G19"]
     out.append(scene("s05_khufu", "plate:giza_build",
                      [E("khufu", 700, 1000, 1.7, faces=[(0, {"mouth": "grin"})], acts=[(2.0, "point", None)]),
-                      E("official", 380, 1000, 1.5), P("penny", 1700, G, 1.6, flip=True)],
+                      E("official", 380, 1000, 1.5), P("penny", 1180, G, 1.6, flip=True)],
                      L, fx=[label("KHUFU", 700, 300, 0.8, 70, GOLD)], follow=False))
     L = ["G20"]
     out.append(scene("s05_region", "card", [P("penny", 1740, G, 1.5, flip=True)], L, fx=[local_map(0.2)], follow=False))
@@ -612,7 +612,7 @@ def shots():
                      fx=[compass(2.0), label("BASE: MORE THAN 5 HECTARES", 760, 110, 0.4, 56, GOLD)], follow=False))
     L = ["G23", "G24"]
     out.append(scene("s05_years", "plate:giza_build",
-                     [P("quill", 1150, G, 1.6), P("pike", 1500, G, 1.8, flip=True, faces=[(0, {"brows": 1.0, "mouth": "worried"})],
+                     [P("quill", 880, G, 1.6), P("pike", 1150, G, 1.8, flip=True, faces=[(0, {"brows": 1.0, "mouth": "worried"})],
                                                       acts=[(at(L, 1) + 1.5, "facepalm", None)])],
                      L, fx=[caption("about 20 years of work", 1.0, at(L, 1))]))
     L = ["G25"]
@@ -627,7 +627,7 @@ def shots():
     L = ["G28"]
     out.append(scene("s06_crews", "plate:giza_build",
                      [*crew(["worker", "worker2", "worker", "worker2", "worker"], 120, 1030, 150, 1.15, walk=(0.5, 200), speed=0.4),
-                      P("penny", 1700, G, 1.6, flip=True)],
+                      P("penny", 1160, G, 1.6, flip=True)],
                      L, follow=False, fx=[icons_bbm(1.2), caption("rotated in and out of the site", 5.0)]))
     L = ["G29", "G30"]
     out.append(scene("s06_names", "plate:memphis",
@@ -658,7 +658,7 @@ def shots():
                      [*crew(["worker", "worker2", "worker"], 200, 1000, 200, 1.1), P("penny", 1700, G, 1.6, flip=True)],
                      L, fx=[label("LOCAL LIMESTONE · QUARRIED AT GIZA", 760, 100, 0.4, 54, GOLD)], follow=False))
     L = ["G32"]
-    out.append(scene("s07_tura", "plate:tura", [*crew(["worker2", "worker"], 300, 1000, 220, 1.1), P("atlas", 1700, G, 1.7, flip=True)], L,
+    out.append(scene("s07_tura", "plate:tura", [*crew(["worker2", "worker"], 300, 870, 220, 1.1), P("atlas", 1500, 850, 1.7, flip=True)], L,
                      fx=[label("TURA · FINE WHITE LIMESTONE", 760, 100, 0.2, 60, GOLD),
                          caption("granite beams from Aswan, ~850 km upriver", at(L, 0) + 4.5)], follow=False))
     L = ["G33"]
@@ -671,10 +671,10 @@ def shots():
                       P("penny", 1700, G, 1.6, flip=True)],
                      L, fx=[label("THE DIARY OF MERER", 760, 100, 0.4, 62, GOLD), caption("Tura to Giza, by boat, on canals and the flood", 4.0)]))
     L = ["G35"]
-    out.append(scene("s07_diary", "plate:tura", [P("zed", 1500, G, 1.8, flip=True, faces=[(0, {"mouth": "grin"})], acts=[(0.3, "hold_up", None)])], L,
+    out.append(scene("s07_diary", "plate:tura", [P("zed", 1300, 850, 1.8, flip=True, faces=[(0, {"mouth": "grin"})], acts=[(0.3, "hold_up", None)])], L,
                      follow=False, cam=[(0.0, 1.2, 0.7, 0.55), (5.0, 1.05, 0.6, 0.5)], fx=[caption("c. 2560 BC: a delivery log", 0.5)]))
     L = ["G36"]
-    out.append(scene("s08_problem", "plate:giza_build", [P("penny", 1700, G, 1.6, flip=True)], L, follow=False))
+    out.append(scene("s08_problem", "plate:giza_build", [P("penny", 1100, G, 1.6, flip=True)], L, follow=False))
     L = ["G37"]
     out.append(scene("s08_sledge", "card",
                      [*crew(["worker", "worker2", "worker", "worker2"], 330, 890, 70, 1.0, flip=True, walk=(0.3, -120), speed=0.12),
@@ -691,7 +691,7 @@ def shots():
     L = ["G41", "G42"]
     out.append(scene("s08_tired", "plate:giza_build",
                      [*crew(["worker", "worker2", "worker"], 200, 1030, 170, 1.15, acts=[(at(L, 1) + 0.8, "sit", None)]),
-                      P("pike", 1400, G, 1.8, flip=True, faces=[(0, {"mouth": "grin"})], acts=[(0.4, "shrug", None)]), P("penny", 1720, G, 1.6, flip=True)],
+                      P("pike", 950, G, 1.8, flip=True, faces=[(0, {"mouth": "grin"})], acts=[(0.4, "shrug", None)]), P("penny", 1170, G, 1.6, flip=True)],
                      L))
     L = ["G43"]
     out.append(scene("s09_shine", "plate:giza_later", [P("penny", 1720, G, 1.6, flip=True)], L,
