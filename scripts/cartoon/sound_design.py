@@ -40,7 +40,7 @@ AMBIENCE = {
     "e_calcutta": [("water_river", -12), ("market_crowd", -18)], "e_murshidabad": [("water_river", -16)], "e_plassey": [("wind_steppe", -12)],
     "e_allahabad": [("wind_steppe", -20)], "e_hooghly": [("water_river", -8)], "ocean": [("water_river", -8)], "plassey_rain": [("rain_heavy", -5)],
 }
-LAYER_DB = -21          # overall level of the effects layer before ducking (relative to full scale)
+LAYER_DB = float(os.environ.get("TE_LAYER_DB", "-21"))          # overall level of the effects layer before ducking (relative to full scale)
 DUCK = "sidechaincompress=threshold=0.012:ratio=12:attack=5:release=500"   # effects dip fast and deep under every word
 
 
