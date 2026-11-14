@@ -1390,6 +1390,92 @@ _HERE = Path(sys.argv[sys.argv.index("-P") + 1]).resolve().parent if "-P" in sys
 for _pack in sorted(_HERE.glob("te_sets_*.py")):
     exec(compile(_pack.read_text(encoding="utf-8"), str(_pack), "exec"), globals())
 
+
+
+# ================================================================================ aerial establishing shots + distant people
+# Every outdoor set also exists as "<shot>_air": the same world seen from high up with a slow glide, and small groups of
+# people on the ground, so each place can open with a wide establishing view (background standard, Nov 2026).
+AIR_SKIP = {"globe", "india", "bengal", "spice", "ocean", "globe_mongol", "mongolia", "centralasia", "eurasia", "egypt", "durbar", "court",
+            "hall", "house_interior", "palace", "m_ger_inside", "m_dadu_hall", "e_whitehall", "e_ajmer_court", "e_allahabad", "plassey_rain"}
+FOLK_COLOURS = [(0.72, 0.68, 0.58), (0.55, 0.3, 0.2), (0.3, 0.36, 0.5), (0.62, 0.5, 0.25), (0.42, 0.44, 0.3), (0.8, 0.78, 0.72), (0.5, 0.22, 0.2)]
+_WET = ("water", "river", "sea", "canal", "nile", "pool", "ocean", "lake", "tank", "moat")
+
+
+def folk_scatter(sc, centre, radius, n=160, seed=7):
+    """Scatter n simple low-poly people in a few groups around `centre`, only on broad, flat, dry ground (ray-cast)."""
+    rng = random.Random(seed)
+    bpy.context.view_layer.update()
+    dg = bpy.context.evaluated_depsgraph_get()
+    mats = [mat(f"folk{i}", c, 0.9) for i, c in enumerate(FOLK_COLOURS)]
+    skin = mat("folkskin", (0.5, 0.36, 0.26), 0.8)
+    bpy.ops.mesh.primitive_cone_add(vertices=8, radius1=0.26, radius2=0.15, depth=1.3, location=(0, 0, 0.65))
+    body = bpy.context.active_object
+    bpy.ops.mesh.primitive_ico_sphere_add(subdivisions=1, radius=0.16, location=(0, 0, 1.47))
+    head = bpy.context.active_object
+    head.data.materials.append(skin)
+    body.data.materials.append(mats[0])
+    body.hide_render = head.hide_render = True
+    groups = [(centre[0] + rng.uniform(-radius, radius), centre[1] + rng.uniform(-radius, radius)) for _ in range(9)]
+    placed = 0
+    for _ in range(n * 6):
+        if placed >= n:
+            break
+        gx, gy = rng.choice(groups)
+        x, y = gx + rng.gauss(0, radius * 0.12), gy + rng.gauss(0, radius * 0.12)
+        ok, loc, nor, _i, ob, _m = sc.ray_cast(dg, Vector((x, y, 400.0)), Vector((0, 0, -1)))
+        if not ok or ob is None or nor.z < 0.93:
+            continue
+        names = (ob.name + " " + " ".join(sl.material.name for sl in ob.material_slots if sl.material)).lower()
+        if any(w in names for w in _WET) or max(ob.dimensions.x, ob.dimensions.y) < 40:
+            continue                                                             # water, roofs, carts, animals: not ground
+        sc_ = rng.uniform(0.92, 1.08)
+        for src, m_ in ((body, rng.choice(mats)), (head, skin)):
+            o = bpy.data.objects.new("folk", src.data)
+            sc.collection.objects.link(o)
+            o.location = (loc.x, loc.y, loc.z + src.location.z * sc_)
+            o.scale = (sc_, sc_, sc_)
+            o.rotation_euler = (0, 0, rng.uniform(0, 6.28))
+            o.material_slots[0].link = "OBJECT"
+            o.material_slots[0].material = m_
+        placed += 1
+    return placed
+
+
+def _aerial(base):
+    def f():
+        sc = base()
+        cam = sc.camera
+        tgt = cam.constraints[0].target
+        sc.frame_set(1)
+        c0, t0 = cam.location.copy(), tgt.location.copy()
+        cam.animation_data_clear()
+        tgt.animation_data_clear()
+        d = t0 - c0
+        d.z = 0
+        dist = max(20.0, d.length)
+        d.normalize()
+        up = max(26.0, dist * 0.32)
+        look = c0 + d * dist * 0.5
+        look.z = t0.z
+        a0 = c0 - d * dist * 0.22 + Vector((0, 0, up))
+        a1 = a0 + d * dist * 0.07 - Vector((0, 0, up * 0.07))
+        side = Vector((-d.y, d.x, 0)) * dist * 0.04
+        for fr in range(1, N + 1, 2):
+            e = ease((fr - 1) / max(1, N - 1))
+            cam.location = a0.lerp(a1 + side, e)
+            cam.keyframe_insert("location", frame=fr)
+        tgt.location = look
+        cam.data.lens = 24
+        n = folk_scatter(sc, (look.x, look.y), dist * 0.4)
+        print("AERIAL", SHOT, "people placed:", n, "height", round(up, 1))
+        sc.frame_set(1)
+        return sc
+    return f
+
+
+for _k in [k for k in list(SHOTS) if k not in AIR_SKIP and not k.endswith("_air")]:
+    SHOTS[_k + "_air"] = _aerial(SHOTS[_k])
+
 if __name__ == "__main__":
     sc = SHOTS[SHOT]()
     OUT.mkdir(parents=True, exist_ok=True)
