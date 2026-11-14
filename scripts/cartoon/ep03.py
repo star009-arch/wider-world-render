@@ -540,7 +540,7 @@ def shots():
     L = ["G03", "G04"]
     out.append(scene("s00_tallest", "plate:giza_later",
                      [P("penny", 1300, G, 1.8, flip=True),
-                      P("zed", 2150, G, 1.7, flip=True, walks=[(at(L, 1, H0) - 0.9, 1640)], speed=2.0, faces=[(0, {"mouth": "grin"})],
+                      P("zed", 2150, G, 1.7, flip=True, walks=[(at(L, 1, H0) - 3.0, 1640)], speed=1.8, faces=[(0, {"mouth": "grin"})],
                         acts=[(at(L, 1, H0), "hold_up", None)])],
                      L, lead=H0, follow=False, cam=[(0.0, 1.0, 0.5, 0.5), (at(L, 2, H0) + 0.6, 1.1, 0.55, 0.5)],
                      fx=[year_counter(H0 + 0.3, at(L, 1, H0) - 0.3), budget(at(L, 1, H0) + 0.2)]))

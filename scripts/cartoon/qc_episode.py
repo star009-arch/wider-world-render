@@ -111,6 +111,14 @@ def main(module, folder):
     # 2. opening and pacing
     first = min(t0 for nm, lid, t0 in K.CUES if nm == shots[0].name) if K.CUES else 99
     check("voice starts within 0.5 s", first <= 0.5, f"first line at {first:.2f}s")
+    fast = []                                                                    # leg cycles faster than a natural gait flicker at 30 fps
+    for s_ in shots:
+        for a_ in s_.actors:
+            if getattr(a_, "walks", None) and hasattr(a_, "pp"):
+                hz = a_.pp.cadence * a_.pp.speed * a_.speed
+                if hz > 2.6:
+                    fast.append(f"{s_.name}:{a_.key} {hz:.1f}/s")
+    check("walk and gallop cycles at a natural rate (no flicker)", not fast, ", ".join(sorted(set(fast))[:6]))
     long_ = [f"{s.name} {s.dur:.0f}s" for s in shots if s.dur > 17 and s.bg != "endcard"]
     check("no single shot longer than 17 s", not long_, ", ".join(long_))
 

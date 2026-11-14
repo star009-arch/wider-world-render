@@ -223,7 +223,7 @@ class Performer:
                 gallop = per.gait == "gallop" and not per.creature
                 self.L = 1.55
                 self.pp = replace(DEFAULT, stride=7.0 if gallop else 3.4, lift=0.5, bounce=0.0, arm=3.0 if gallop else 6.0, lean=0.0,
-                                  cadence=1.5 if gallop else 0.75)
+                                  cadence=0.9 if gallop else 0.75)             # ~2 strides/s: a real gallop, no flicker at 30 fps
                 self.shw = 4.6 if per.creature else 4.2
             self._plan()
             return
