@@ -49,6 +49,8 @@ jobs:
         with:
           python-version: '3.11'
       - run: pip install -q imageio-ffmpeg pyshp pillow numpy
+      - name: pre-flight (every script must compile)
+        run: for f in scripts/cartoon/*.py; do python -m py_compile "$f" || exit 1; done
       - name: relief raster (Natural Earth, public domain)
         run: |
           curl -sSL -o ne.zip https://naciscdn.org/naturalearth/50m/raster/NE1_50M_SR_W.zip
@@ -87,6 +89,8 @@ jobs:
         with:
           python-version: '3.11'
       - run: pip install -q imageio-ffmpeg pyshp pillow numpy
+      - name: pre-flight (every script must compile)
+        run: for f in scripts/cartoon/*.py; do python -m py_compile "$f" || exit 1; done
       - run: |
           curl -sSL -o ne.zip https://naciscdn.org/naturalearth/50m/raster/NE1_50M_SR_W.zip
           mkdir -p data/geo/naturalearth/NE1_50M_SR_W && unzip -q ne.zip -d data/geo/naturalearth/NE1_50M_SR_W
@@ -126,6 +130,8 @@ jobs:
         with:
           python-version: '3.11'
       - run: pip install -q imageio-ffmpeg pyshp pillow numpy
+      - name: pre-flight (every script must compile)
+        run: for f in scripts/cartoon/*.py; do python -m py_compile "$f" || exit 1; done
       - run: |
           curl -sSL -o ne.zip https://naciscdn.org/naturalearth/50m/raster/NE1_50M_SR_W.zip
           mkdir -p data/geo/naturalearth/NE1_50M_SR_W && unzip -q ne.zip -d data/geo/naturalearth/NE1_50M_SR_W
