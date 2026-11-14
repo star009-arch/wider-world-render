@@ -127,9 +127,9 @@ def main(module, out):
     for t0, lid in cues:
         for text, a, b in line_chunks(K, lid):
             allc.append([t0 + a, t0 + b + 0.25, text])
-    for i in range(len(allc) - 1):                                               # never overlap the next subtitle
+    for i in range(len(allc) - 1):                                               # readable minimum, but never overlap the next one
+        allc[i][1] = max(allc[i][1], allc[i][0] + 0.7)
         allc[i][1] = min(allc[i][1], allc[i + 1][0] - 0.02)
-        allc[i][1] = max(allc[i][1], allc[i][0] + 0.7)                          # readable minimum
     for a, b, text in allc:
         n += 1
         rows.append(f"{n}\n{ts(a)} --> {ts(b)}\n" + two_lines(text) + "\n")

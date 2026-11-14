@@ -200,9 +200,13 @@ def shots():
     out.append(scene("s03_profit", "plate:ocean", [P("zed", 1300, G, 2.0, flip=True, acts=[(0.2, "celebrate", 0.5)])], L, lead=0.2, follow=False, world=LON,
                      fx=[K.PL_coins(1200, 980, 0.3, 2.0)]))
     L = ["E16", "E17"]
-    out.append(scene("s03_dutch", "plate:spice", [P("quill", 1720, G, 1.6, flip=True)], L, follow=False, world=LON,
-                     fx=[label("THE SPICE ISLANDS", 900, 110, 0.4, 64, GOLD), caption("Dutch East India Company, founded 1602", 1.2, at(L, 1)),
-                         caption("Amboyna, 1623", at(L, 1) + 0.4)]))
+    a_ = scene("s03_dutch", "plate:spice", [P("quill", 1720, G, 1.6, flip=True)], L, follow=False, world=LON,
+               fx=[label("THE SPICE ISLANDS", 900, 110, 0.4, 64, GOLD), label("THE DUTCH EAST INDIA COMPANY · 1602", 900, 190, 2.0, 46, (255, 236, 190))])
+    t17 = at(L, 1)
+    cut = t17 - 0.15                                                             # new picture as Quill starts the Amboyna line
+    q = P("quill", 1720, G, 1.6, flip=True, acts=[(0.4, "present", None)])
+    q.lips = M.load_rhubarb(K.VOICE / "E17_lips.json", offset=t17 - cut) if (K.VOICE / "E17_lips.json").exists() else []
+    out += split(a_, cut, "plate:e_spice_quay", actors=[q], fx=[label("AMBOYNA · 1623", 760, 110, 0.2, 64, GOLD)], name="s03_amboyna")
     # ---- 3. Mughal India
     L = ["E18"]
     out.append(scene("s04_mughal", "plate:india", [P("penny", 1700, G, 1.6, flip=True)], L, follow=False, world=MUG,

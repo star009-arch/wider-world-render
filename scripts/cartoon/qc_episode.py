@@ -145,7 +145,7 @@ def main(module, folder):
             body = ls[2:]
             if len(body) > 2 or any(len(x) > 46 for x in body):
                 probs.append(f"#{ls[0]} too long")
-            if re.search(r"\b(seventeen|sixteen|twelve|eleven|nineteen|twenty) (hundred|[a-z]+-[a-z]+|oh)\b", " ".join(body), re.I):
+            if F.YEAR_RE.search(" ".join(body)):
                 probs.append(f"#{ls[0]} spoken year")
         over = [i for i in range(len(cues) - 1) if cues[i][1] > cues[i + 1][0] + 1e-3]
         check("subtitles: no overlaps, max 2 short lines, years as digits", not over and not probs, f"overlaps {len(over)} {probs[:5]}")
@@ -162,8 +162,8 @@ def main(module, folder):
         import buildstamp
         meta = subprocess.run([ff(), "-hide_banner", "-i", str(film)], capture_output=True, text=True).stderr
         m = re.search(r"comment\s*:\s*te-storyboard:(\w+)", meta)
-        check("film rendered from the current storyboard code (not stale)", bool(m) and m.group(1) == buildstamp.digest(),
-              f"film {m.group(1) if m else 'unstamped'}, code {buildstamp.digest()}")
+        check("film rendered from the current storyboard code (not stale)", bool(m) and m.group(1) == buildstamp.digest(module),
+              f"film {m.group(1) if m else 'unstamped'}, code {buildstamp.digest(module)}")
     if p:
         r = subprocess.run([ff(), "-nostdin", "-hide_banner", "-i", str(film), "-af", "ebur128=framelog=verbose", "-f", "null", "-"],
                            capture_output=True, text=True).stderr

@@ -81,10 +81,32 @@ SPOKEN = [("Twenty-third of June, seventeen fifty-seven", "23 June 1757"), ("ele
 NAMES = {"penny": "PENNY", "atlas": "ATLAS", "quill": "QUILL", "zed": "ZED", "pike": "PIKE"}
 
 
+_UNITS = {"one": 1, "two": 2, "three": 3, "four": 4, "five": 5, "six": 6, "seven": 7, "eight": 8, "nine": 9}
+_TEENS = {"ten": 10, "eleven": 11, "twelve": 12, "thirteen": 13, "fourteen": 14, "fifteen": 15, "sixteen": 16, "seventeen": 17,
+          "eighteen": 18, "nineteen": 19}
+_TENS = {"twenty": 20, "thirty": 30, "forty": 40, "fifty": 50, "sixty": 60, "seventy": 70, "eighty": 80, "ninety": 90}
+_CENT = r"(eleven|twelve|thirteen|fourteen|fifteen|sixteen|seventeen|eighteen|nineteen)"
+_TAIL = r"(hundred|oh[- ](?:one|two|three|four|five|six|seven|eight|nine)|(?:twenty|thirty|forty|fifty|sixty|seventy|eighty|ninety)(?:-(?:one|two|three|four|five|six|seven|eight|nine))?|ten|eleven|twelve|thirteen|fourteen|fifteen|sixteen|seventeen|eighteen|nineteen)"
+YEAR_RE = re.compile(r"\b" + _CENT + r"[- ]" + _TAIL + r"\b", re.I)
+
+
+def _year(m):
+    c = _TEENS[m.group(1).lower()] * 100
+    t = m.group(2).lower()
+    if t == "hundred":
+        return str(c)
+    if t.startswith("oh"):
+        return str(c + _UNITS[t[3:]])
+    if t in _TEENS:
+        return str(c + _TEENS[t])
+    parts = t.split("-")
+    return str(c + _TENS[parts[0]] + (_UNITS[parts[1]] if len(parts) > 1 else 0))
+
+
 def digits(text):
     for a, b in SPOKEN:
         text = text.replace(a, b)
-    return text
+    return YEAR_RE.sub(_year, text)                                              # any remaining spoken year -> digits
 
 
 def _chunks(K, lid):
