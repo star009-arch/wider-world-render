@@ -64,6 +64,10 @@ CUTS.update({
 })
 
 
+# lines whose 3D scenes carry wide on-screen graphics (icon rows, swatches): always shown full-frame
+FORCE_FULL = {"E12", "E22", "C01", "C02", "C06", "G28", "Y03", "G21", "G22"}
+
+
 SPOKEN = [("Twenty-third of June, seventeen fifty-seven", "23 June 1757"), ("eleven sixty-two", "1162"), ("twelve-oh-six", "1206"),
           ("twelve-eighteen", "1218"), ("twelve forty-one", "1241"), ("twelve fifty-eight", "1258"), ("twelve seventy-four", "1274"),
           ("twelve eighty-one", "1281"), ("twelve seventy-one", "1271"), ("twelve seventy-nine", "1279"), ("sixteen hundred", "1600"),
@@ -116,7 +120,7 @@ def plan(module):
             wide = True
         else:
             wide = False
-        full = wide or not by_name[nm].bg.startswith("plate:")                 # cards, maps and wide casts: never crop
+        full = wide or lid in FORCE_FULL or not by_name[nm].bg.startswith("plate:")  # cards, maps, wide casts, big graphics: never crop
         segs.append({"lid": lid, "src": (a, b), "at": t, "voice_at": t + (when[lid] - a), "dur": d, "sx": sx, "span": span, "full": full,
                      "who": who, "text": digits(K.LINES[lid]["text"])})
         t += b - a
