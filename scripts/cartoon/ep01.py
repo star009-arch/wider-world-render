@@ -76,8 +76,14 @@ def label(text, x, y, t0, size=64, color=(255, 255, 255), t1=1e9):
     return lambda t, d, f: fx_label(d, text, x, y, size, color, a=min(ease((t - t0) / 0.3), ease((t1 - t) / 0.3))) if t0 <= t < t1 else None
 
 
+SHOW_CAPTIONS = False                                                            # owner: only one text on screen = the subtitles
+
+
 def caption(text, t0, t1=1e9, y=215):
-    """Info caption on a dark band, near the top (the bottom is kept free for YouTube subtitles and player controls)."""
+    """Info caption on a dark band. Off by default: the subtitles are the only running text (no doubled text)."""
+    if not SHOW_CAPTIONS:
+        return lambda t, d, frame: None
+
     def f(t, d, frame):
         if not t0 <= t < t1:
             return
