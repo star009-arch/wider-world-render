@@ -87,6 +87,23 @@ def digits(text):
     return text
 
 
+def _chunks(K, lid):
+    """Phrases of one line timed word by word from the voice (make_srt.line_chunks): [(text, start, end)] relative to the line."""
+    import make_srt
+    return make_srt.line_chunks(K, lid)
+
+
+def _phrase(seg, t):
+    """The phrase being spoken at cut time t (only one text on screen, in sync with the voice)."""
+    rel = t - seg["voice_at"]
+    ch = seg["chunks"]
+    for i, (text, a, b) in enumerate(ch):
+        nxt = ch[i + 1][1] if i + 1 < len(ch) else b + 0.6
+        if a - 0.05 <= rel < nxt:
+            return text
+    return None
+
+
 def plan(module):
     E = importlib.import_module(CUTS[module].get("module", module))
     K = E.K
@@ -122,7 +139,7 @@ def plan(module):
             wide = False
         full = wide or lid in FORCE_FULL or not by_name[nm].bg.startswith("plate:")  # cards, maps, wide casts, big graphics: never crop
         segs.append({"lid": lid, "src": (a, b), "at": t, "voice_at": t + (when[lid] - a), "dur": d, "sx": sx, "span": span, "full": full,
-                     "who": who, "text": digits(K.LINES[lid]["text"])})
+                     "who": who, "text": digits(K.LINES[lid]["text"]), "chunks": _chunks(K, lid)})
         t += b - a
     return K, segs, t
 
@@ -254,8 +271,9 @@ def layout(cut, audio, segs, total, out, W, H, cfg, ff):
                     tw = dr.textlength(lab, font=fn)
                     dr.rounded_rectangle([W / 2 - tw / 2 - 22, ly - 24, W / 2 + tw / 2 + 22, ly + 24], radius=14, fill=(16, 12, 16))
                 dr.text((W / 2, ly), lab, font=fn, fill=(255, 206, 60), anchor="mm", stroke_width=4, stroke_fill=(16, 12, 16))
-            if cur:
-                s = cur[-1]
+            phrase = _phrase(cur[-1], t) if cur else None
+            if cur and phrase:
+                s = dict(cur[-1], text=phrase)
                 dr.text((W / 2, cap_y), NAMES.get(s["who"], s["who"].upper()), font=fn, fill=(255, 206, 60), anchor="mm",
                         stroke_width=4, stroke_fill=(16, 12, 16))
                 if vert:
@@ -309,8 +327,11 @@ def layout_wide(cut, audio, segs, total, out, cfg, ff):
             od = ImageDraw.Draw(ov)
             od.rounded_rectangle([30, 26, 330, 82], radius=14, fill=(180, 40, 40, 235))
             cur = [s for s in segs if s["voice_at"] - 0.05 <= t < s["voice_at"] + s["dur"] + 0.2]
+            phrase = _phrase(cur[-1], t) if cur else None
+            if not phrase:
+                cur = []
             if cur:
-                wrap = textwrap.wrap(cur[-1]["text"], 62)
+                wrap = textwrap.wrap(phrase, 62)
                 f, step = (fb, 56) if len(wrap) <= 3 else (fs, 46)
                 band = 40 + len(wrap) * step
                 od.rectangle([0, H - band - 30, W, H], fill=(10, 8, 12, 170))
@@ -321,7 +342,7 @@ def layout_wide(cut, audio, segs, total, out, cfg, ff):
             if sec:
                 dr.text((360, 54), cfg["chapters"][sec[-1]["lid"]].upper(), font=fn, fill=(255, 206, 60), anchor="lm",
                         stroke_width=4, stroke_fill=(16, 12, 16))
-            if cur:
+            if cur and phrase:
                 top = H - band - 30 + 20 + step / 2
                 for i, ln in enumerate(wrap):
                     dr.text((W / 2, top + i * step), ln, font=f, fill=(255, 255, 255), anchor="mm", stroke_width=5, stroke_fill=(16, 12, 16))
