@@ -179,7 +179,30 @@ def main(module, folder):
     # 6. Facebook video and clips
     K2, segs, ftotal = F.plan(module)
     media_ok("Facebook video (upload this)", folder / "Facebook" / f"{ep} - Facebook video (upload this).mp4", 1080, 1350, ftotal + F.END)
+    import buildstamp
+
+    def fb_fresh(path):
+        meta = subprocess.run([ff(), "-hide_banner", "-i", str(path)], capture_output=True, text=True).stderr
+        m = re.search(r"comment\s*:\s*te-fb:(\w+)", meta)
+        return bool(m) and m.group(1) == buildstamp.fb_digest(module), (m.group(1) if m else "unstamped")
+
+    fbv = folder / "Facebook" / f"{ep} - Facebook video (upload this).mp4"
+    if fbv.exists():
+        ok, got = fb_fresh(fbv)
+        check("Facebook video made from the current film and caption code", ok, f"file {got}, code {buildstamp.fb_digest(module)}")
+    cut_keys = [module] + [k for k in F.CUTS if F.CUTS[k].get("module") == module]
+    yrs = []
+    for k in cut_keys:
+        _, sg, _ = F.plan(k)
+        for seg in sg:
+            for text, a_, b_ in seg["chunks"]:
+                if F.YEAR_RE.search(text) or len(text) > 90:
+                    yrs.append(f"{k}:{seg['lid']}")
+    check("Facebook/clip captions: phrases short, years as digits", not yrs, ", ".join(sorted(set(yrs))[:8]))
     clips = sorted((folder / "Short clips").glob(f"{ep} - Short clip *.mp4"))
+    for c in clips:
+        ok, got = fb_fresh(c)
+        check(f"clip made from current film and caption code: {c.name[13:40]}", ok, got)
     check("3 short clips", len(clips) == 3, f"{len(clips)} found")
     for c in clips:
         p = media_ok(f"clip {c.name[13:40]}", c, 1080, 1350)

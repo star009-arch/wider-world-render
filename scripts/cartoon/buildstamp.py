@@ -17,3 +17,13 @@ def digest(module=None):
         if p.exists():
             h.update(p.read_bytes().replace(b"\r\n", b"\n"))
     return h.hexdigest()[:12]
+
+
+def fb_digest(module):
+    """Fingerprint for Facebook videos and clips: the episode's film code plus the cutting/caption code."""
+    h = hashlib.sha1(digest(module).encode())
+    for f in ("fb_cut.py", "make_srt.py"):
+        h.update((HERE / f).read_bytes().replace(b"
+", b"
+"))
+    return h.hexdigest()[:12]

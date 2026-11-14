@@ -115,6 +115,14 @@ def _chunks(K, lid):
     return make_srt.line_chunks(K, lid)
 
 
+_STAMP_MODULE = [None]
+
+
+def _stamp():
+    import buildstamp
+    return buildstamp.fb_digest(_STAMP_MODULE[0])
+
+
 def _phrase(seg, t):
     """The phrase being spoken at cut time t (only one text on screen, in sync with the voice)."""
     rel = t - seg["voice_at"]
@@ -249,7 +257,7 @@ def layout(cut, audio, segs, total, out, W, H, cfg, ff):
     dec = subprocess.Popen([ff, "-nostdin", "-loglevel", "error", "-i", str(cut), "-f", "rawvideo", "-pix_fmt", "rgb24", "-"], stdout=subprocess.PIPE)
     enc = subprocess.Popen([ff, "-nostdin", "-loglevel", "error", "-y", "-f", "rawvideo", "-pix_fmt", "rgb24", "-s", f"{W}x{H}", "-r", str(FPS),
                             "-i", "-", "-i", str(audio), "-map", "0:v", "-map", "1:a", "-c:v", "libx264", "-profile:v", "high", "-level", "4.1", "-preset", "medium", "-crf", "19",
-                            "-pix_fmt", "yuv420p", "-c:a", "copy", "-movflags", "+faststart", "-t", f"{total + END:.2f}", str(out)],
+                            "-pix_fmt", "yuv420p", "-c:a", "copy", "-movflags", "+faststart", "-metadata", f"comment=te-fb:{_stamp()}", "-t", f"{total + END:.2f}", str(out)],
                            stdin=subprocess.PIPE)
     last = None
     n = 0
@@ -389,6 +397,7 @@ def main():
     module, film, outdir = sys.argv[1], Path(sys.argv[2]), Path(sys.argv[3])
     music = Path(sys.argv[4]) if len(sys.argv) > 4 else Path("D:/Temp/cartoon/sneaky_snitch.mp3")
     cfg = CUTS[module]
+    _STAMP_MODULE[0] = cfg.get("module", module)
     K, segs, total = plan(module)
     ff = K.SC.ffmpeg()
     import os
