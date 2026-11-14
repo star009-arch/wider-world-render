@@ -182,7 +182,7 @@ def shots():
                      fx=[pin("m_world", -0.1, 51.5, "London", 0.4), pin("m_world", 18.4, -34.4, "Cape of Good Hope", 1.0),
                          label("EAST OF THE CAPE: COMPANY ONLY", 1150, 160, 2.0, 56, (255, 214, 60))]))
     L = ["E10", "E11"]
-    out.append(scene("s02_investors", "plate:ocean", [P("pike", 1600, G, 1.8, flip=True, faces=[(0, {"brows": 1.0, "mouth": "worried"})],
+    out.append(scene("s02_investors", "plate:e_deptford", [P("pike", 1600, G, 1.8, flip=True, faces=[(0, {"brows": 1.0, "mouth": "worried"})],
                                                         acts=[(at(L, 1) + 0.2, "flinch", 0.5)])], L, world=LON,
                      fx=[caption("investors share the risk of each voyage", 1.0, at(L, 1)), K.PL_drips(1600, 380, at(L, 1), 99)], follow=False))
     # ---- 2. ships and spices
@@ -197,7 +197,7 @@ def shots():
     out.append(scene("s03_lancaster", "plate:e_deptford", [*FX.people(LON, ["shipwright", "sailor"], 300, 1000, 240, 1.3), P("penny", 1720, G, 1.6, flip=True)],
                      L, follow=False, world=LON, fx=[label("1601 · THE FIRST FLEET · JAMES LANCASTER", 760, 110, 0.4, 52, GOLD)]))
     L = ["E15"]
-    out.append(scene("s03_profit", "plate:ocean", [P("zed", 1300, G, 2.0, flip=True, acts=[(0.2, "celebrate", 0.5)])], L, lead=0.2, follow=False, world=LON,
+    out.append(scene("s03_profit", "plate:e_deptford", [P("zed", 1300, G, 2.0, flip=True, acts=[(0.2, "celebrate", 0.5)])], L, lead=0.2, follow=False, world=LON,
                      fx=[K.PL_coins(1200, 980, 0.3, 2.0)]))
     L = ["E16", "E17"]
     a_ = scene("s03_dutch", "plate:spice", [P("quill", 1720, G, 1.6, flip=True)], L, follow=False, world=LON,
@@ -256,7 +256,7 @@ def shots():
     # ---- 5. Siraj and Calcutta
     L = ["E26"]
     out.append(scene("s06_1707", "card", [P("penny", 1720, G, 1.6, flip=True)], L, follow=False, world=BEN,
-                     fx=[timeline([("1707", "Aurangzeb dies"), ("after", "Mughal power|weakens"), ("1700s", "regional rulers|grow stronger")], 0.4, 1.6)]))
+                     fx=[timeline([("1707", "Aurangzeb dies"), ("after", "Mughal power|weakens"), ("1700s", "regional rulers|grow stronger")], 0.4, 1.6, y=380)]))
     L = ["E27", "E28"]
     out.append(scene("s06_siraj", "plate:e_murshidabad",
                      [E(BEN, "nawab", 900, 960, 1.7, faces=[(0, {"mouth": "smirk"}), (at(L, 1), {"brows": -1.0, "mouth": "frown"})], acts=[(at(L, 1) + 0.3, "fold", None)]),
@@ -271,7 +271,7 @@ def shots():
                      L, world=BEN, fx=[label("CALCUTTA · JUNE 1756", 420, 110, 0.3, 60), caption("the Nawab takes Calcutta", sw + 0.6)]))
     # ---- 6. Clive and the secret deal
     L = ["E32"]
-    out.append(scene("s07_clive", "plate:ocean", [E(BEN, "clive", 1100, 1000, 1.7, flip=True, faces=[(0, {"mouth": "smirk"})]), P("penny", 1720, G, 1.6, flip=True)],
+    out.append(scene("s07_clive", "plate:e_hooghly", [E(BEN, "clive", 1100, 1000, 1.7, flip=True, faces=[(0, {"mouth": "smirk"})]), P("penny", 1720, G, 1.6, flip=True)],
                      L, follow=False, world=BEN, fx=[label("CLIVE'S SOLDIERS · WATSON'S FLEET", 760, 110, 1.0, 56, GOLD)]))
     L = ["E33"]
     sw = at(L, 0) + 2.4
@@ -314,7 +314,7 @@ def shots():
                       E(BEN, "mir_jafar", 1180, 1000, 1.5, flip=True, faces=[(0, {"mouth": "smirk"})], acts=[(sit - 0.2, "fold", None)]),
                       E(BEN, "nawab", 560, 1000, 1.5, acts=[(at(L, 1) - 0.2, "double_take", 0.0)], walks=[(at(L, 1) + 1.2, -400)], speed=2.4),
                       P("quill", 1720, G, 1.7, flip=True)],
-                     L, world=BEN, fx=[label("MIR JAFAR", 1180, 560, 0.4, 52)]))
+                     L, world=BEN, fx=[label("MIR JAFAR", 1180, 300, 0.4, 52)]))
     # ---- 8. political power
     L = ["E45", "E46"]
     out.append(scene("s09_throne", "plate:e_murshidabad",
@@ -340,10 +340,10 @@ def shots():
     # ---- 9. what happened next
     L = ["E51"]
     out.append(scene("s10_century", "card", [P("penny", 1720, G, 1.6, flip=True)], L, follow=False, world=BEN,
-                     fx=[timeline([("1757", "Plassey:|Bengal"), ("1764–65", "Buxar and|the diwani"), ("1818–56", "most of the|subcontinent")], 0.5, 2.2)]))
+                     fx=[timeline([("1757", "Plassey:|Bengal"), ("1764–65", "Buxar and|the diwani"), ("1818–56", "most of the|subcontinent")], 0.5, 2.2, y=380)]))
     L = ["E52"]
     out.append(scene("s10_end", "card", [P("quill", 1720, G, 1.6, flip=True)], L, follow=False, world=BEN,
-                     fx=[timeline([("1857–58", "great uprising;|Crown takes over"), ("1874", "Company|dissolved")], 0.5, 2.6)]))
+                     fx=[timeline([("1857–58", "great uprising;|Crown takes over"), ("1874", "Company|dissolved")], 0.5, 2.6, y=380)]))
     # ---- ending: payoff, then the tease
     L = ["E53"]
     out.append(scene("s11_payoff", "plate:e_hooghly", [P("atlas", 1700, G, 1.7, flip=True)], L, follow=False, world=BEN,

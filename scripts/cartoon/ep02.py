@@ -197,7 +197,7 @@ def shots():
                      L, follow=False, fx=[label("THE MONGOLIAN STEPPE · 1100s", 760, 110, 0.4, 58, GOLD)]))
     L = ["M07"]
     out.append(scene("s02_ger", "plate:m_ger_inside",
-                     [E("hoelun", 520, 1000, 1.4), E("temujin_boy", 760, 1000, 1.1), P("atlas", 1650, G, 1.7, flip=True)],
+                     [E("hoelun", 600, 1000, 1.4), E("temujin_boy", 760, 1000, 1.1), P("atlas", 1360, G, 1.7, flip=True)],
                      L, follow=False, fx=[caption("a ger: a round felt tent you can pack onto a cart", 2.0)]))
     L = ["M08", "M09"]
     out.append(scene("s02_temujin", "plate:m_steppe_dawn",
@@ -277,7 +277,7 @@ def shots():
     # ---- 5. after Genghis: Europe
     L = ["M29"]
     out.append(scene("s06_1227", "card", [P("penny", 1720, G, 1.6, flip=True)], L,
-                     fx=[timeline([("1227", "Genghis Khan|dies"), ("1229", "Ogedei becomes|Great Khan"), ("1230s", "the empire keeps|expanding")], 0.5, 2.0)],
+                     fx=[timeline([("1227", "Genghis Khan|dies"), ("1229", "Ogedei becomes|Great Khan"), ("1230s", "the empire keeps|expanding")], 0.5, 2.0, y=330)],
                      follow=False))
     L = ["M30"]
     out.append(scene("s06_ogedei", "plate:m_karakorum", [E("ogedei", 760, 1000, 1.7, acts=[(1.0, "present", None)]), P("atlas", 1700, G, 1.7, flip=True)],
@@ -309,13 +309,13 @@ def shots():
                      L, follow=False, fx=[caption("Buddhists · Christians · Muslims · Taoists", 1.0)]))
     L = ["X05"]
     a_ = scene("s07_sorghaghtani", "plate:m_ger_inside",
-               [E("sorghaghtani", 760, 1000, 1.7, faces=[(0, {"mouth": "smile"})], acts=[(1.2, "present", None)]), P("penny", 1720, G, 1.6, flip=True)],
+               [E("sorghaghtani", 760, 1000, 1.7, faces=[(0, {"mouth": "smile"})], acts=[(1.2, "present", None)]), P("penny", 1360, G, 1.6, flip=True)],
                L, follow=False, fx=[label("SORGHAGHTANI BEKI", 760, 300, 0.6, 54, GOLD)])
     out += split(a_, 7.6, "card", actors=[P("penny", 1720, G, 1.5, flip=True)],
                  fx=[FX.family(0.2, "Sorghaghtani Beki", [("Mongke", "Great Khan"), ("Kublai", "Great Khan"), ("Hulagu", "ruled Persia"),
                                                           ("Ariq Boke", "")], step=1.6)], name="s07_sons")
     L = ["X06", "X07"]
-    out.append(scene("s07_mum", "plate:m_ger_inside", [P("pike", 1300, G, 1.9, flip=True, faces=[(0, {"mouth": "grin"})]), P("penny", 1700, G, 1.6, flip=True)],
+    out.append(scene("s07_mum", "plate:m_ger_inside", [P("pike", 1180, G, 1.9, flip=True, faces=[(0, {"mouth": "grin"})]), P("penny", 1380, G, 1.6, flip=True)],
                      L, follow=False))
     # ---- 7. Baghdad, Ain Jalut, Japan
     L = ["M34"]
@@ -349,9 +349,9 @@ def shots():
                      L, fx=[label("MARCO POLO", 700, 300, 1.5, 52, GOLD), caption("how much is true? historians still debate", 8.0)]))
     L = ["M40"]
     out.append(scene("s09_size", "card", [P("zed", 1720, G, 1.6, flip=True)], L, follow=False,
-                     fx=[FX.bars(0.8, [("Mongol Empire (peak)", 23.5, (200, 70, 50)), ("North America", 24.7, (90, 120, 170))], unit="{:.1f}M km²")]))
+                     fx=[FX.bars(0.8, [("Mongols (peak)", 23.5, (200, 70, 50)), ("North America", 24.7, (90, 120, 170))], unit="{:.1f}M km²", maxw=760)]))
     L = ["M41"]
-    out.append(scene("s09_khanates", "m_eurasia", [P("penny", 1720, G, 1.5, flip=True)], L, follow=False,
+    out.append(scene("s09_khanates", "m_eurasia", [P("penny", 230, G, 1.4)], L, follow=False,
                      fx=[pin("m_eurasia", 50, 52, "Golden Horde", 1.6, (200, 160, 40)), pin("m_eurasia", 72, 42, "Chagatai Khanate", 2.6, (60, 140, 90)),
                          pin("m_eurasia", 52, 33, "Ilkhanate", 3.6, (60, 100, 180)), pin("m_eurasia", 112, 36, "Yuan dynasty", 4.6, (200, 60, 50)),
                          caption("the four khanates (approximate centres)", 1.2)]))
@@ -365,7 +365,7 @@ def shots():
     # ---- 9. the end of the empire and its legacy
     L = ["M44"]
     out.append(scene("s10_1368", "card", [P("penny", 1720, G, 1.6, flip=True)], L,
-                     fx=[timeline([("1300s", "the khanates|weaken"), ("1368", "the Ming drive|the Yuan out of China")], 0.5, 2.4)], follow=False))
+                     fx=[timeline([("1300s", "the khanates|weaken"), ("1368", "the Ming drive|the Yuan out of China")], 0.5, 2.4, y=380)], follow=False))
     L = ["M45"]
     a_ = scene("s10_legacy", "plate:m_caravan", [P("quill", 1720, G, 1.6, flip=True)], L, follow=False,
                fx=[caption("people, ideas, goods...", 1.0)])

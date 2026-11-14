@@ -151,7 +151,7 @@ def main(module, folder):
             masks[p_] = m_
     offfloor = []
     for s_ in shots:
-        if not s_.bg.startswith("plate:"):
+        if not s_.bg.startswith("plate:") or floors.get(s_.bg[6:], {}).get("map"):
             continue
         p_ = s_.bg[6:]
         for frac in (0.1, 0.5, 0.9):
@@ -190,6 +190,7 @@ def main(module, folder):
         r_ = orig_tf(*a, **kw)
         last.append(r_)
         return r_
+    tf.cache_clear = getattr(orig_tf, "cache_clear", lambda: None)               # some storyboards reset the tile cache
     def paint(self, frame, t):
         last.clear()
         orig_paint(self, frame, t)

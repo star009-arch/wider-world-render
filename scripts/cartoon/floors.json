@@ -1,15 +1,315 @@
 {
-  "_about": "Where characters may NOT stand on each 3D background, in plate pixels (1920x1080, first frame). 'walls' = polygons of walls/embankments; water is detected automatically from colour. Every background an episode uses must be listed here (reviewed) or the quality gate fails.",
-  "giza_build":     {"walls": [[[640,1080],[1000,975],[1300,870],[1430,840],[1310,760],[1920,610],[1920,1080]]]},
-  "giza_later":     {"walls": []},
-  "fields":         {"walls": []},
-  "palace":         {"walls": []},
-  "saqqara2":       {"walls": []},
-  "house_interior": {"walls": []},
-  "quarry":         {"walls": []},
-  "harbour":        {"walls": []},
-  "steppe":         {"walls": []},
-  "tura":           {"walls": [[[0,0],[1920,0],[1920,580],[0,600]]]},
-  "memphis":        {"walls": [[[0,600],[500,600],[500,770],[380,830],[0,1050]], [[1410,600],[1920,600],[1920,1080],[1750,1080],[1410,775]]]},
-  "workers_street": {"walls": [[[0,600],[887,600],[220,1080],[0,1080]], [[1100,600],[1920,600],[1920,1080],[1640,1080]]]}
+ "_about": "Where characters may NOT stand on each 3D background, in plate pixels (1920x1080, first frame). 'walls' = polygons of walls/embankments; water is detected automatically from colour. Every background an episode uses must be listed here (reviewed) or the quality gate fails. 'map': true = a 3D map the hosts present from (standing on it is intended).",
+ "giza_build": {
+  "walls": [
+   [
+    [
+     640,
+     1080
+    ],
+    [
+     1000,
+     975
+    ],
+    [
+     1300,
+     870
+    ],
+    [
+     1430,
+     840
+    ],
+    [
+     1310,
+     760
+    ],
+    [
+     1920,
+     610
+    ],
+    [
+     1920,
+     1080
+    ]
+   ]
+  ]
+ },
+ "giza_later": {
+  "walls": []
+ },
+ "fields": {
+  "walls": []
+ },
+ "palace": {
+  "walls": []
+ },
+ "saqqara2": {
+  "walls": []
+ },
+ "house_interior": {
+  "walls": []
+ },
+ "quarry": {
+  "walls": []
+ },
+ "harbour": {
+  "walls": []
+ },
+ "steppe": {
+  "walls": []
+ },
+ "tura": {
+  "walls": [
+   [
+    [
+     0,
+     0
+    ],
+    [
+     1920,
+     0
+    ],
+    [
+     1920,
+     580
+    ],
+    [
+     0,
+     600
+    ]
+   ]
+  ]
+ },
+ "memphis": {
+  "walls": [
+   [
+    [
+     0,
+     600
+    ],
+    [
+     500,
+     600
+    ],
+    [
+     500,
+     770
+    ],
+    [
+     380,
+     830
+    ],
+    [
+     0,
+     1050
+    ]
+   ],
+   [
+    [
+     1410,
+     600
+    ],
+    [
+     1920,
+     600
+    ],
+    [
+     1920,
+     1080
+    ],
+    [
+     1750,
+     1080
+    ],
+    [
+     1410,
+     775
+    ]
+   ]
+  ]
+ },
+ "workers_street": {
+  "walls": [
+   [
+    [
+     0,
+     600
+    ],
+    [
+     887,
+     600
+    ],
+    [
+     220,
+     1080
+    ],
+    [
+     0,
+     1080
+    ]
+   ],
+   [
+    [
+     1100,
+     600
+    ],
+    [
+     1920,
+     600
+    ],
+    [
+     1920,
+     1080
+    ],
+    [
+     1640,
+     1080
+    ]
+   ]
+  ]
+ },
+ "e_spice_quay": {
+  "walls": []
+ },
+ "m_baghdad": {
+  "walls": []
+ },
+ "m_bukhara": {
+  "walls": []
+ },
+ "m_caravan": {
+  "walls": []
+ },
+ "m_dadu_hall": {
+  "walls": []
+ },
+ "m_hakata": {
+  "walls": []
+ },
+ "m_karakorum": {
+  "walls": []
+ },
+ "m_mohi": {
+  "walls": []
+ },
+ "m_steppe_dawn": {
+  "walls": []
+ },
+ "m_zhongdu": {
+  "walls": []
+ },
+ "e_ajmer_court": {
+  "walls": []
+ },
+ "e_allahabad": {
+  "walls": []
+ },
+ "e_calcutta": {
+  "walls": []
+ },
+ "e_deptford": {
+  "walls": []
+ },
+ "e_hooghly": {
+  "walls": []
+ },
+ "e_london": {
+  "walls": []
+ },
+ "e_murshidabad": {
+  "walls": []
+ },
+ "e_plassey": {
+  "walls": []
+ },
+ "e_surat": {
+  "walls": []
+ },
+ "e_whitehall": {
+  "walls": []
+ },
+ "plassey_rain": {
+  "walls": []
+ },
+ "ocean": {
+  "walls": []
+ },
+ "m_ger_inside": {
+  "walls": [
+   [
+    [
+     1400,
+     690
+    ],
+    [
+     1920,
+     690
+    ],
+    [
+     1920,
+     1000
+    ],
+    [
+     1820,
+     960
+    ],
+    [
+     1400,
+     850
+    ]
+   ],
+   [
+    [
+     0,
+     690
+    ],
+    [
+     520,
+     690
+    ],
+    [
+     520,
+     835
+    ],
+    [
+     235,
+     895
+    ],
+    [
+     235,
+     850
+    ],
+    [
+     0,
+     840
+    ]
+   ],
+   [
+    [
+     780,
+     620
+    ],
+    [
+     1280,
+     620
+    ],
+    [
+     1280,
+     820
+    ],
+    [
+     780,
+     835
+    ]
+   ]
+  ]
+ },
+ "india": {
+  "walls": [],
+  "map": true
+ },
+ "spice": {
+  "walls": [],
+  "map": true
+ }
 }
