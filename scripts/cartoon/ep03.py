@@ -23,6 +23,7 @@ import motions as M  # noqa: E402
 import scene as SC  # noqa: E402
 M.LIGHT_MATCH = False                                                            # Episode 1 is published: keep its look exactly
 SC.LIVE_CAM = False
+K.REACT = False
 from scene import Shot, ease  # noqa: E402
 
 M.set_world("egypt_ok")

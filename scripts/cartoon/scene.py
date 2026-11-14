@@ -219,14 +219,15 @@ def render_frame(shot: Shot, t: float) -> Image.Image:
     return frame.convert("RGB")
 
 
-LIVE_CAM = True             # a still shot gets a slow, gentle camera move (push in, pull out or drift), never a locked frame
+LIVE_CAM = True             # wide, still shots get a slow, gentle camera move (push in, pull out or drift)
+STILL: set = set()          # shot names that stay deliberately still (serious or emotional moments)
 
 
 def _live(shot, t, z, cx, cy):
     keys = shot.camkeys or [(0.0, shot.cam[0], shot.cam[2], shot.cam[3]), (shot.dur, shot.cam[1], shot.cam[2], shot.cam[3])]
     if any(abs(k[1] - keys[0][1]) > 1e-6 or abs(k[2] - keys[0][2]) > 1e-6 or abs(k[3] - keys[0][3]) > 1e-6 for k in keys):
         return z, cx, cy                                                    # the shot already moves: leave it alone
-    if shot.bg in ("endcard",) or shot.dur < 2.0:
+    if shot.bg in ("endcard",) or shot.dur < 2.0 or shot.name in STILL:
         return z, cx, cy
     e = ease(t / shot.dur)
     mode = sum(map(ord, shot.name)) % 4

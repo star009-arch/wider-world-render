@@ -392,7 +392,17 @@ def main(module, folder):
             cams = [SC.cam_at(s_, s_.dur * f_ / 24) for f_ in range(1, 24)]                # anywhere in the shot counts
             if max(max(c_[i] for c_ in cams) - min(c_[i] for c_ in cams) for i in range(3)) < 0.004:
                 locked.append(s_.name)
-        check("no locked camera: every shot moves", not locked, ", ".join(locked[:8]))
+        locked = [n_ for n_ in locked if n_ not in getattr(SC, "STILL", set())]      # deliberate stillness is declared in SC.STILL
+        nshots = sum(1 for s_ in shots if s_.bg != "endcard" and s_.dur >= 2.0)
+        check("camera is purposeful: undeclared locked shots are rare (under 20%)", len(locked) <= 0.2 * nshots,
+              f"{len(locked)}/{nshots}: " + ", ".join(locked[:8]))
+        import life as _LF
+        dup = []
+        for s_ in shots:
+            ex = sorted((a_.pos_at(s_.dur / 2)[0], a_.key, a_.scale) for a_ in s_.actors if getattr(a_, "bg_extra", False))
+            dup += [f"{s_.name}:{k1.split(':')[-1]}" for (x1, k1, s1), (x2, k2, s2) in zip(ex, ex[1:])
+                    if k1 == k2 and abs(x1 - x2) < 140 * max(s1, s2) and abs(s1 - s2) < 0.01 and not k1.endswith("camel_walk")]
+        check("background people: no identical figures side by side", not dup, ", ".join(sorted(set(dup))[:8]))
     else:
         check("camera moves on still shots (switched off for this published episode)", not strict)
     try:

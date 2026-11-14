@@ -17,6 +17,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import ep01 as K  # noqa: E402
+K.PUNCH = {"E04", "E09", "E11", "E24", "E25", "E37", "E38", "C04", "C08"}        # punchlines and reactions (close-up + listeners react)
 import fxlib as FX  # noqa: E402
 import motions as M  # noqa: E402
 import life as LIFE  # noqa: E402

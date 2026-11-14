@@ -33,6 +33,10 @@ LINES = {ln["id"]: ln for ln in json.loads((EP / "lines.json").read_text(encodin
 DUR = json.loads((VOICE / "durations.json").read_text()) if (VOICE / "durations.json").exists() else {}
 CUES: list = []
 GAP, LEAD, TAIL = 0.35, 0.45, 0.6
+REACT = True             # hosts look at the speaker and react to punchlines
+LOOK_SIGN = 1.0
+PUNCH: set = set()       # line ids that are punchlines / reactions: tighter close-up, listeners raise their brows after
+PUNCH_ZOOM = 1.55
 GESTURE = {"penny": ["present", "point", "present", "shrug"], "atlas": ["point", "present", "wave"], "quill": ["hold_up", "think", "present"],
            "zed": ["present", "think", "present"], "pike": ["shrug", "flinch", "shrug"]}
 PROPS = {"penny": {"prop_r": "cane"}, "pike": {"prop_l": "rifle"}, "quill": {}, "zed": {}, "atlas": {}}
@@ -311,9 +315,32 @@ def scene(name, bg, cast, lines, *, fx=(), under=(), cam_wide=(1.0, 0.5, 0.5), c
                 x, _ = p.pos_at(ts + 0.5)
                 cx = min(max(x / 1920, 0.5 / closeup), 1 - 0.5 / closeup)
                 cy = min(max((p.ground - 230 * p.scale / 1.7) / 1080, 0.5 / closeup), 1 - 0.5 / closeup)
-                keys += [(max(0.0, ts - 0.35), *keys[-1][1:]), (ts + 0.15, closeup, cx, cy)]
+                zc = PUNCH_ZOOM if lid in PUNCH else closeup                    # punchlines and reactions get a tighter close-up
+                if lid in PUNCH:
+                    cx = min(max(x / 1920, 0.5 / zc), 1 - 0.5 / zc)
+                    cy = min(max((p.ground - 250 * p.scale / 1.7) / 1080, 0.5 / zc), 1 - 0.5 / zc)
+                keys += [(max(0.0, ts - 0.35), *keys[-1][1:]), (ts + 0.15, zc, cx, cy)]
         else:
             keys += [(max(0.0, ts - 0.35), *keys[-1][1:]), (ts + 0.15) and (ts + 0.15, *cam_wide)]
+    if REACT:                                                                    # hosts listen: eyes go to whoever speaks,
+        hosts_ = [p for p in cast if getattr(p, "key", "") in GESTURE]            # and they react after a punchline
+        for lid, ts in zip(lines, starts):
+            sp = by_key.get(LINES[lid]["who"])
+            if sp is None:
+                continue
+            sx = sp.pos_at(ts + 0.3)[0]
+            for p in hosts_:
+                if p is sp:
+                    p.faces = list(p.faces) + [(ts, {"look": 0.0})]
+                    continue
+                d_ = 1.0 if sx > p.pos_at(ts + 0.3)[0] else -1.0
+                p.faces = list(p.faces) + [(ts + 0.12, {"look": 0.75 * d_ * LOOK_SIGN})]
+                if lid in PUNCH and not any("brows" in fd for _t, fd in p.faces):
+                    te = ts + dur(lid)
+                    p.faces = list(p.faces) + [(te - 0.15, {"brows": 0.9}), (te + 1.0, {"brows": 0.0})]
+        if hosts_:
+            for p in hosts_:
+                p.faces = list(p.faces) + [(total - 0.4, {"look": 0.0})]
     keys.append((total, *keys[-1][1:]))
     clean = []
     for k in keys:
