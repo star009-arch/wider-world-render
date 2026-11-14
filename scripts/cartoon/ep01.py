@@ -616,7 +616,8 @@ def mix(shots_dir: Path, out: Path, music: Path):
            f"[duck][dia]amix=inputs=2:normalize=0:duration=first,{{LN}},alimiter=limit=0.89,aresample=48000,afade=t=in:d=0.15,"
            f"atrim=0:{total:.2f}[a]"]
     two_pass_loudnorm(ff, ["-i", str(video), "-i", str(bus), "-i", str(bus), "-stream_loop", "-1", "-i", str(music)], ";".join(flt),
-                      ["-map", "0:v", "-map", "[a]", "-c:v", "copy", "-c:a", "aac", "-b:a", "192k", "-movflags", "+faststart", "-t", f"{total:.2f}", str(out)])
+                      ["-map", "0:v", "-map", "[a]", "-c:v", "copy", "-c:a", "aac", "-b:a", "192k", "-movflags", "+faststart",
+                       "-metadata", f"comment=te-storyboard:{__import__('buildstamp').digest()}", "-t", f"{total:.2f}", str(out)])
     print("wrote", out, round(total, 1), "s")
 
 
