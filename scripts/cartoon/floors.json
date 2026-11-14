@@ -1,0 +1,15 @@
+{
+  "_about": "Where characters may NOT stand on each 3D background, in plate pixels (1920x1080, first frame). 'walls' = polygons of walls/embankments; water is detected automatically from colour. Every background an episode uses must be listed here (reviewed) or the quality gate fails.",
+  "giza_build":     {"walls": [[[640,1080],[1000,975],[1300,870],[1430,840],[1310,760],[1920,610],[1920,1080]]]},
+  "giza_later":     {"walls": []},
+  "fields":         {"walls": []},
+  "palace":         {"walls": []},
+  "saqqara2":       {"walls": []},
+  "house_interior": {"walls": []},
+  "quarry":         {"walls": []},
+  "harbour":        {"walls": []},
+  "steppe":         {"walls": []},
+  "tura":           {"walls": [[[0,0],[1920,0],[1920,580],[0,600]]]},
+  "memphis":        {"walls": [[[0,600],[500,600],[500,770],[380,830],[0,1050]], [[1410,600],[1920,600],[1920,1080],[1750,1080],[1410,775]]]},
+  "workers_street": {"walls": [[[0,600],[887,600],[220,1080],[0,1080]], [[1100,600],[1920,600],[1920,1080],[1640,1080]]]}
+}

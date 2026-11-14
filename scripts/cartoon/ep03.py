@@ -557,8 +557,8 @@ def shots():
                          label("ANCIENT EGYPT · NO MODERN BORDERS", 520, 100, 0.4, 50, GOLD)], follow=False))
     L = ["G07"]
     out.append(scene("s02_flood", "plate:fields",
-                     [P("atlas", 1600, G, 1.7, flip=True), *crew(["worker", "woman", "worker2"], 180, 980, 220, 1.1, acts=[(2.0, "nod", None)])],
-                     L, fx=[caption("the yearly flood: black soil, big harvests", 1.2)]))
+                     [P("atlas", 1600, G, 1.7, flip=True), *crew(["worker", "woman", "worker2"], 110, 980, 120, 1.1, acts=[(2.0, "nod", None)])],
+                     L, follow=False, fx=[caption("the yearly flood: black soil, big harvests", 1.2)]))
     L = ["G08"]
     out.append(scene("s02_pharaoh", "plate:palace",
                      [E("khufu", 760, 1000, 1.7, faces=[(0, {"mouth": "smirk"})], acts=[(1.0, "present", None)]),
@@ -567,7 +567,7 @@ def shots():
     L = ["G09"]
     out.append(scene("s02_oldkingdom", "card", [P("quill", 1700, G, 1.6, flip=True)], L,
                      fx=[timeline([("c. 2650 BC", "Djoser's|step pyramid"), ("c. 2600 BC", "Sneferu's|pyramids"),
-                                   ("c. 2600–2550", "Khufu's|Great Pyramid")], 0.5, 1.8),
+                                   ("c. 2600–2550", "Khufu's|Great Pyramid")], 0.5, 1.8, y=420),
                          label("THE OLD KINGDOM", 760, 140, 0.3, 70, GOLD)], follow=False))
     L = ["G10"]
     out.append(scene("s03_why", "plate:saqqara2", [P("penny", 1600, G, 1.7, flip=True)], L, follow=False,
@@ -621,7 +621,7 @@ def shots():
                          label("THE EVIDENCE SAYS OTHERWISE", 760, 560, 3.2, 60, GOLD)], follow=False))
     L = ["G26", "G27"]
     out.append(scene("s06_town", "plate:memphis",
-                     [*crew(["baker", "worker", "woman", "worker2"], 300, 990, 180, 1.1), P("atlas", 1080, G, 1.7, flip=True),
+                     [*crew(["baker", "worker", "woman", "worker2"], 410, 990, 165, 1.1), P("atlas", 1080, G, 1.7, flip=True),
                       P("quill", 1300, G, 1.6, flip=True)],
                      L, follow=False, fx=[label("THE WORKERS' TOWN · GIZA", 760, 100, 0.4, 60, GOLD)]))
     L = ["G28"]
@@ -631,16 +631,16 @@ def shots():
                      L, follow=False, fx=[icons_bbm(1.2), caption("rotated in and out of the site", 5.0)]))
     L = ["G29", "G30"]
     out.append(scene("s06_names", "plate:memphis",
-                     [*crew(["worker", "worker2", "worker"], 300, 1000, 170, 1.2, acts=[(at(L, 1), "cheer", None)]),
+                     [*crew(["worker", "worker2", "worker"], 420, 1000, 170, 1.2, acts=[(at(L, 1), "cheer", None)]),
                       P("zed", 1040, G, 1.6, flip=True), P("pike", 1290, G, 1.8, flip=True, faces=[(0, {"mouth": "grin"})], acts=[(at(L, 1) + 0.4, "shrug", None)])],
                      L, follow=False, fx=[label("\"FRIENDS OF KHUFU\"", 600, 330, 2.0, 72, (230, 90, 70))]))
     L = ["Y01", "Y02"]
     out.append(scene("s06b_morning", "plate:memphis",
-                     [*crew(["worker", "worker2", "baker"], 250, 990, 180, 1.15, walk=(1.0, 150), speed=0.8), P("penny", 1040, G, 1.6, flip=True),
+                     [*crew(["worker", "worker2", "baker"], 400, 990, 165, 1.15, walk=(1.0, 120), speed=0.8), P("penny", 1040, G, 1.6, flip=True),
                       P("atlas", 1280, G, 1.7, flip=True)],
                      L, follow=False, fx=[label("A DAY AT GIZA", 760, 100, 0.4, 66, GOLD)]))
     L = ["Y03"]
-    out.append(scene("s06b_bakery", "plate:house_interior", [E("baker", 600, 1000, 1.5, acts=[(1.0, "present", None)]), P("zed", 1700, G, 1.6, flip=True)],
+    out.append(scene("s06b_bakery", "plate:house_interior", [E("baker", 1400, 1000, 1.5, acts=[(1.0, "present", None)]), P("zed", 1700, G, 1.6, flip=True)],
                      L, fx=[bread_pots(1.0)], follow=False))
     L = ["Y04"]
     out.append(scene("s06b_names", "card", [P("quill", 1720, G, 1.6, flip=True)], L, fx=[crew_marks(0.6)], follow=False))
@@ -655,10 +655,10 @@ def shots():
                      L, fx=[caption("the workers' cemetery, south of the pyramids", 0.6, at(L, 1))]))
     L = ["G31"]
     out.append(scene("s07_quarry", "plate:quarry",
-                     [*crew(["worker", "worker2", "worker"], 200, 1000, 200, 1.1), P("penny", 1700, G, 1.6, flip=True)],
+                     [*crew(["worker", "worker2", "worker"], 120, 1000, 125, 1.1), P("penny", 1700, G, 1.6, flip=True)],
                      L, fx=[label("LOCAL LIMESTONE · QUARRIED AT GIZA", 760, 100, 0.4, 54, GOLD)], follow=False))
     L = ["G32"]
-    out.append(scene("s07_tura", "plate:tura", [*crew(["worker2", "worker"], 300, 870, 220, 1.1), P("atlas", 1500, 850, 1.7, flip=True)], L,
+    out.append(scene("s07_tura", "plate:tura", [*crew(["worker2", "worker"], 300, 870, 220, 1.1), P("atlas", 1500, 700, 1.7, flip=True)], L,
                      fx=[label("TURA · FINE WHITE LIMESTONE", 760, 100, 0.2, 60, GOLD),
                          caption("granite beams from Aswan, ~850 km upriver", at(L, 0) + 4.5)], follow=False))
     L = ["G33"]
@@ -671,7 +671,7 @@ def shots():
                       P("penny", 1700, G, 1.6, flip=True)],
                      L, fx=[label("THE DIARY OF MERER", 760, 100, 0.4, 62, GOLD), caption("Tura to Giza, by boat, on canals and the flood", 4.0)]))
     L = ["G35"]
-    out.append(scene("s07_diary", "plate:tura", [P("zed", 1300, 850, 1.8, flip=True, faces=[(0, {"mouth": "grin"})], acts=[(0.3, "hold_up", None)])], L,
+    out.append(scene("s07_diary", "plate:tura", [P("zed", 1300, 700, 1.8, flip=True, faces=[(0, {"mouth": "grin"})], acts=[(0.3, "hold_up", None)])], L,
                      follow=False, cam=[(0.0, 1.2, 0.7, 0.55), (5.0, 1.05, 0.6, 0.5)], fx=[caption("c. 2560 BC: a delivery log", 0.5)]))
     L = ["G36"]
     out.append(scene("s08_problem", "plate:giza_build", [P("penny", 1100, G, 1.6, flip=True)], L, follow=False))

@@ -135,6 +135,87 @@ def main(module, folder):
                 if 0 < xs < 1920 and ys > 885 and s_.bg != "endcard":
                     feet.append(f"{s_.name}:{a_.key}@{round(ys)}")
     check("no character's feet or face in the subtitle zone", not feet, ", ".join(sorted(set(feet))[:8]))
+    # characters stand on the floor: not on walls (floors.json) and not in water (colour under the feet)
+    import json as _json
+    floors = _json.loads((Path(__file__).parent / "floors.json").read_text(encoding="utf-8"))
+    from PIL import ImageDraw as _ID
+    used = sorted({s_.bg[6:] for s_ in shots if s_.bg.startswith("plate:")})
+    unreviewed = [p_ for p_ in used if p_ not in floors]
+    check("every background's floor reviewed (floors.json)", not unreviewed, ", ".join(unreviewed))
+    masks = {}
+    for p_ in used:
+        if p_ in floors:
+            m_ = Image.new("L", (1920, 1080), 0)
+            for poly in floors[p_]["walls"]:
+                _ID.Draw(m_).polygon([tuple(v) for v in poly], fill=255)
+            masks[p_] = m_
+    offfloor = []
+    for s_ in shots:
+        if not s_.bg.startswith("plate:"):
+            continue
+        p_ = s_.bg[6:]
+        for frac in (0.1, 0.5, 0.9):
+            t = s_.dur * frac
+            bgf = SC.plate_frame(p_, t, s_.dur).convert("RGB")
+            for a_ in s_.actors:
+                if not hasattr(a_, "pos_at") or (getattr(a_, "hide", None) and a_.hide[0] <= t < a_.hide[1]):
+                    continue
+                x, y = a_.pos_at(t)
+                y2, _ = MM.stage(y)
+                if not (0 <= x < 1920 and 0 <= y2 < 1080):
+                    continue
+                wet = 0
+                pts = [(int(x + dx), int(y2 + dy)) for dx in (-20, -10, 0, 10, 20) for dy in (-4, 4)]
+                pts = [q for q in pts if 0 <= q[0] < 1920 and 0 <= q[1] < 1080]
+                for q in pts:
+                    r_, g_, b_ = bgf.getpixel(q)
+                    wet += (b_ > r_ + 30 and g_ > r_ + 25)
+                on_wall = p_ in masks and masks[p_].getpixel((int(x), int(min(1079, y2)))) > 0
+                if on_wall or (pts and wet > len(pts) * 0.5):
+                    offfloor.append(f"{s_.name}:{a_.key}@{int(x)},{int(y2)}{' wall' if on_wall else ' water'}")
+    check("characters' feet on the floor (not on walls or water)", not offfloor, ", ".join(sorted(set(offfloor))[:10]))
+
+    # on-screen text never covers a character
+    tboxes, cboxes = [], []
+    orig_t, orig_tf, orig_paint = ImageDraw.ImageDraw.text, MM.tile_for, MM.Performer.paint
+    def spy2(self, xy, text, fill=None, font=None, anchor=None, *a, **kw):
+        try:
+            if getattr(self, "_image", None) is not None and self._image.size == (1920, 1080):
+                tboxes.append((text, self.textbbox(xy, text, font=font, anchor=anchor)))
+        except Exception:
+            pass
+        return orig_t(self, xy, text, fill, font, anchor, *a, **kw)
+    last = []
+    def tf(*a, **kw):
+        r_ = orig_tf(*a, **kw)
+        last.append(r_)
+        return r_
+    def paint(self, frame, t):
+        last.clear()
+        orig_paint(self, frame, t)
+        if last:
+            tile, ax, ay = last[-1]
+            x, y = self.pos_at(t)
+            y, _ = MM.stage(y)
+            bb = tile.getbbox()
+            if bb:
+                cboxes.append((self.key, (x - ax + bb[0], y - ay + bb[1], x - ax + bb[2], y - ay + bb[3])))
+    ImageDraw.ImageDraw.text, MM.tile_for, MM.Performer.paint = spy2, tf, paint
+    covered = []
+    try:
+        for s_ in shots:
+            for frac in (0.2, 0.5, 0.8):
+                tboxes.clear(); cboxes.clear()
+                SC.render_frame(s_, s_.dur * frac)
+                for txt, (a0, b0, a1, b1) in tboxes:
+                    area = max(1, (a1 - a0) * (b1 - b0))
+                    for key, (c0, d0, c1, d1) in cboxes:
+                        ov = max(0, min(a1, c1) - max(a0, c0)) * max(0, min(b1, d1) - max(b0, d0))
+                        if ov > 0.2 * area:
+                            covered.append(f"{s_.name}:{txt[:24]!r} over {key}")
+    finally:
+        ImageDraw.ImageDraw.text, MM.tile_for, MM.Performer.paint = orig_t, orig_tf, orig_paint
+    check("on-screen text never covers a character", not covered, ", ".join(sorted(set(covered))[:10]))
     long_ = [f"{s.name} {s.dur:.0f}s" for s in shots if s.dur > 17 and s.bg != "endcard"]
     check("no single shot longer than 17 s", not long_, ", ".join(long_))
 
