@@ -620,35 +620,35 @@ def shots():
                      fx=[label("THE MYTH: SLAVES UNDER WHIPS", 760, 380, 0.5, 60, (230, 120, 100)),
                          label("THE EVIDENCE SAYS OTHERWISE", 760, 560, 3.2, 60, GOLD)], follow=False))
     L = ["G26", "G27"]
-    out.append(scene("s06_town", "plate:workers_street",
-                     [*crew(["baker", "worker", "woman", "worker2"], 160, 990, 200, 1.1), P("atlas", 1350, G, 1.7, flip=True),
-                      P("quill", 1700, G, 1.6, flip=True)],
-                     L, fx=[label("THE WORKERS' TOWN · GIZA", 760, 100, 0.4, 60, GOLD)]))
+    out.append(scene("s06_town", "plate:memphis",
+                     [*crew(["baker", "worker", "woman", "worker2"], 300, 990, 180, 1.1), P("atlas", 1080, G, 1.7, flip=True),
+                      P("quill", 1300, G, 1.6, flip=True)],
+                     L, follow=False, fx=[label("THE WORKERS' TOWN · GIZA", 760, 100, 0.4, 60, GOLD)]))
     L = ["G28"]
     out.append(scene("s06_crews", "plate:giza_build",
                      [*crew(["worker", "worker2", "worker", "worker2", "worker"], 120, 1030, 150, 1.15, walk=(0.5, 200), speed=0.4),
                       P("penny", 1700, G, 1.6, flip=True)],
                      L, follow=False, fx=[icons_bbm(1.2), caption("rotated in and out of the site", 5.0)]))
     L = ["G29", "G30"]
-    out.append(scene("s06_names", "plate:workers_street",
-                     [*crew(["worker", "worker2", "worker"], 200, 1000, 170, 1.2, acts=[(at(L, 1), "cheer", None)]),
-                      P("zed", 1400, G, 1.6, flip=True), P("pike", 1720, G, 1.8, flip=True, faces=[(0, {"mouth": "grin"})], acts=[(at(L, 1) + 0.4, "shrug", None)])],
-                     L, fx=[label("\"FRIENDS OF KHUFU\"", 600, 330, 2.0, 72, (230, 90, 70))]))
+    out.append(scene("s06_names", "plate:memphis",
+                     [*crew(["worker", "worker2", "worker"], 300, 1000, 170, 1.2, acts=[(at(L, 1), "cheer", None)]),
+                      P("zed", 1040, G, 1.6, flip=True), P("pike", 1290, G, 1.8, flip=True, faces=[(0, {"mouth": "grin"})], acts=[(at(L, 1) + 0.4, "shrug", None)])],
+                     L, follow=False, fx=[label("\"FRIENDS OF KHUFU\"", 600, 330, 2.0, 72, (230, 90, 70))]))
     L = ["Y01", "Y02"]
-    out.append(scene("s06b_morning", "plate:workers_street",
-                     [*crew(["worker", "worker2", "baker"], 200, 990, 230, 1.15, walk=(1.0, 300), speed=0.8), P("penny", 1300, G, 1.6, flip=True),
-                      P("atlas", 1650, G, 1.7, flip=True)],
-                     L, fx=[label("A DAY AT GIZA", 760, 100, 0.4, 66, GOLD)]))
+    out.append(scene("s06b_morning", "plate:memphis",
+                     [*crew(["worker", "worker2", "baker"], 250, 990, 180, 1.15, walk=(1.0, 150), speed=0.8), P("penny", 1040, G, 1.6, flip=True),
+                      P("atlas", 1280, G, 1.7, flip=True)],
+                     L, follow=False, fx=[label("A DAY AT GIZA", 760, 100, 0.4, 66, GOLD)]))
     L = ["Y03"]
     out.append(scene("s06b_bakery", "plate:house_interior", [E("baker", 600, 1000, 1.5, acts=[(1.0, "present", None)]), P("zed", 1700, G, 1.6, flip=True)],
                      L, fx=[bread_pots(1.0)], follow=False))
     L = ["Y04"]
     out.append(scene("s06b_names", "card", [P("quill", 1720, G, 1.6, flip=True)], L, fx=[crew_marks(0.6)], follow=False))
     L = ["Y05", "Y06"]
-    out.append(scene("s06b_care", "plate:workers_street",
-                     [E("worker", 600, 1000, 1.4, faces=[(0, {"mouth": "smile"})]), E("scribe", 820, 1000, 1.4),
-                      P("pike", 1400, G, 1.8, flip=True, faces=[(0, {"brows": 1.0, "mouth": "worried"})]), P("penny", 1720, G, 1.6, flip=True)],
-                     L, fx=[caption("healed fractures: someone set the bones", at(L, 1) + 3.0)]))
+    out.append(scene("s06b_care", "plate:memphis",
+                     [E("worker", 450, 1000, 1.4, faces=[(0, {"mouth": "smile"})]), E("scribe", 680, 1000, 1.4),
+                      P("pike", 1040, G, 1.8, flip=True, faces=[(0, {"brows": 1.0, "mouth": "worried"})]), P("penny", 1290, G, 1.6, flip=True)],
+                     L, follow=False, fx=[caption("healed fractures: someone set the bones", at(L, 1) + 3.0)]))
     L = ["Y07", "Y08"]
     out.append(scene("s06b_cemetery", "plate:giza_later",
                      [P("atlas", 1300, G, 1.7, flip=True), P("pike", 1650, G, 1.8, flip=True, acts=[(at(L, 1) + 1.0, "celebrate", 0.4)])],
