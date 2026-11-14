@@ -8,6 +8,9 @@ on:
         description: release with the encrypted voice kit
       film_tag:
         description: release with film.enc; the Facebook cuts are uploaded back to it
+      label:
+        description: asset name prefix (fb for the 2-minute cut, a clip key for short clips)
+        default: fb
       fmts:
         description: JSON list of formats
         default: '["4x5", "9x16", "16x9"]'
@@ -45,5 +48,5 @@ jobs:
           openssl enc -d -aes-256-cbc -pbkdf2 -iter 200000 -in work/film.enc -out work/film.mp4 -pass env:KIT_KEY && rm work/film.enc
           python scripts/cartoon/fb_cut.py ${{ inputs.module }} work/film.mp4 fb work/voice/music.mp3 ${{ matrix.fmt }}
           f=$(ls fb/*.mp4 | head -1)
-          openssl enc -aes-256-cbc -pbkdf2 -iter 200000 -salt -in "$f" -out fb_${{ matrix.fmt }}.enc -pass env:KIT_KEY
-          gh release upload "${{ inputs.film_tag }}" fb_${{ matrix.fmt }}.enc --clobber -R "$GITHUB_REPOSITORY"
+          openssl enc -aes-256-cbc -pbkdf2 -iter 200000 -salt -in "$f" -out ${{ inputs.label }}_${{ matrix.fmt }}.enc -pass env:KIT_KEY
+          gh release upload "${{ inputs.film_tag }}" ${{ inputs.label }}_${{ matrix.fmt }}.enc --clobber -R "$GITHUB_REPOSITORY"

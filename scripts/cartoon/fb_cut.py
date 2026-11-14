@@ -47,6 +47,23 @@ CUTS = {
                      "G25": "Who really built it", "G34": "A 4,500-year-old diary", "G37": "Moving the stones", "G45": "The last wonder"},
     },
 }
+def _clip(module, ep, n, name, title, lines):
+    return {"module": module, "ep": ep, "clip": f"Short clip {n} - {name}", "title": title, "lines": lines, "chapters": {}}
+
+
+CUTS.update({
+    "ep03_c1": _clip("ep03", "Episode 01", 1, "No cranes", ["HOW DID THEY BUILD", "THE GREAT PYRAMID?"], ["G01", "G02", "G03", "G04", "G05"]),
+    "ep03_c2": _clip("ep03", "Episode 01", 2, "Not slaves", ["WHO REALLY BUILT", "THE PYRAMIDS?"], ["G25", "G26", "G27", "G28", "G29", "G30"]),
+    "ep03_c3": _clip("ep03", "Episode 01", 3, "The wet sand trick", ["THE WET SAND", "TRICK"], ["G36", "G37", "G38", "G39", "G41", "G42"]),
+    "ep02_c1": _clip("ep02", "Episode 02", 1, "Only horses", ["ONLY HORSES...", "VS EMPIRES"], ["M01", "M02", "M03", "M04", "M05"]),
+    "ep02_c2": _clip("ep02", "Episode 02", 2, "The fake retreat", ["THE MONGOLS'", "FAKE RETREAT"], ["M14", "M15", "M16", "M17"]),
+    "ep02_c3": _clip("ep02", "Episode 02", 3, "The caravan that started a war", ["THE CARAVAN THAT", "STARTED A WAR"], ["M23", "M24", "M25", "M26", "M27"]),
+    "eic_c1": _clip("eic", "Episode 03", 1, "From spices to rulers", ["FROM SPICES", "TO RULERS"], ["E01", "E02", "E03", "E04", "E05"]),
+    "eic_c2": _clip("eic", "Episode 03", 2, "The cloth craze", ["THE CLOTH CRAZE", "THAT BUILT AN EMPIRE"], ["C01", "C02", "C03", "C04", "C05"]),
+    "eic_c3": _clip("eic", "Episode 03", 3, "Plassey in the rain", ["PLASSEY,", "23 JUNE 1757"], ["E39", "E40", "E41", "E42", "E43", "E44"]),
+})
+
+
 SPOKEN = [("Twenty-third of June, seventeen fifty-seven", "23 June 1757"), ("eleven sixty-two", "1162"), ("twelve-oh-six", "1206"),
           ("twelve-eighteen", "1218"), ("twelve forty-one", "1241"), ("twelve fifty-eight", "1258"), ("twelve seventy-four", "1274"),
           ("twelve eighty-one", "1281"), ("twelve seventy-one", "1271"), ("twelve seventy-nine", "1279"), ("sixteen hundred", "1600"),
@@ -67,7 +84,7 @@ def digits(text):
 
 
 def plan(module):
-    E = importlib.import_module(module)
+    E = importlib.import_module(CUTS[module].get("module", module))
     K = E.K
     ss = K.shots()
     start, acc = {}, 0.0
@@ -333,10 +350,10 @@ def main():
     cut = picture(film, segs, work, ff)
     audio = sound(K, segs, total, music, work, ff)
     outdir.mkdir(parents=True, exist_ok=True)
-    tag = cfg["ep"]
+    tag = cfg["ep"] + (f" - {cfg['clip']}" if "clip" in cfg else "")
     only = sys.argv[5] if len(sys.argv) > 5 else "both"
     if only in ("both", "4x5"):
-        layout(cut, audio, segs, total, outdir / f"{tag} - Facebook (2 min, 4x5 feed).mp4", 1080, 1350, cfg, ff)
+        layout(cut, audio, segs, total, outdir / (f"{tag} - Facebook (2 min, 4x5 feed).mp4" if "clip" not in cfg else f"{tag}.mp4"), 1080, 1350, cfg, ff)
     if only in ("both", "9x16"):
         layout(cut, audio, segs, total, outdir / f"{tag} - Facebook (2 min, 9x16 reel).mp4", 1080, 1920, cfg, ff)
     if only in ("both", "16x9"):
