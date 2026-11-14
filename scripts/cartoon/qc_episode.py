@@ -340,6 +340,47 @@ def main(module, folder):
     wd = [str(p.relative_to(folder)) for p in folder.rglob("*.txt") if WEEKDAYS.search(p.read_text(encoding="utf-8"))]
     check("no weekday names in upload/post texts", not wd, ", ".join(wd))
 
+    # 8. added 14 Nov 2026 (owner): clean folders, every language, no clicks, sound credit, posting texts complete
+    allowed = {"YouTube", "Facebook", "Short clips"}
+    extra = [p.name for p in folder.iterdir() if p.name not in allowed]
+    extra += [str(p.relative_to(folder)) for p in (folder / "YouTube").iterdir() if p.is_dir() and p.name != "Subtitles - other languages"]
+    extra += [str(p.relative_to(folder)) for sub in ("Facebook", "Short clips") for p in (folder / sub).iterdir() if p.is_dir()]
+    check("episode folder clean (only YouTube / Facebook / Short clips)", not extra, ", ".join(extra))
+    fb_files = sorted((folder / "Facebook").glob("*.mp4"))
+    check("exactly one Facebook video", len(fb_files) == 1, ", ".join(p.name for p in fb_files))
+    import check_translations as CT
+    en = folder / "YouTube" / f"{ep} - Subtitles (English).srt"
+    for lang in ["Hindi", "Spanish", "Portuguese", "Arabic", "Indonesian"]:
+        tr = folder / "YouTube" / "Subtitles - other languages" / f"{ep} - Subtitles ({lang}).srt"
+        errs = CT.check(en, tr) if (tr.exists() and en.exists()) else ["missing"]
+        check(f"subtitles ({lang}): same cues and timings as English", not errs, "; ".join(errs[:3]))
+    import numpy as np
+
+    def peak(path):
+        r = subprocess.run([ff(), "-nostdin", "-loglevel", "error", "-i", str(path), "-ac", "2", "-ar", "48000", "-f", "f32le", "-"],
+                           capture_output=True)
+        a = np.frombuffer(r.stdout, dtype=np.float32)
+        return float(np.abs(a).max()) if a.size else 0.0
+    for path in [folder / "YouTube" / f"{ep} - Full Film.mp4", *fb_files, *clips]:
+        if path.exists():
+            pk = peak(path)
+            check(f"no clicks or distortion (peak <= full scale): {path.name[:40]}", pk <= 1.0, f"{pk:.2f}")
+    if up.exists():
+        s = up.read_text(encoding="utf-8")
+        desc = s.split("DESCRIPTION\n", 1)[1].split("\nTAGS", 1)[0]
+        check("sound-effects credit in the description (CC BY)", "Sound effects:" in desc and "CC BY 4.0" in desc)
+        check("upload text has pinned comment, playlist and other-language steps",
+              all(k in s for k in ("PINNED COMMENT", "PLAYLIST", "SUBTITLES IN OTHER LANGUAGES")))
+    ct = folder / "Short clips" / f"{ep} - Short clips post text.txt"
+    if ct.exists():
+        st = ct.read_text(encoding="utf-8")
+        titles = re.findall(r"^Shorts title: (.+)$", st, re.M)
+        check("3 Shorts titles, each under 100 characters", len(titles) == 3 and all(len(t) < 100 for t in titles), f"{len(titles)} titles")
+        check("clips text explains YouTube 'Related video' step", "Related video" in st)
+    promo = [str(p.relative_to(folder)) for p in folder.rglob("*.txt")
+             if re.search(r"every (week|day|saturday|sunday)", p.read_text(encoding="utf-8"), re.I)]
+    check("no schedule promises ('every Saturday' etc.) in texts", not promo, ", ".join(promo))
+
     fails = [r for r in results if not r[0]]
     print(f"\n{len(results) - len(fails)}/{len(results)} checks passed" + ("" if not fails else f"  ({len(fails)} FAILED)"))
     sys.exit(1 if fails else 0)
