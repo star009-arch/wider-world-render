@@ -125,6 +125,7 @@ class Shot:
     shake: list = field(default_factory=list)        # [(t, amplitude px)] decaying camera shakes
     under: list = field(default_factory=list)        # fx drawn on the set before the actors (shadows, props on the ground)
     world: str | None = None                         # period world for host costumes (hosts3.COSTUMES); None keeps the current one
+    offset: float = 0.0                              # this shot starts `offset` seconds into its own timeline (an opener was cut off the front)
 
 
 _BG: dict = {}
@@ -172,13 +173,15 @@ def plate_frame(name, t, dur):
 
 
 def render_frame(shot: Shot, t: float) -> Image.Image:
+    t_local = t
+    t = t + shot.offset                                             # everything inside the shot runs on its own timeline
     if shot.world:
         import hosts3 as _H3
         if _H3.WORLD != shot.world:
             import motions as _M
             _M.set_world(shot.world)
     if shot.bg.startswith("plate:"):
-        frame = plate_frame(shot.bg[6:], t, shot.dur)
+        frame = plate_frame(shot.bg[6:], t, shot.dur + shot.offset)
     else:
         frame = background(shot.bg).convert("RGBA").copy()
     if shot.bg == "rain":
@@ -197,7 +200,7 @@ def render_frame(shot: Shot, t: float) -> Image.Image:
             continue
         x, y = a.pos_at(t)
         paste_actor(frame, a.who, a.pose_at(t), x, y, a.scale)
-    z, cx, cy = cam_at(shot, t)
+    z, cx, cy = cam_at(shot, t_local)
     sx = sy = 0.0
     for t0, amp in shot.shake:
         if t0 <= t < t0 + 0.6:
@@ -229,7 +232,7 @@ def _live(shot, t, z, cx, cy):
         return z, cx, cy                                                    # the shot already moves: leave it alone
     if shot.bg in ("endcard",) or shot.dur < 2.0 or shot.name in STILL:
         return z, cx, cy
-    e = ease(t / shot.dur)
+    e = ease(t / (shot.dur + shot.offset))
     mode = sum(map(ord, shot.name)) % 4
     if mode in (0, 1):                                                      # push in
         return z + 0.07 * e, cx, cy
@@ -239,6 +242,7 @@ def _live(shot, t, z, cx, cy):
 
 
 def cam_at(shot: Shot, t: float):
+    t = t + shot.offset
     z, cx, cy = _cam_raw(shot, t)
     if LIVE_CAM:
         z, cx, cy = _live(shot, t, z, cx, cy)

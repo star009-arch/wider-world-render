@@ -16,6 +16,9 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import ep01 as K  # noqa: E402
 K.PUNCH = {"M04", "M09", "M16", "M17", "M26", "M32", "X06", "X07", "M38"}        # punchlines and reactions (close-up + listeners react)
+AIR_OPEN = {"s02_steppe": ("m_steppe_dawn_air", "THE MONGOLIAN STEPPE · 1100s"), "s04_jin": ("m_zhongdu_air", "THE JIN DYNASTY · NORTHERN CHINA"),
+            "s07_karakorum": ("m_karakorum_air", "KARAKORUM · THE MONGOL CAPITAL"), "s08_hulagu": ("m_baghdad_air", "BAGHDAD · SEAT OF THE ABBASID CALIPHS"),
+            "s05_ruin": ("m_bukhara_air", "")}
 import motions as M  # noqa: E402
 import life as LIFE  # noqa: E402
 import scene as SC  # noqa: E402
@@ -389,6 +392,14 @@ def shots():
     out.append(Shot("s12_endcard", 3.5, "endcard",
                     actors=[P(k, 360 + i * 300, 1030, 1.4, acts=[(0.3 + i * 0.12, "cheer" if k != "quill" else "hold_up", None)])
                             for i, k in enumerate(["penny", "atlas", "quill", "zed", "pike"])]))
+    opened = []                                                               # main places open on an aerial establishing view
+    for sh in out:
+        if sh.name in AIR_OPEN:
+            plate, text = AIR_OPEN[sh.name]
+            opened += K.open_with(sh, "plate:" + plate, 3.4, fx=[label(text, 760, 110, 0.4, 58, GOLD)] if text else [])
+        else:
+            opened.append(sh)
+    out = opened
     return LIFE.add(out)                                                      # people going about their day behind the action
 
 

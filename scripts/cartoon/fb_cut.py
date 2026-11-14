@@ -152,12 +152,15 @@ def plan(module):
         b = when[lid] + d + POST
         who = K.LINES[lid]["who"]
         nm, t0 = where[lid]
+        if nm.endswith("_air") and nm[:-4] in by_name:                        # the line starts over an aerial opener:
+            t0 = t0 - by_name[nm].dur                                         # frame it on the scene that follows
+            nm = nm[:-4]
         sx = None                                                                # where the speaker stands in that shot
         xs = []                                                                  # where everyone stands (on screen)
         for p in by_name[nm].actors:
             if getattr(p, "bg_extra", False):                                    # background passers-by never drive the framing
                 continue
-            x = p.pos_at(t0 + d / 2)[0]
+            x = p.pos_at(t0 + d / 2 + getattr(by_name[nm], "offset", 0.0))[0]
             if -60 < x < 1980:
                 xs.append(x)
             if getattr(p, "key", None) == who and sx is None:

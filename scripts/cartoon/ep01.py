@@ -359,6 +359,21 @@ def at(lines, i, lead=LEAD):
 
 
 # ------------------------------------------------------------------------------------------------ the episode
+def open_with(shot, bg, cut=3.2, fx=()):
+    """Open a scene on another picture (an aerial establishing view) for `cut` seconds, then cut to the scene itself. The
+    voice runs across the cut; the scene keeps its own timeline, so lips, gestures and camera stay in sync."""
+    cut = min(cut, shot.dur - 2.0)
+    if cut < 1.5:
+        return [shot]
+    air = Shot(shot.name + "_air", cut, bg, actors=[], fx=list(fx), camkeys=[(0.0, 1.0, 0.5, 0.5), (cut, 1.06, 0.5, 0.48)], world=shot.world)
+    shot.offset = cut
+    shot.dur -= cut
+    for i, (nm, lid, ts) in enumerate(CUES):
+        if nm == shot.name:
+            CUES[i] = (air.name, lid, ts) if ts < cut else (nm, lid, ts - cut)
+    return [air, shot]
+
+
 def shots():
     CUES.clear()
     out = []

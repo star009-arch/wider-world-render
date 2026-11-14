@@ -140,7 +140,7 @@ def main(module, folder):
     floors = _json.loads((Path(__file__).parent / "floors.json").read_text(encoding="utf-8"))
     from PIL import ImageDraw as _ID
     used = sorted({s_.bg[6:] for s_ in shots if s_.bg.startswith("plate:")})
-    unreviewed = [p_ for p_ in used if p_ not in floors]
+    unreviewed = [p_ for p_ in used if p_ not in floors and not (p_.endswith("_air") and p_[:-4] in floors)]   # aerial openers have no characters
     check("every background's floor reviewed (floors.json)", not unreviewed, ", ".join(unreviewed))
     masks = {}
     for p_ in used:

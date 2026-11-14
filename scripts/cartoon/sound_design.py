@@ -174,7 +174,7 @@ def plan(module, t0, t1):
             continue
         lo, hi = max(a, t0), min(b, t1)
         if sh.bg.startswith("plate:"):
-            for snd, g in AMBIENCE.get(sh.bg[6:], []):
+            for snd, g in AMBIENCE.get(sh.bg[6:].removesuffix("_air"), []):
                 out.append((snd, lo - t0, hi - lo, g, 0.5))
         for te, snd, g, d in events_for(sh, a):
             if t0 <= te < t1:

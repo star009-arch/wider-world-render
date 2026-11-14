@@ -22,12 +22,12 @@ LIFE = {
     "m_caravan":     dict(world="mongol_1200", keys=["merchant", "camel_walk", "merchant", "rider"], horizon=580, band=(630, 770), xr=(60, 1860), groups=4),
     "m_baghdad":     dict(world="mongol_1200", keys=["merchant", "scholar"], horizon=575, band=(745, 780), xr=(260, 1700), groups=2),
     "m_zhongdu":     dict(world="mongol_1200", keys=["jin", "rider", "archer", "jin_official"], horizon=585, band=(630, 770), xr=(80, 1840), groups=4),
-    "e_calcutta":    dict(world="bengal_1757", keys=["boatman", "weaver", "csepoy", "sepoy"], horizon=560, band=(735, 780), xr=(250, 1650), groups=3),
-    "e_murshidabad": dict(world="bengal_1757", keys=["weaver", "boatman", "sepoy"], horizon=560, band=(745, 780), xr=(300, 1600), groups=3),
-    "e_hooghly":     dict(world="bengal_1757", keys=["boatman", "weaver"], horizon=560, band=(735, 780), xr=(300, 1600), groups=3),
-    "e_london":      dict(world="london_1600", keys=["merchant2", "sailor", "shipwright", "merchant"], horizon=540, band=(735, 780), xr=(300, 1500), groups=3),
-    "e_deptford":    dict(world="london_1600", keys=["sailor", "shipwright"], horizon=560, band=(745, 780), xr=(200, 1300), groups=2),
-    "e_surat":       dict(world="mughal_1616", keys=["merchant", "courtier2", "guard"], horizon=560, band=(735, 780), xr=(250, 1650), groups=3),
+    "e_calcutta": dict(world="bengal_1757", keys=["boatman", "weaver", "csepoy", "sepoy"], horizon=615, band=(762, 784), xr=(250, 1650), groups=3),
+    "e_murshidabad": dict(world="bengal_1757", keys=["weaver", "boatman", "sepoy", "csepoy"], horizon=640, band=(745, 784), xr=(730, 1600), groups=3),
+    "e_hooghly": dict(world="bengal_1757", keys=["boatman", "weaver", "csepoy"], horizon=625, band=(705, 782), xr=(140, 1700), groups=4),
+    "e_london": dict(world="london_1600", keys=["merchant2", "sailor", "shipwright", "merchant"], horizon=620, band=(690, 782), xr=(300, 1500), groups=4,
+                          taper=(880, 2.2, 900, 3.4)),
+    "e_surat": dict(world="mughal_1616", keys=["merchant", "courtier2", "guard", "courtier"], horizon=680, band=(715, 782), xr=(700, 1550), groups=4),
 }
 
 
@@ -78,6 +78,10 @@ def add(shots, enabled=True):
             ys = y0 + (y1 - y0) * rnd.r() ** 1.6                                 # more groups far away than near
             s = _scale(ys, cfg["horizon"])
             gx = x0 + (x1 - x0) * rnd.r()
+            if "taper" in cfg:                                                   # a street that narrows into the distance
+                vl, kl, vr, kr = cfg["taper"]
+                xl_, xr_ = max(x0, vl - (ys - cfg["horizon"]) * kl), min(x1, vr + (ys - cfg["horizon"]) * kr)
+                gx = xl_ + (xr_ - xl_) * rnd.r()
             width = 150 * s
             if any(abs(gx - mx) < keep + width for mx, keep in mains):           # keep clear of the main cast
                 continue
