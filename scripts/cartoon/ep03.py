@@ -664,7 +664,7 @@ def shots():
     L = ["G33"]
     out.append(scene("s07_papyri", "m_egypt", [P("quill", 1720, G, 1.5, flip=True)], L,
                      fx=[pin("m_egypt", 32.6, 28.9, "Wadi al-Jarf · Red Sea harbour", 1.0), pin("m_egypt", 31.13, 29.98, "Giza", 2.4, dx=-140),
-                         caption("2013: the oldest inscribed papyri ever found", 3.0)], follow=False))
+                         caption("2013: the oldest inscribed papyri ever found", 3.0, y=110)], follow=False))
     L = ["G34"]
     out.append(scene("s07_merer", "plate:harbour",
                      [E("merer", 640, 1000, 1.6, acts=[(1.0, "hold_up", None)]), *crew(["boatman", "worker"], 220, 1000, 200, 1.2),
