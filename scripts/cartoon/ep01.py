@@ -221,7 +221,7 @@ def bars(left, right, t0, labels=("Company", "Nawab")):
                 d.ellipse([x - 9, yy - 26, x + 9, yy - 8], fill=col + (255,))
                 d.rounded_rectangle([x - 12, yy - 8, x + 12, yy + 22], radius=6, fill=col + (255,))
         if k >= 1:
-            S_text(d, 960, 960, "each figure = about 1,000 soldiers", 34, anchor="mm", color=(220, 220, 220))
+            S_text(d, 960, 800, "each figure = about 1,000 soldiers", 34, anchor="mm", color=(220, 220, 220))
     return f
 
 

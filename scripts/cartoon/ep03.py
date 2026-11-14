@@ -84,8 +84,8 @@ def local_map(t0):
         d.line(pts, fill=(60, 110, 170, int(255 * a)), width=34)                                   # the Nile
         T(d, x0 + 30, y0 + 40, "WESTERN DESERT", 34, a, color=(90, 66, 40))
         T(d, x1 - 300, y0 + 40, "EASTERN DESERT", 34, a, color=(90, 66, 40))
-        T(d, x0 + 760, y1 - 40, "NILE", 40, a, color=(220, 236, 255))
-        T(d, x0 + 20, y1 + 50, "schematic, not to scale  ·  north is up", 30, a, color=(220, 210, 190))
+        T(d, x0 + 760, y0 + 90, "NILE", 40, a, color=(220, 236, 255))
+        T(d, x1, y0 - 30, "schematic, not to scale  ·  north is up", 30, a, anchor="rm", color=(220, 210, 190))
         for i, (nm, sub, dt, fy, side) in enumerate(sites):
             if t < t0 + 0.6 + dt:
                 continue
@@ -134,11 +134,11 @@ def evolution(t0, which=("step", "bent", "red", "great"), step=None):
             k = ease((t - ts) / 0.6)
             cx = 260 + i * 330 if len(which) == 4 else 420 + i * 420
             w, h = dims[kind]
-            _pyr(d, cx, 720, w * 0.85, h, kind, k, cols[kind])
+            _pyr(d, cx, 670, w * 0.85, h, kind, k, cols[kind])
             if k > 0.8:
-                T(d, cx, 780, names[kind][0], 40, anchor="mm", color=GOLD)
-                T(d, cx, 830, names[kind][1], 30, anchor="mm")
-        d.line([(80, 720), (1440, 720)], fill=(120, 96, 60, 255), width=4)
+                T(d, cx, 725, names[kind][0], 40, anchor="mm", color=GOLD)
+                T(d, cx, 770, names[kind][1], 30, anchor="mm")
+        d.line([(80, 670), (1440, 670)], fill=(120, 96, 60, 255), width=4)
     return f
 
 
@@ -168,7 +168,7 @@ def compass(t0, cx=760, cy=520):
         if k > 0.9:
             for lab, (dx, dy) in (("N", (0, -1.12)), ("S", (0, 1.12)), ("E", (1.1, 0)), ("W", (-1.1, 0))):
                 T(d, cx + dx * 240, cy + dy * 240, lab, 56, anchor="mm", color=GOLD)
-            T(d, cx, cy + 340, "sides aligned to the four directions", 38, anchor="mm")
+            T(d, cx, cy + 275, "sides aligned to the four directions", 38, anchor="mm")
     return f
 
 
@@ -238,7 +238,7 @@ def ramps(t0):
             if k > 0.8:
                 T(d, cx, 770, nm, 40, anchor="mm", color=GOLD)
         if t > t0 + 3.6:
-            T(d, 960, 860, "still debated: maybe a mix of several", 38, anchor="mm")
+            T(d, 960, 815, "still debated: maybe a mix of several", 38, anchor="mm")
     return f
 
 
@@ -255,7 +255,7 @@ def crew_marks(t0):
             T(d, 760, 470, "\"Friends of Khufu\"", int(84 * min(1, k)), anchor="mm", color=(170, 40, 30))
             T(d, 760, 600, "a crew name in red paint", 40, anchor="mm", color=(90, 60, 40))
         if t > t0 + 1.2:
-            T(d, 760, 830, "found on blocks sealed inside the pyramid", 38, anchor="mm")
+            T(d, 760, 805, "found on blocks sealed inside the pyramid", 38, anchor="mm")
     return f
 
 
@@ -276,7 +276,7 @@ def bread_pots(t0):
                 fx = cx - 50 + j * 30
                 d.polygon([(fx - 10, by + 30), (fx + 10, by + 30), (fx + 14 * math.sin(t * 12 + j), by + 6)], fill=(255, 150, 40, 200))
         if t > t0 + 1.6:
-            T(d, 760, 860, "bell-shaped bread pots (bedja)", 44, anchor="mm", color=GOLD)
+            T(d, 760, 800, "bell-shaped bread pots (bedja)", 44, anchor="mm", color=GOLD)
     return f
 
 
@@ -315,12 +315,12 @@ def giza_plan(t0):
             (4.6, lambda: (d.line([(900, 640), (1260, 760)], fill=(160, 130, 90, 255), width=14),
                            d.rectangle([1250, 730, 1300, 790], fill=(120, 110, 100, 255), outline=INK, width=3),
                            d.ellipse([1290, 680, 1450, 840], fill=(60, 110, 170, 255), outline=INK, width=3),
-                           T(d, 1300, 900, "harbour (probable)", 30, anchor="mm", color=(240, 236, 220)))),
+                           T(d, 1370, 650, "harbour (probable)", 30, anchor="mm", color=(240, 236, 220)))),
         ]
         for dt, draw in steps:
             if t >= t0 + dt:
                 draw()
-        T(d, 160, 1000, "plan, not to scale · north is up", 28, color=(220, 210, 190))
+        T(d, 1480, 100, "plan, not to scale · north is up", 28, anchor="rm", color=(220, 210, 190))
     return f
 
 
@@ -509,7 +509,7 @@ def hatnub(t0):
                 px = bx + 120 + i * 880 / 9
                 py = by - (by - top) * 0.88 * i / 9 - 34
                 d.ellipse([px - 9, py - 9, px + 9, py + 9], fill=INK)
-            T(d, 760, 900, "steep ramp + stairs + post holes for hauling", 38, anchor="mm", color=(255, 236, 190))
+            T(d, 760, 200, "steep ramp + stairs + post holes for hauling", 38, anchor="mm", color=(255, 236, 190))
     return f
 
 

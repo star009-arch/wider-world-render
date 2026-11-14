@@ -98,7 +98,7 @@ def paper_money(t0):
             for j in range(4):
                 d.line([(x - 40 * k, y - 80 * k + j * 25 * k), (x + 40 * k, y - 80 * k + j * 25 * k)], fill=(60, 50, 40, 255), width=4)
         if t >= t0 + 1.5:
-            K.S_text(d, 960, 860, "Yuan paper money", 60, anchor="mm", color=(255, 224, 140))
+            K.S_text(d, 960, 230, "Yuan paper money", 60, anchor="mm", color=(255, 224, 140))
     return f
 
 

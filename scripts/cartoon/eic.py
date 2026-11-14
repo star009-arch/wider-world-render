@@ -21,12 +21,17 @@ import fxlib as FX  # noqa: E402
 import motions as M  # noqa: E402
 import scene as SC  # noqa: E402
 from scene import Shot, ease  # noqa: E402
+import scene as SC  # noqa: E402
 
 P, at, dur, label, caption, pin, route, timeline = K.P, K.at, K.dur, K.label, K.caption, K.pin, K.route, K.timeline
 G = 1030
 GOLD = (255, 214, 120)
 LON, MUG, BEN = "london_1600", "mughal_1616", "bengal_1757"
 M.set_world(LON)
+K.MAPS["m_world"] = (-30, -70, 112, 58)
+_im, _pj = K._relief(K.MAPS["m_world"], 0.22)
+SC._BG["m_world"] = _im.convert("RGBA")
+K.PROJ["m_world"] = _pj
 
 
 def E(world, key, x, ground=1000, s=1.5, **kw):
@@ -101,7 +106,7 @@ def calico(t0):
             if k > 0.8:
                 K.S_text(d, x, y + 250, nm, 50, anchor="mm", color=GOLD)
         if t > t0 + 2.6:
-            K.S_text(d, 760, 900, "Bengal muslin: \"woven air\"", 44, anchor="mm")
+            K.S_text(d, 760, 750, "Bengal muslin: \"woven air\"", 44, anchor="mm")
     return f
 
 

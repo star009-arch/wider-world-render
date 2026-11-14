@@ -18,20 +18,24 @@ def norm(w):
     return re.sub(r"[^a-z0-9]", "", w.lower())
 
 
-def main(vdir, lines_json):
+def main(vdir, lines_json, model_name="base.en", only=None):
     try:
         import truststore                                                         # Norton re-signs TLS on this machine
         truststore.inject_into_ssl()
     except Exception:
         pass
     from faster_whisper import WhisperModel
-    model = WhisperModel("base.en", device="cpu", compute_type="int8")
+    model = WhisperModel(model_name, device="cpu", compute_type="int8")
     vdir = Path(vdir)
+    durs = json.loads((vdir / "durations.json").read_text()) if (vdir / "durations.json").exists() else {}
     lines = json.loads(Path(lines_json).read_text(encoding="utf-8"))["lines"]
     for ln in lines:
         mp3 = vdir / f"{ln['id']}.mp3"
         out = vdir / f"{ln['id']}_words.json"
-        if not mp3.exists() or (out.exists() and out.stat().st_mtime > mp3.stat().st_mtime):
+        if only is not None:
+            if ln["id"] not in only:
+                continue
+        elif not mp3.exists() or (out.exists() and out.stat().st_mtime > mp3.stat().st_mtime):
             continue
         segs, _ = model.transcribe(str(mp3), word_timestamps=True, language="en", initial_prompt=ln["text"])
         heard = [(w.word.strip(), w.start, w.end) for s in segs for w in s.words]
@@ -43,7 +47,7 @@ def main(vdir, lines_json):
                 times[a + k] = (heard[b + k][1], heard[b + k][2])
         # fill words the recogniser heard differently (numbers, names) by interpolating between known neighbours
         known = [i for i, t in enumerate(times) if t]
-        end_all = heard[-1][2] if heard else 1.0
+        end_all = max(heard[-1][2] if heard else 0.0, durs.get(ln["id"], 0.0) - 0.15)   # unheard tail runs to the real end
         for i in range(len(ours)):
             if times[i]:
                 continue
@@ -60,4 +64,5 @@ def main(vdir, lines_json):
 
 
 if __name__ == "__main__":
-    main(sys.argv[1], sys.argv[2])
+    a = sys.argv[1:]
+    main(a[0], a[1], a[2] if len(a) > 2 else "base.en", set(a[3].split(",")) if len(a) > 3 else None)
