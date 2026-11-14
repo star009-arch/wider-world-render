@@ -1401,47 +1401,107 @@ FOLK_COLOURS = [(0.72, 0.68, 0.58), (0.55, 0.3, 0.2), (0.3, 0.36, 0.5), (0.62, 0
 _WET = ("water", "river", "sea", "canal", "nile", "pool", "ocean", "lake", "tank", "moat")
 
 
-def folk_scatter(sc, centre, radius, n=160, seed=7):
-    """Scatter n simple low-poly people in a few groups around `centre`, only on broad, flat, dry ground (ray-cast)."""
+def _is_water(ob):
+    """Water = named like water, or a glossy low-roughness surface (rivers, moats, harbours)."""
+    for sl in ob.material_slots:
+        m_ = sl.material
+        if m_ is None:
+            continue
+        if any(w in m_.name.lower() for w in _WET):
+            return True
+        if m_.use_nodes:
+            for nd in m_.node_tree.nodes:
+                if nd.type == "BSDF_PRINCIPLED" and not nd.inputs["Roughness"].is_linked and nd.inputs["Roughness"].default_value <= 0.12:
+                    return True
+    return any(w in ob.name.lower() for w in _WET)
+
+
+def _folk_mesh(name, robe):
+    """One low-poly person, about 1.7 m: legs, tunic or long robe, arms, head. Slot 0 = cloth, slot 1 = skin."""
+    import bmesh
+    bm = bmesh.new()
+
+    def part(kind, loc, mat_i, **kw):
+        n0 = len(bm.faces)
+        if kind == "cone":
+            bmesh.ops.create_cone(bm, cap_ends=True, segments=7, radius1=kw["r1"], radius2=kw["r2"], depth=kw["h"],
+                                  matrix=__import__("mathutils").Matrix.Translation(loc))
+        else:
+            bmesh.ops.create_icosphere(bm, subdivisions=1, radius=kw["r"], matrix=__import__("mathutils").Matrix.Translation(loc))
+        bm.faces.ensure_lookup_table()
+        for f_ in bm.faces[n0:]:
+            f_.material_index = mat_i
+    if robe:
+        part("cone", (0, 0, 0.62), 0, r1=0.24, r2=0.15, h=1.24)                   # long robe to the ankles
+    else:
+        part("cone", (-0.075, 0, 0.31), 1, r1=0.055, r2=0.07, h=0.62)             # legs
+        part("cone", (0.075, 0, 0.31), 1, r1=0.055, r2=0.07, h=0.62)
+        part("cone", (0, 0, 0.95), 0, r1=0.2, r2=0.16, h=0.7)                     # tunic
+    part("cone", (-0.21, 0, 1.0), 0, r1=0.045, r2=0.055, h=0.55)                  # arms
+    part("cone", (0.21, 0, 1.0), 0, r1=0.045, r2=0.055, h=0.55)
+    part("ico", (0, 0, 1.47), 1, r=0.13)                                          # head
+    me = bpy.data.meshes.new(name)
+    bm.to_mesh(me)
+    bm.free()
+    return me
+
+
+def folk_scatter(sc, centre, radius, n=110, seed=7):
+    """People on the ground seen from above: small natural groups (2-5) and a few walking alone, only on broad, flat, dry
+    ground (ray-cast). Varied clothes, heights and builds; never a regular pattern."""
     rng = random.Random(seed)
     bpy.context.view_layer.update()
     dg = bpy.context.evaluated_depsgraph_get()
-    mats = [mat(f"folk{i}", c, 0.9) for i, c in enumerate(FOLK_COLOURS)]
-    skin = mat("folkskin", (0.5, 0.36, 0.26), 0.8)
-    bpy.ops.mesh.primitive_cone_add(vertices=8, radius1=0.26, radius2=0.15, depth=1.3, location=(0, 0, 0.65))
-    body = bpy.context.active_object
-    bpy.ops.mesh.primitive_ico_sphere_add(subdivisions=1, radius=0.16, location=(0, 0, 1.47))
-    head = bpy.context.active_object
-    head.data.materials.append(skin)
-    body.data.materials.append(mats[0])
-    body.hide_render = head.hide_render = True
-    groups = [(centre[0] + rng.uniform(-radius, radius), centre[1] + rng.uniform(-radius, radius)) for _ in range(9)]
-    placed = 0
-    for _ in range(n * 6):
-        if placed >= n:
-            break
-        gx, gy = rng.choice(groups)
-        x, y = gx + rng.gauss(0, radius * 0.12), gy + rng.gauss(0, radius * 0.12)
+    cloth = [mat(f"folk{i}", c, 0.9) for i, c in enumerate(FOLK_COLOURS)]
+    skins = [mat(f"folkskin{i}", c, 0.8) for i, c in enumerate([(0.5, 0.36, 0.26), (0.42, 0.29, 0.2), (0.6, 0.45, 0.33)])]
+    meshes = [_folk_mesh("folk_tunic", False), _folk_mesh("folk_robe", True)]
+    for me in meshes:
+        me.materials.append(cloth[0])
+        me.materials.append(skins[0])
+
+    def ground_at(x, y):
         ok, loc, nor, _i, ob, _m = sc.ray_cast(dg, Vector((x, y, 400.0)), Vector((0, 0, -1)))
-        if not ok or ob is None or nor.z < 0.93:
+        if not ok or ob is None or nor.z < 0.93 or _is_water(ob) or max(ob.dimensions.x, ob.dimensions.y) < 40:
+            return None
+        return loc
+
+    def put(x, y, heading):
+        loc = ground_at(x, y)
+        if loc is None:
+            return False
+        o = bpy.data.objects.new("folk", rng.choice(meshes))
+        sc.collection.objects.link(o)
+        h_ = rng.uniform(0.9, 1.08)
+        w_ = h_ * rng.uniform(0.92, 1.1)
+        o.location = loc
+        o.scale = (w_, w_, h_)
+        o.rotation_euler = (0, 0, heading)
+        for i_, m_ in ((0, rng.choice(cloth)), (1, rng.choice(skins))):
+            o.material_slots[i_].link = "OBJECT"
+            o.material_slots[i_].material = m_
+        return True
+    placed, tries = 0, 0
+    while placed < n and tries < n * 8:
+        tries += 1
+        gx, gy = centre[0] + rng.uniform(-radius, radius), centre[1] + rng.uniform(-radius, radius)
+        if ground_at(gx, gy) is None:
             continue
-        names = (ob.name + " " + " ".join(sl.material.name for sl in ob.material_slots if sl.material)).lower()
-        if any(w in names for w in _WET) or max(ob.dimensions.x, ob.dimensions.y) < 40:
-            continue                                                             # water, roofs, carts, animals: not ground
-        sc_ = rng.uniform(0.92, 1.08)
-        for src, m_ in ((body, rng.choice(mats)), (head, skin)):
-            o = bpy.data.objects.new("folk", src.data)
-            sc.collection.objects.link(o)
-            o.location = (loc.x, loc.y, loc.z + src.location.z * sc_)
-            o.scale = (sc_, sc_, sc_)
-            o.rotation_euler = (0, 0, rng.uniform(0, 6.28))
-            o.material_slots[0].link = "OBJECT"
-            o.material_slots[0].material = m_
-        placed += 1
+        size = rng.choice([1, 1, 2, 2, 3, 4, 5])
+        ring = 0.55 + 0.25 * size
+        for k in range(size):
+            ang = 2 * math.pi * k / size + rng.uniform(-0.5, 0.5)
+            x, y = gx + ring * math.cos(ang) * rng.uniform(0.7, 1.2), gy + ring * math.sin(ang) * rng.uniform(0.7, 1.2)
+            heading = (ang + math.pi + rng.uniform(-0.5, 0.5)) if size > 1 else rng.uniform(0, 6.28)   # groups face inwards
+            placed += put(x, y, heading + math.pi / 2)
     return placed
 
 
-def _aerial(base):
+# per-set aerial camera: height above the ground camera (m), how far back (fraction of the view distance), lens
+AIR_CAM = {"e_surat": (46, 0.55, 22), "e_murshidabad": (44, 0.6, 22), "e_calcutta": (40, 0.3, 24), "e_london": (36, 0.3, 24),
+           "m_karakorum": (60, 0.15, 30), "m_steppe_dawn": (55, 0.2, 28)}
+
+
+def _aerial(base, key=None):
     def f():
         sc = base()
         cam = sc.camera
@@ -1454,10 +1514,11 @@ def _aerial(base):
         d.z = 0
         dist = max(20.0, d.length)
         d.normalize()
-        up = max(26.0, dist * 0.32)
+        up_, back_, lens_ = AIR_CAM.get(key, (None, 0.22, 24))
+        up = up_ if up_ else max(26.0, dist * 0.32)
         look = c0 + d * dist * 0.5
         look.z = t0.z
-        a0 = c0 - d * dist * 0.22 + Vector((0, 0, up))
+        a0 = c0 - d * dist * back_ + Vector((0, 0, up))
         a1 = a0 + d * dist * 0.07 - Vector((0, 0, up * 0.07))
         side = Vector((-d.y, d.x, 0)) * dist * 0.04
         for fr in range(1, N + 1, 2):
@@ -1465,7 +1526,7 @@ def _aerial(base):
             cam.location = a0.lerp(a1 + side, e)
             cam.keyframe_insert("location", frame=fr)
         tgt.location = look
-        cam.data.lens = 24
+        cam.data.lens = lens_
         n = folk_scatter(sc, (look.x, look.y), dist * 0.4)
         print("AERIAL", SHOT, "people placed:", n, "height", round(up, 1))
         sc.frame_set(1)
@@ -1474,7 +1535,7 @@ def _aerial(base):
 
 
 for _k in [k for k in list(SHOTS) if k not in AIR_SKIP and not k.endswith("_air")]:
-    SHOTS[_k + "_air"] = _aerial(SHOTS[_k])
+    SHOTS[_k + "_air"] = _aerial(SHOTS[_k], _k)
 
 if __name__ == "__main__":
     sc = SHOTS[SHOT]()
