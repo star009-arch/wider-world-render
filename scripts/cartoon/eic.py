@@ -288,7 +288,7 @@ def shots():
     out.append(scene("s07_deal", "plate:e_murshidabad",
                      [E(BEN, "mir_jafar", 520, 1000, 1.7, faces=[(0, {"mouth": "smirk"})]), E(BEN, "clive", 1050, 1000, 1.7, flip=True, faces=[(0, {"mouth": "smirk"})]),
                       P("zed", 1450, G, 1.6, flip=True), P("penny", 1760, G + 10, 1.6, flip=True)],
-                     L, world=BEN, fx=[label("SECRET AGREEMENT · JUNE 1757", 960, 90, 0.4, 60, GOLD)], under=[K.PL_contract(800, 1010, at(L, 1) + 0.5, at(L, 1) + 4.0)]))
+                     L, world=BEN, fx=[label("SECRET AGREEMENT · JUNE 1757", 960, 90, 0.4, 60, GOLD)], under=[K.PL_contract(800, M.stage(1010)[0], at(L, 1) + 0.5, at(L, 1) + 4.0)]))
     L = ["E37", "E38"]
     out.append(scene("s07_bought", "plate:e_murshidabad", [P("pike", 1300, G, 1.9, flip=True, faces=[(0, {"brows": 1.0, "mouth": "worried"})]), P("penny", 1700, G, 1.6, flip=True)],
                      L, follow=False, world=BEN))
@@ -303,8 +303,9 @@ def shots():
     L = ["E41", "E42"]
     out.append(scene("s08_rain", "plate:plassey_rain",
                      [P("pike", 520, 1040, 1.9, faces=[(0, {"brows": 1.0, "mouth": "worried"})], acts=[(0.3, "cower", 1.0)])], L, world=BEN,
-                     under=[K.PL_cannon(330, 1000, False), K.PL_tarp(470, 1060, 640, 0.5), K.PL_cannon(1500, 900, True, fire_at=(0.4, 1.3), fizzle_after=2.0),
-                            K.PL_cannon(1760, 960, True, fire_at=(0.8,), fizzle_after=2.0)],
+                     under=[K.PL_cannon(330, M.stage(1000)[0], False), K.PL_tarp(470, M.stage(1060)[0], 640, 0.5),
+                            K.PL_cannon(1500, M.stage(900)[0], True, fire_at=(0.4, 1.3), fizzle_after=2.0),
+                            K.PL_cannon(1760, M.stage(960)[0], True, fire_at=(0.8,), fizzle_after=2.0)],
                      fx=[K.PL_rain, label("the Nawab's guns fall silent", 1450, 160, 2.6, 52)]))
     L = ["E43", "E44"]
     sit = at(L, 0) + 1.2

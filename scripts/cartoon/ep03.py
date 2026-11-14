@@ -679,7 +679,7 @@ def shots():
     out.append(scene("s08_sledge", "card",
                      [*crew(["worker", "worker2", "worker", "worker2"], 330, 890, 70, 1.0, flip=True, walk=(0.3, -120), speed=0.12),
                       E("worker2", 760, 890, 1.0, flip=True), P("atlas", 1720, 890, 1.6, flip=True)],
-                     L, fx=[sledge(0.3, 1.2, travel=120, x_start=1100, y=880, rope_y=770), label("HAULING ON A WOODEN SLEDGE", 760, 110, 0.3, 58, GOLD),
+                     L, fx=[sledge(0.3, 1.2, travel=120, x_start=1100, y=M.stage(890)[0] - 10, rope_y=M.stage(890)[0] - 120), label("HAULING ON A WOODEN SLEDGE", 760, 110, 0.3, 58, GOLD),
                             caption("a later tomb painting: water poured ahead of a sledge", 4.5)], follow=False))
     L = ["G38"]
     out.append(scene("s08_wet", "card", [P("zed", 1720, G, 1.6, flip=True)], L, fx=[force_bars(0.5)], follow=False))

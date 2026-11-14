@@ -14,6 +14,8 @@ from PIL import Image, ImageDraw, ImageEnhance, ImageFilter, ImageFont
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import motions as M  # noqa: E402
 
+M.STAGE_ON = False                                                              # thumbnails frame characters waist-up on purpose
+
 W, H = 1280, 720
 YEL, WHT, RED = (255, 206, 40), (255, 255, 255), (230, 40, 40)
 SHOCK = {"mouth": "o", "brows": 1.2}

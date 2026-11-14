@@ -220,6 +220,17 @@ def render_frame(shot: Shot, t: float) -> Image.Image:
 
 
 def cam_at(shot: Shot, t: float):
+    z, cx, cy = _cam_raw(shot, t)
+    try:
+        import motions as _M
+        if _M.STAGE_ON and z > 1.0 and shot.bg != "endcard":               # zooming in: keep the stage (feet line ~860) above the subtitle strip
+            cy = min(max(cy, (865 - 330 / z) / 1080), 1 - 0.5 / z)
+    except Exception:
+        pass
+    return z, cx, cy
+
+
+def _cam_raw(shot: Shot, t: float):
     if not shot.camkeys:
         z0, z1, cx, cy = shot.cam
         return z0 + (z1 - z0) * ease(t / shot.dur), cx, cy

@@ -368,13 +368,28 @@ class Performer:
     def paint(self, frame, t):
         pose, flip = self.pose_at(t)
         x, y = self.pos_at(t)
+        y, sk = stage(y)                                                    # keep feet above the subtitle strip
         if self.shadow and not pose.rot:                                    # soft contact shadow, shrinks as they jump
-            k = max(0.35, 1 - max(0.0, pose.y) * 0.25)
+            k = max(0.35, 1 - max(0.0, pose.y) * 0.25) * sk
             w, h = getattr(self, "shw", 2.6) * self.upx * k, 0.55 * self.upx * k
             sh = _shadow(int(w), int(h))
             frame.alpha_composite(sh, (int(x - w), int(y - h)))
-        tile, ax, ay = tile_for(self.key, pose, self.scale, flip, self.view)
+        tile, ax, ay = tile_for(self.key, pose, round(self.scale * sk, 3), flip, self.view)
         frame.alpha_composite(tile, (int(x - ax), int(y - ay)))
+
+
+# Stage: the bottom of the frame belongs to subtitles. Ground lines below STAGE_Y0 are compressed upwards so a character
+# standing at the front (y ~1040) has its feet at ~860, and front characters shrink slightly so they keep their place in the
+# set's perspective (those further back hardly change). Thumbnails switch it off (STAGE_ON = False).
+STAGE_ON = True
+STAGE_Y0, STAGE_KY, STAGE_K = 700.0, 0.47, 0.95
+
+
+def stage(y):
+    if not STAGE_ON or y <= STAGE_Y0:
+        return y, 1.0
+    f = (y - STAGE_Y0) / 340.0                                              # 0 at the back line, 1 at the front (y 1040)
+    return STAGE_Y0 + (y - STAGE_Y0) * STAGE_KY, 1.0 - (1.0 - STAGE_K) * min(1.0, f)
 
 
 @lru_cache(maxsize=64)

@@ -119,6 +119,22 @@ def main(module, folder):
                 if hz > 2.6:
                     fast.append(f"{s_.name}:{a_.key} {hz:.1f}/s")
     check("walk and gallop cycles at a natural rate (no flicker)", not fast, ", ".join(sorted(set(fast))[:6]))
+    import motions as MM
+    feet = []                                                                    # characters' feet must stand above the subtitle strip
+    for s_ in shots:
+        for frac in (0.1, 0.5, 0.9):
+            t = s_.dur * frac
+            z, cx, cy = SC.cam_at(s_, t)
+            for a_ in s_.actors:
+                if not hasattr(a_, "pos_at"):
+                    continue
+                x, y = a_.pos_at(t)
+                y2, _ = MM.stage(y)
+                xs = (x - cx * 1920) * z + 960
+                ys = (y2 - cy * 1080) * z + 540
+                if 0 < xs < 1920 and ys > 885 and s_.bg != "endcard":
+                    feet.append(f"{s_.name}:{a_.key}@{round(ys)}")
+    check("no character's feet or face in the subtitle zone", not feet, ", ".join(sorted(set(feet))[:8]))
     long_ = [f"{s.name} {s.dur:.0f}s" for s in shots if s.dur > 17 and s.bg != "endcard"]
     check("no single shot longer than 17 s", not long_, ", ".join(long_))
 
