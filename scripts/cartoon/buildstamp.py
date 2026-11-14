@@ -6,7 +6,7 @@ from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
 ENGINE = ["ep01.py", "fxlib.py", "scene.py", "motions.py", "hosts3.py", "people.py", "costume.py", "rig.py", "sets.py",
-          "pilot_sets.py", "puppet.py", "pilot.py"]
+          "pilot_sets.py", "puppet.py", "pilot.py", "life.py"]
 
 
 def _norm(path):

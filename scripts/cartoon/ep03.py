@@ -21,6 +21,8 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 import ep01 as K  # noqa: E402
 import motions as M  # noqa: E402
 import scene as SC  # noqa: E402
+M.LIGHT_MATCH = False                                                            # Episode 1 is published: keep its look exactly
+SC.LIVE_CAM = False
 from scene import Shot, ease  # noqa: E402
 
 M.set_world("egypt_ok")

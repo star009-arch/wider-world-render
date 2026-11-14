@@ -199,7 +199,7 @@ def main(module, folder):
             x, y = self.pos_at(t)
             y, _ = MM.stage(y)
             bb = tile.getbbox()
-            if bb:
+            if bb and not getattr(self, "bg_extra", False):                  # small background passers-by may pass behind cards
                 cboxes.append((self.key, (x - ax + bb[0], y - ay + bb[1], x - ax + bb[2], y - ay + bb[3])))
     ImageDraw.ImageDraw.text, MM.tile_for, MM.Performer.paint = spy2, tf, paint
     covered = []

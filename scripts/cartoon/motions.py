@@ -375,6 +375,8 @@ class Performer:
             sh = _shadow(int(w), int(h))
             frame.alpha_composite(sh, (int(x - w), int(y - h)))
         tile, ax, ay = tile_for(self.key, pose, round(self.scale * sk, 3), flip, self.view)
+        if LIGHT_MATCH:
+            tile = light_match(tile, frame, int(x - ax), int(y - ay))
         frame.alpha_composite(tile, (int(x - ax), int(y - ay)))
 
 
@@ -382,6 +384,40 @@ class Performer:
 # standing at the front (y ~1040) has its feet at ~860, and front characters shrink slightly so they keep their place in the
 # set's perspective (those further back hardly change). Thumbnails switch it off (STAGE_ON = False).
 STAGE_ON = True
+LIGHT_MATCH = True          # characters take on the set's light: colour tint, brightness and light-wrapped edges
+
+
+_EDGE: dict = {}
+
+
+def light_match(tile, frame, x0, y0):
+    """Blend a character into the set like the thumbnails do: 12% of the surrounding light colour, brightness matched to the
+    set (gently, 0.82-1.04), and the set's light spilling over the outline (light wrap)."""
+    import numpy as np
+    from PIL import ImageFilter
+    w, h = tile.size
+    fx0, fy0 = max(0, x0 - w // 2), max(0, y0 - h // 3)
+    fx1, fy1 = min(frame.width, x0 + w + w // 2), min(frame.height, y0 + h)
+    if fx1 - fx0 < 8 or fy1 - fy0 < 8:
+        return tile
+    amb = np.asarray(frame.crop((fx0, fy0, fx1, fy1)).convert("RGB").resize((4, 4), Image.BILINEAR), dtype=np.float32).reshape(-1, 3).mean(axis=0)
+    lum = float(amb @ np.array([0.299, 0.587, 0.114], dtype=np.float32))
+    k = min(1.04, max(0.82, 0.80 + lum / 600.0))
+    a = np.asarray(tile, dtype=np.float32)
+    key = (id(tile), w, h)
+    edge = _EDGE.get(key)
+    if edge is None:
+        if len(_EDGE) > 400:
+            _EDGE.clear()
+        al = tile.getchannel("A")
+        inner = al.filter(ImageFilter.MinFilter(5))
+        e = np.clip(np.asarray(al, dtype=np.float32) - np.asarray(inner, dtype=np.float32), 0, 255)
+        edge = np.asarray(Image.fromarray(e.astype(np.uint8)).filter(ImageFilter.GaussianBlur(2)), dtype=np.float32)[..., None] / 255.0
+        _EDGE[key] = edge
+    rgb = a[..., :3] * k * 0.88 + amb * 0.12
+    rgb = rgb * (1 - 0.35 * edge) + amb * 0.35 * edge
+    out = np.dstack([np.clip(rgb, 0, 255), a[..., 3:]]).astype(np.uint8)
+    return Image.fromarray(out, "RGBA")
 STAGE_Y0, STAGE_KY, STAGE_K = 700.0, 0.47, 0.95
 
 

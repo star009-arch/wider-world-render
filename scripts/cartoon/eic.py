@@ -19,6 +19,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 import ep01 as K  # noqa: E402
 import fxlib as FX  # noqa: E402
 import motions as M  # noqa: E402
+import life as LIFE  # noqa: E402
 import scene as SC  # noqa: E402
 from scene import Shot, ease  # noqa: E402
 import scene as SC  # noqa: E402
@@ -357,7 +358,7 @@ def shots():
     out.append(Shot("s12_endcard", 3.5, "endcard", world=BEN,
                     actors=[P(k, 360 + i * 300, 1030, 1.4, acts=[(0.3 + i * 0.12, "cheer" if k != "quill" else "hold_up", None)])
                             for i, k in enumerate(["penny", "atlas", "quill", "zed", "pike"])]))
-    return out
+    return LIFE.add(out)                                                      # people going about their day behind the action
 
 
 K.shots = shots

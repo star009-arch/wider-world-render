@@ -219,8 +219,29 @@ def render_frame(shot: Shot, t: float) -> Image.Image:
     return frame.convert("RGB")
 
 
+LIVE_CAM = True             # a still shot gets a slow, gentle camera move (push in, pull out or drift), never a locked frame
+
+
+def _live(shot, t, z, cx, cy):
+    keys = shot.camkeys or [(0.0, shot.cam[0], shot.cam[2], shot.cam[3]), (shot.dur, shot.cam[1], shot.cam[2], shot.cam[3])]
+    if any(abs(k[1] - keys[0][1]) > 1e-6 or abs(k[2] - keys[0][2]) > 1e-6 or abs(k[3] - keys[0][3]) > 1e-6 for k in keys):
+        return z, cx, cy                                                    # the shot already moves: leave it alone
+    if shot.bg in ("endcard",) or shot.dur < 2.0:
+        return z, cx, cy
+    e = ease(t / shot.dur)
+    mode = sum(map(ord, shot.name)) % 4
+    if mode in (0, 1):                                                      # push in
+        return z + 0.07 * e, cx, cy
+    if mode == 2:                                                           # pull out
+        return z + 0.07 * (1 - e), cx, cy
+    return z + 0.05, cx - 0.012 + 0.024 * e, cy                             # slow drift
+
+
 def cam_at(shot: Shot, t: float):
     z, cx, cy = _cam_raw(shot, t)
+    if LIVE_CAM:
+        z, cx, cy = _live(shot, t, z, cx, cy)
+        cx = min(max(cx, 0.5 / z), 1 - 0.5 / z)
     try:
         import motions as _M
         if _M.STAGE_ON and z > 1.0 and shot.bg != "endcard":               # zooming in: keep the stage (feet line ~860) above the subtitle strip

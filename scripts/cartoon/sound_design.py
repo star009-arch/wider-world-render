@@ -28,10 +28,10 @@ SFX = Path(os.environ.get("TE_SFX", "D:/Temp/cartoon/sfx"))
 AMBIENCE = {
     "giza_later": [("wind_desert", -6)], "giza_build": [("wind_desert", -9), ("crowd_work", -14), ("hammer_chisel", -20)],
     "workers_street": [("crowd_work", -8), ("wind_desert", -16)], "harbour": [("water_river", -8), ("crowd_work", -18)],
-    "nile": [("water_river", -6)], "fields": [("wind_desert", -12), ("water_river", -16)], "quarry": [("hammer_chisel", -12), ("wind_desert", -12)],
+    "nile": [("water_river", -6)], "fields": [("wind_desert", -12), ("water_river", -16), ("cattle_moo", -18), ("sheep_bleat", -22)], "quarry": [("hammer_chisel", -12), ("wind_desert", -12)],
     "tura": [("hammer_chisel", -14), ("water_river", -14)], "saqqara2": [("wind_desert", -8)], "palace": [], "house_interior": [("fire_crackle", -16)],
     "memphis": [("market_crowd", -10)],
-    "m_steppe_dawn": [("wind_steppe", -6)], "m_ger_inside": [("fire_crackle", -8), ("wind_steppe", -22)], "m_karakorum": [("market_crowd", -10), ("wind_steppe", -16)],
+    "m_steppe_dawn": [("wind_steppe", -6), ("sheep_bleat", -24)], "m_ger_inside": [("fire_crackle", -8), ("wind_steppe", -22)], "m_karakorum": [("market_crowd", -10), ("wind_steppe", -16)],
     "m_zhongdu": [("wind_steppe", -10)], "m_bukhara": [("wind_desert", -10), ("fire_crackle", -18)], "m_mohi": [("wind_steppe", -9), ("water_river", -18)],
     "m_baghdad": [("water_river", -12), ("fire_crackle", -16)], "m_hakata": [("rain_heavy", -6)], "m_dadu_hall": [], "m_caravan": [("wind_desert", -8)],
     "steppe": [("wind_steppe", -8)],
@@ -41,15 +41,73 @@ AMBIENCE = {
     "e_allahabad": [("wind_steppe", -20)], "e_hooghly": [("water_river", -8)], "ocean": [("water_river", -8)], "plassey_rain": [("rain_heavy", -5)],
 }
 LAYER_DB = -21          # overall level of the effects layer before ducking (relative to full scale)
+DUCK = "sidechaincompress=threshold=0.012:ratio=12:attack=5:release=500"   # effects dip fast and deep under every word
+
+
+MARGIN_DB = 16.0         # voice must stay at least this much louder than the (ducked) effects in every spoken half-second
+
+
+def _pcm(ff, args, ch=1, sr=8000):
+    import numpy as np
+    r = subprocess.run([ff, "-nostdin", "-loglevel", "error", *args, "-ac", str(ch), "-ar", str(sr), "-f", "f32le", "-"],
+                       capture_output=True, check=True)
+    a = np.frombuffer(r.stdout, dtype=np.float32)
+    return a.reshape(-1, ch) if ch > 1 else a
+
+
+def voice_margins(layer, key, ff, win=0.5):
+    """Voice-to-effects margin (dB) for every half-second where someone is speaking, measured after ducking."""
+    import numpy as np
+    v = _pcm(ff, ["-i", str(key)])
+    d = _pcm(ff, ["-i", str(layer), "-i", str(key), "-filter_complex", f"[0:a][1:a]{DUCK}[o]", "-map", "[o]"])
+    n, w, out = min(len(v), len(d)), int(8000 * win), []
+    for i in range(0, n - w, w):
+        rv = np.sqrt(np.mean(v[i:i + w] ** 2)) + 1e-9
+        rd = np.sqrt(np.mean(d[i:i + w] ** 2)) + 1e-9
+        if 20 * np.log10(rv) > -35:
+            out.append((i / 8000, 20 * np.log10(rv / rd)))
+    return out
+
+
+def protect_voice(layer, key, ff, margin=MARGIN_DB, rounds=4):
+    """Lower the effects layer wherever it comes within `margin` dB of the voice (smooth 0.3 s ramps), then re-measure.
+    Returns the worst margin left. Run on every sound layer before it is mixed in."""
+    import numpy as np
+    for _ in range(rounds):
+        m = voice_margins(layer, key, ff)
+        bad = [(t, margin - x) for t, x in m if x < margin]
+        if not bad:
+            break
+        a = _pcm(ff, ["-i", str(layer)], ch=2, sr=48000).copy()
+        cr = 100                                                                # gain curve at 100 steps/s
+        g = np.ones(len(a) // 480 + 2, dtype=np.float32)
+        for t, deficit in bad:
+            i0, i1 = max(0, int((t - 0.25) * cr)), max(0, int((t + 0.75) * cr))
+            g[i0:i1] = np.minimum(g[i0:i1], 10 ** (-(deficit + 2) / 20))
+        k = 30                                                                  # 0.3 s ramps: widen dips first, then
+        gp = np.pad(g, (k, k), constant_values=1.0)                             # smooth, so the curve is never above
+        gmin = np.lib.stride_tricks.sliding_window_view(gp, 2 * k + 1).min(axis=1)  # the required level
+        g = np.minimum(g, np.convolve(np.pad(gmin, (k, k), mode="edge"), np.ones(2 * k + 1) / (2 * k + 1), mode="valid"))
+        g = np.interp(np.arange(len(a)) / 48000, np.arange(len(g)) / cr, g).astype(np.float32)
+        a *= g[:, None]
+        tmp = Path(str(layer) + ".raw")
+        tmp.write_bytes(a.astype(np.float32).tobytes())
+        subprocess.run([ff, "-nostdin", "-y", "-loglevel", "error", "-f", "f32le", "-ar", "48000", "-ac", "2", "-i", str(tmp),
+                        "-c:a", "pcm_s16le", str(layer)], check=True)
+        tmp.unlink()
+    m = voice_margins(layer, key, ff)
+    return min((x for _, x in m), default=99.0)
 
 
 def pick(name):
     """First good file for a sound name from the manifest (or None if it was not found)."""
     man = SFX / "manifest.json"
-    if man.exists():
+    if man.exists():                                                            # only licence-checked, non-excluded sounds
         for e in json.loads(man.read_text(encoding="utf-8")):
-            if e.get("name") == name and (SFX / Path(e["file"]).name).exists():
-                return SFX / Path(e["file"]).name
+            f = SFX / Path(e["file"].replace("\\", "/")).name
+            if e.get("name") == name and not e.get("exclude") and f.exists():
+                return f
+        return None
     cands = sorted(SFX.glob(f"{name}_*.wav"))
     return cands[0] if cands else None
 
@@ -197,10 +255,12 @@ def sample(module, film, t0, t1, out_dir, name):
     nfx = build_layer(items, total, layer, ff)
     key = work / "voice.wav"
     voice_bus(K, t0, t1, key, ff)
+    worst = protect_voice(layer, key, ff)
+    print(f"voice clarity: worst margin {worst:.1f} dB (rule >= {MARGIN_DB - 1:.0f})")
     graph = ";".join([
         "[0:a]aresample=48000,aformat=channel_layouts=stereo[film]",
         "[1:a]anull[fx]", "[2:a]asplit=1[key]",
-        "[fx][key]sidechaincompress=threshold=0.02:ratio=8:attack=15:release=450:makeup=1[duck]",   # effects dip under every word
+        f"[fx][key]{DUCK}[duck]",   # effects dip under every word
         f"[film][duck]amix=inputs=2:normalize=0:duration=first,{{LN}},alimiter=limit=0.89,afade=t=in:d=0.3,afade=t=out:st={total - 0.4:.2f}:d=0.4[a]"])
     after = out_dir / f"{name} - AFTER.mp4"
     K.two_pass_loudnorm([ff, "-nostdin", "-y", "-loglevel", "error"],
@@ -211,6 +271,47 @@ def sample(module, film, t0, t1, out_dir, name):
         print("   ", it)
 
 
+def full(module, film, out):
+    """Add the sound layer to a finished film: same picture (copied), voices + music + ducked ambience/effects,
+    loudness-normalised in two passes. The film's metadata (code fingerprint) is kept."""
+    film, out = Path(film), Path(out)
+    E = importlib.import_module(module)
+    K = E.K
+    total = sum(s.dur for s in K.shots())
+    K2, items = plan(module, 0.0, total)
+    ff = K.SC.ffmpeg()
+    work = out.parent / f"_{module}_sound_work"
+    work.mkdir(parents=True, exist_ok=True)
+    layer, key = work / "layer.wav", work / "voice.wav"
+    nfx = build_layer(items, total, layer, ff)
+    voice_bus(K, 0.0, total, key, ff)
+    worst = protect_voice(layer, key, ff)
+    print(f"voice clarity: worst margin {worst:.1f} dB")
+    if worst < MARGIN_DB - 1:
+        raise SystemExit(f"voice clarity check failed ({worst:.1f} dB)")
+    graph = ";".join([
+        "[0:a]aresample=48000,aformat=channel_layouts=stereo[film]", "[1:a]anull[fx]", "[2:a]anull[key]",
+        f"[fx][key]{DUCK}[duck]",
+        f"[film][duck]amix=inputs=2:normalize=0:duration=first,{{LN}},alimiter=limit=0.89,atrim=0:{total:.2f}[a]"])
+    K.two_pass_loudnorm([ff, "-nostdin", "-y", "-loglevel", "error"], ["-i", str(film), "-i", str(layer), "-i", str(key)], graph,
+                        ["-map", "0:v", "-map", "[a]", "-c:v", "copy", "-c:a", "aac", "-b:a", "192k", "-ar", "48000",
+                         "-map_metadata", "0", "-movflags", "+faststart", str(out)])
+    print("wrote", out, f"({nfx} sound layers over {total:.1f}s)")
+
+
+def fb_layer(module, segs, total, out_wav, ff):
+    """Sound layer for a Facebook cut / short clip: each segment takes the film's sound plan for its source time range."""
+    items = []
+    for sg in segs:
+        a, b = sg["src"]
+        _, its = plan(module, a, b)
+        for snd, st, du, g, fd in its:
+            items.append((snd, sg["at"] + st, du if du is None else min(du, (b - a) - st), g, fd))
+    return build_layer(items, total, out_wav, ff)
+
+
 if __name__ == "__main__":
     if sys.argv[1] == "sample":
         sample(*sys.argv[2:8])
+    elif sys.argv[1] == "full":
+        full(*sys.argv[2:5])

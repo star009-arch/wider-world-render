@@ -155,6 +155,8 @@ def plan(module):
         sx = None                                                                # where the speaker stands in that shot
         xs = []                                                                  # where everyone stands (on screen)
         for p in by_name[nm].actors:
+            if getattr(p, "bg_extra", False):                                    # background passers-by never drive the framing
+                continue
             x = p.pos_at(t0 + d / 2)[0]
             if -60 < x < 1980:
                 xs.append(x)
