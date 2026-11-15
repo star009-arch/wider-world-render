@@ -1534,6 +1534,102 @@ def _aerial(base, key=None):
     return f
 
 
+def shot_m_bukhara_market():
+    """LOOK TEST (Nov 2026): Bukhara's square as a busy bazaar in low golden light, seen from a raised three-quarter view.
+    The same city set, at peace (no fires): rows of awning stalls, stacked sacks, jars and crates, a crowd in small groups,
+    pack animals, long shadows and warm haze. This is the richness target for every outdoor set."""
+    g = globals()
+    old_sky, old_smoke = g["mg_sky"], g["mg_smoke"]
+
+    def sky2(hdri, strength=1.0, **kw):
+        kw.update(sun_el=13, sun_az=kw.get("sun_az", -35) - 20, sun_power=kw.get("sun_power", 4.0) * 1.7, sun_col=(1.0, 0.74, 0.46), sun_angle=2.0)
+        return old_sky(hdri, strength * 0.75, **kw)
+    g["mg_sky"], g["mg_smoke"] = sky2, (lambda *a, **k: None)
+    try:
+        sc = shot_m_bukhara()
+    finally:
+        g["mg_sky"], g["mg_smoke"] = old_sky, old_smoke
+    rng = random.Random(11)
+    cloth = [mat(f"awning{i}", c, 0.85) for i, c in enumerate([(0.86, 0.8, 0.66), (0.62, 0.2, 0.14), (0.78, 0.56, 0.22), (0.3, 0.38, 0.46), (0.9, 0.86, 0.78)])]
+    wood = mat("stallwood", (0.36, 0.25, 0.15), 0.85)
+    sack = mat("sack", (0.72, 0.62, 0.44), 0.95)
+    clay = mat("clayjar", (0.62, 0.36, 0.22), 0.7)
+    goods = [mat(f"goods{i}", c, 0.8) for i, c in enumerate([(0.8, 0.62, 0.2), (0.55, 0.2, 0.12), (0.3, 0.42, 0.2), (0.85, 0.8, 0.7), (0.5, 0.32, 0.5)])]
+    wb, sb, jb = MgB(), MgB(), MgB()
+    aw = [MgB() for _ in cloth]
+    gd = [MgB() for _ in goods]
+
+    def stall(x, y, ang, w=2.6, d=1.6):
+        c, s_ = math.cos(ang), math.sin(ang)
+
+        def P(lx, ly, lz):
+            return (x + lx * c - ly * s_, y + lx * s_ + ly * c, lz)
+        for lx in (-w, w):
+            for ly in (-d, d):
+                wb.cyl(P(lx, ly, 1.25), 0.07, 1.25, 6)
+        aw[rng.randrange(len(aw))].box(P(0, 0, 2.6), (w + 0.35, d + 0.45, 0.05), (rng.uniform(-0.12, 0.12), 0.1, ang))
+        wb.box(P(0, 0.2, 0.75), (w * 0.9, d * 0.55, 0.06), (0, 0, ang))
+        for lx in (-w * 0.8, w * 0.8):
+            wb.box(P(lx, 0.2, 0.37), (0.06, d * 0.5, 0.37), (0, 0, ang))
+        for k in range(rng.randint(5, 9)):                                       # heaps of goods on the table
+            gd[rng.randrange(len(gd))].ico(P(rng.uniform(-w * 0.8, w * 0.8), rng.uniform(-0.3, 0.7), 0.95), rng.uniform(0.16, 0.3), (1, 1, 0.6), 1)
+        for k in range(rng.randint(2, 5)):                                       # sacks and jars in front
+            lx, ly = rng.uniform(-w, w), -d - rng.uniform(0.4, 1.4)
+            if rng.random() < 0.55:
+                sb.ico(P(lx, ly, 0.32), 0.38, (1, 0.8, 0.85), 1)
+            else:
+                jb.cyl(P(lx, ly, 0.34), 0.24, 0.34, 10, r2=0.13)
+    rows = [(-30, 14, 0.0), (-30, 34, 0.0), (-28, 56, 0.0), (22, 20, math.pi), (24, 44, math.pi), (22, 68, math.pi), (-6, 84, 0.3), (6, 100, -0.2)]
+    for (x0, y0, ang) in rows:
+        for k in range(4):
+            stall(x0 + k * 7.5 * math.cos(ang) + rng.uniform(-0.6, 0.6), y0 + k * 7.5 * math.sin(ang) + rng.uniform(-1.2, 1.2), ang + rng.uniform(-0.15, 0.15) + math.pi / 2)
+    for _ in range(26):                                                          # stacks of sacks and crates round the square
+        x, y = rng.choice((-1, 1)) * rng.uniform(30, 40), rng.uniform(0, 110)
+        for k in range(rng.randint(3, 9)):
+            if rng.random() < 0.5:
+                sb.ico((x + rng.uniform(-1.2, 1.2), y + rng.uniform(-1.2, 1.2), 0.3 + 0.45 * (k % 3)), 0.42, (1.1, 0.8, 0.7), 1)
+            else:
+                wb.box((x + rng.uniform(-1.2, 1.2), y + rng.uniform(-1.2, 1.2), 0.35 + 0.7 * (k % 2)), (0.4, 0.4, 0.35), (0, 0, rng.uniform(0, 1.5)))
+    wb.finish("stalls", wood)
+    sb.finish("sacks", sack, smooth=True)
+    jb.finish("jars", clay, smooth=True)
+    for b_, m_ in zip(aw, cloth):
+        b_.finish("awnings_" + m_.name, m_)
+    for b_, m_ in zip(gd, goods):
+        b_.finish("goods_" + m_.name, m_, smooth=True)
+    coats = [(0.35, 0.2, 0.1), (0.12, 0.09, 0.07), (0.55, 0.42, 0.28), (0.7, 0.66, 0.6)]
+    for _ in range(9):                                                           # horses and donkeys among the stalls
+        horse(rng.uniform(-14, 14), rng.uniform(5, 105), rng.uniform(0.75, 1.0), rng.uniform(0, 6.28), rng.choice(coats))
+    try:
+        cm = MG_M.setdefault("camelhide", noisy("camelhide", (0.42, 0.32, 0.2), (0.55, 0.43, 0.28), 4, 0.9, 0.15))
+        for k in range(5):
+            mg_inst(mg_camel_me(), (-8 + k * 4.2, 118 + rng.uniform(-1, 1), 0.0), 0.1, 1.0, cm)
+    except Exception as e_:
+        print("camels skipped:", e_)
+    n = folk_scatter(sc, (0, 55), 46, n=320, seed=5)
+    cam = sc.camera
+    tgt = cam.constraints[0].target
+    cam.animation_data_clear()
+    tgt.animation_data_clear()
+    for fr in range(1, N + 1, 2):
+        e = ease((fr - 1) / max(1, N - 1))
+        cam.location = Vector((46, -46, 24)).lerp(Vector((40, -38, 21)), e)
+        cam.keyframe_insert("location", frame=fr)
+    tgt.location = (-6, 62, 2.5)
+    cam.data.lens = 30
+    try:
+        mg_aerial((1.0, 0.8, 0.58), 1100, 0.55)                                   # warm evening haze over the far town
+    except Exception as e_:
+        print("haze skipped:", e_)
+    exposure(0.35)
+    sc.frame_set(1)
+    print("MARKET people placed:", n)
+    return sc
+
+
+SHOTS["m_bukhara_market"] = shot_m_bukhara_market
+AIR_SKIP.add("m_bukhara_market")
+
 for _k in [k for k in list(SHOTS) if k not in AIR_SKIP and not k.endswith("_air")]:
     SHOTS[_k + "_air"] = _aerial(SHOTS[_k], _k)
 
