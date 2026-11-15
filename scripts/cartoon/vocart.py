@@ -314,3 +314,106 @@ def grade(frame, sun=(1500, 200), warm=(255, 226, 170), strength=0.22, vignette=
     v = v.filter(ImageFilter.GaussianBlur(60)).resize((w, h), Image.BILINEAR)
     dark = Image.blend(out, Image.new("RGBA", (w, h), cool_shadow + (255,)), vignette)
     return Image.composite(out, dark, v)
+
+
+# ------------------------------------------------------------------------------------------------ v2 finish: texture, grain, grade
+def noise_tex(size, scale=60, seed=0, octaves=3):
+    """Soft painted-texture noise (L image, mid-grey 128 +/-) for large surfaces: ground, walls, sky."""
+    import numpy as np
+    w, h = size
+    rng = np.random.default_rng(seed)
+    acc = np.zeros((h, w), dtype="float32")
+    amp, tot = 1.0, 0.0
+    for o in range(octaves):
+        s = max(2, int(scale / (2 ** o)))
+        small = rng.standard_normal((h // s + 2, w // s + 2)).astype("float32")
+        im = Image.fromarray(((small - small.min()) / (np.ptp(small) + 1e-6) * 255).astype("uint8")).resize((w + 2 * s, h + 2 * s), Image.BICUBIC)
+        acc += amp * (np.asarray(im, dtype="float32")[s:s + h, s:s + w] - 128)
+        tot += amp
+        amp *= 0.5
+    acc = acc / tot
+    return Image.fromarray(np.clip(128 + acc * 1.6, 0, 255).astype("uint8"))
+
+
+def texturize(im, tex, strength=0.14):
+    """Modulate the brightness of an RGBA layer by a texture (keeps alpha)."""
+    import numpy as np
+    a = np.asarray(im).astype("float32")
+    t = (np.asarray(tex.resize(im.size)).astype("float32") - 128) / 128 * strength
+    a[..., :3] = np.clip(a[..., :3] * (1 + t[..., None]), 0, 255)
+    return Image.fromarray(a.astype("uint8"), "RGBA")
+
+
+_GRAIN = {}
+
+
+def grade2(frame, sun=(1600, 240), t=0.0, sat=1.18, contrast=1.12, warm=(255, 214, 150), cool=(40, 70, 110), vignette=0.38, grain=0.035,
+           glow=0.30):
+    """Cinematic finish v2: sun bloom, contrast S-curve, saturation, split toning (warm highlights / cool shadows),
+    vignette and fine film grain (changes every frame)."""
+    import numpy as np
+    from PIL import ImageEnhance
+    f = frame.convert("RGB")
+    w, h = f.size
+    g = Image.new("L", (w // 4, h // 4), 0)
+    ImageDraw.Draw(g).ellipse([sun[0] / 4 - 220, sun[1] / 4 - 170, sun[0] / 4 + 220, sun[1] / 4 + 170], fill=255)
+    g = g.filter(ImageFilter.GaussianBlur(60)).resize((w, h), Image.BILINEAR).point(lambda v: int(v * glow))
+    f = Image.composite(Image.new("RGB", (w, h), warm), f, g)
+    f = ImageEnhance.Color(f).enhance(sat)
+    a = np.asarray(f).astype("float32") / 255.0
+    a = np.clip(0.5 + (a - 0.5) * contrast, 0, 1)
+    lum = a.mean(axis=2, keepdims=True)
+    wc = np.array(warm, dtype="float32") / 255.0
+    cc = np.array(cool, dtype="float32") / 255.0
+    a = a + (wc - 0.5) * 0.10 * np.clip(lum - 0.5, 0, 1) * 2 + (cc - 0.5) * 0.14 * np.clip(0.5 - lum, 0, 1) * 2
+    yy, xx = np.mgrid[0:h, 0:w].astype("float32")
+    d = np.sqrt(((xx - w / 2) / (w * 0.62)) ** 2 + ((yy - h / 2) / (h * 0.62)) ** 2)
+    a = a * (1 - vignette * np.clip(d - 0.55, 0, 1)[..., None] ** 1.4)
+    key = (w, h, int(t * 24) % 6)
+    if key not in _GRAIN:
+        _GRAIN[key] = np.random.default_rng(key[2]).normal(0, 1, (h, w, 1)).astype("float32")
+    a = a + _GRAIN[key] * grain * 0.5
+    return Image.fromarray((np.clip(a, 0, 1) * 255).astype("uint8"), "RGB")
+
+
+
+def soft_form(draw_fn, top, bottom, blur=5, a=255, rim=None, size=(W, H)):
+    """A soft painted form (smoke, cloud) with no ink line: gradient from top colour to bottom colour, soft edge,
+    optional bright rim on the sun side. draw_fn(d, k) draws filled shapes on a 2x mask."""
+    import numpy as np
+    w, h = size
+    m = Image.new("L", (w * S, h * S), 0)
+    draw_fn(ImageDraw.Draw(m), S)
+    m = m.resize((w, h), Image.LANCZOS).filter(ImageFilter.GaussianBlur(blur))
+    arr = np.asarray(m)
+    ys = np.where(arr.max(axis=1) > 8)[0]
+    if len(ys) == 0:
+        return Image.new("RGBA", (w, h), (0, 0, 0, 0))
+    y0, y1 = ys.min(), ys.max() + 1
+    grad = Image.new("RGB", (1, max(2, y1 - y0)))
+    for i in range(grad.height):
+        grad.putpixel((0, i), mix(top, bottom, (i / (grad.height - 1)) ** 0.8))
+    col = Image.new("RGB", (w, h), top)
+    col.paste(grad.resize((w, y1 - y0)), (0, int(y0)))
+    out = col.convert("RGBA")
+    out.putalpha(m.point(lambda v: v * a // 255))
+    if rim:                                                           # sun-side rim light
+        col2, dx, dy = rim
+        sh = Image.new("L", (w, h), 0)
+        sh.paste(m, (int(-dx), int(-dy)))
+        from PIL import ImageChops
+        edge = ImageChops.subtract(m, sh).filter(ImageFilter.GaussianBlur(2)).point(lambda v: min(255, v * 2) * a // 255)
+        out.paste(Image.new("RGBA", (w, h), col2 + (255,)), (0, 0), edge)
+    return out
+
+
+def soft_cloud(cx, cy, s, seed=0, top=(255, 238, 206), bottom=(178, 168, 166), rim=(255, 248, 226)):
+    rng = random.Random(seed)
+    bumps = [(rng.uniform(-1.6, 1.6), rng.uniform(-0.5, 0.15), rng.uniform(0.35, 0.8)) for _ in range(9)]
+
+    def fn(d, k):
+        for bx, by, r in bumps:
+            R = r * 60 * s
+            d.ellipse([(cx + bx * 60 * s - R) * k, (cy + by * 60 * s - R * 0.8) * k, (cx + bx * 60 * s + R) * k, (cy + by * 60 * s + R * 0.8) * k], fill=255)
+        d.ellipse([(cx - 2.0 * 60 * s) * k, (cy - 0.05 * 60 * s) * k, (cx + 2.0 * 60 * s) * k, (cy + 0.35 * 60 * s) * k], fill=255)
+    return soft_form(fn, top, bottom, blur=3, a=245, rim=(rim, 6, -4))

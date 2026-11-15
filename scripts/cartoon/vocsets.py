@@ -84,10 +84,7 @@ def smoke_plume(L: Layer, x, y, t, n=7, col=(206, 200, 196), rise=36, drift=22, 
     def fn(d, k):
         for px, py, r, ph in puffs:
             d.ellipse([(px - r) * k, (py - r * 0.85) * k, (px + r) * k, (py + r * 0.85) * k], fill=255)
-    form = A.union_shape(fn, col, shade(col, 0.84), 2.6, shade_dy=0.3)
-    if a < 255:
-        al = form.getchannel("A").point(lambda v: v * a // 255)
-        form.putalpha(al)
+    form = A.soft_form(fn, A.mix(col, (255, 250, 240), 0.25), shade(col, 0.7), blur=4, a=a, rim=((255, 236, 200), 5, -3))
     L.im.alpha_composite(form.resize((W * S, H * S), Image.BILINEAR))
 
 

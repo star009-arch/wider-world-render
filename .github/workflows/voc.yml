@@ -2,6 +2,9 @@ name: voc
 on:
   workflow_dispatch:
     inputs:
+      module:
+        description: vocfilm (2-minute demo) or vocbattle (battle quality sample)
+        default: vocfilm
       parts:
         description: number of parallel render machines
         default: '20'
@@ -51,7 +54,7 @@ jobs:
           mkdir -p work && gh release download "${{ inputs.kit_tag }}" -p kit.enc -D work -R "$GITHUB_REPOSITORY"
           openssl enc -d -aes-256-cbc -pbkdf2 -iter 200000 -in work/kit.enc -out work/kit.tar -pass env:KIT_KEY
           tar -xf work/kit.tar -C work && rm work/kit.enc work/kit.tar
-      - run: python scripts/cartoon/vocfilm.py render ${{ matrix.part }}/${{ inputs.parts }} out
+      - run: python scripts/cartoon/${{ inputs.module }}.py render ${{ matrix.part }}/${{ inputs.parts }} out
       - uses: actions/upload-artifact@v4
         with:
           name: part-${{ matrix.part }}
@@ -86,7 +89,8 @@ jobs:
           openssl enc -d -aes-256-cbc -pbkdf2 -iter 200000 -in work/kit.enc -out work/kit.tar -pass env:KIT_KEY
           tar -xf work/kit.tar -C work && rm work/kit.enc work/kit.tar
           ls parts
-          python scripts/cartoon/vocfilm.py mix parts film/film.mp4 work/music.mp3
+          python scripts/cartoon/${{ inputs.module }}.py mix parts film/film.mp4 work/music.mp3
+          if [ -f film/film_loud.mp4 ]; then mv -f film/film_loud.mp4 film/film.mp4; fi
           openssl enc -aes-256-cbc -pbkdf2 -iter 200000 -salt -in film/film.mp4 -out film.enc -pass env:KIT_KEY
           gh release view "${{ inputs.out_tag }}" -R "$GITHUB_REPOSITORY" >/dev/null 2>&1 || gh release create "${{ inputs.out_tag }}" -R "$GITHUB_REPOSITORY" --title "${{ inputs.out_tag }}" --notes "Encrypted film."
           gh release upload "${{ inputs.out_tag }}" film.enc --clobber -R "$GITHUB_REPOSITORY"

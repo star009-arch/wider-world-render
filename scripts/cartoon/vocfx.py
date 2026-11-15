@@ -23,12 +23,13 @@ FLAME = ((255, 214, 90), (246, 140, 40), (206, 64, 30))
 
 
 def _puffs(L: Layer, puffs, col=SMOKE, ink=2.4, alpha=255):
+    """Powder smoke as a soft painted form: lighter on top, darker underneath, soft edge, no outline."""
     def fn(d, k):
         for px, py, r in puffs:
             d.ellipse([(px - r) * k, (py - r * 0.85) * k, (px + r) * k, (py + r * 0.85) * k], fill=255)
-    form = A.union_shape(fn, col, shade(col, 0.85), ink, shade_dy=0.25)
-    if alpha < 255:
-        form.putalpha(form.getchannel("A").point(lambda v: v * alpha // 255))
+    top = A.mix(col, (255, 252, 244), 0.35)
+    bottom = shade(col, 0.72)
+    form = A.soft_form(fn, top, bottom, blur=4, a=alpha, rim=((255, 240, 210), 5, -3))
     L.im.alpha_composite(form.resize((W * S, H * S), Image.BILINEAR))
 
 
@@ -61,24 +62,28 @@ def muzzle(L: Layer, x, y, t, t_fire, f=1, wind=(18, -6), size=1.0, seed=0):
 
 
 def fire(L: Layer, x, y, w, h, t, seed=0, embers=True):
+    """Flickering flames: irregular tongues of different heights, overlapping, licking upwards (inked outer layer)."""
     rng = random.Random(seed)
-    n = max(3, int(w / 22))
+    n = max(3, int(w / 34))
+    tongues = []
+    for i in range(n):
+        bx = x - w / 2 + w * (i + 0.5) / n + rng.uniform(-10, 10)
+        tongues.append((bx, rng.uniform(0, 6.28), rng.uniform(0.45, 1.25), rng.uniform(0.8, 1.4)))
     for layer, col in enumerate(FLAME[::-1]):
-        sc = 1.0 - layer * 0.28
-        for i in range(n):
-            bx = x - w / 2 + w * (i + 0.5) / n + rng.uniform(-6, 6)
-            ph = rng.uniform(0, 6.28)
-            hh = h * sc * (0.6 + 0.4 * abs(math.sin(t * 5.5 + ph))) * rng.uniform(0.7, 1.1)
-            ww = w / n * 0.9 * sc
-            sway = math.sin(t * 7 + ph) * ww * 0.35
-            tongue = [(bx - ww / 2, y), (bx - ww * 0.35 + sway * 0.3, y - hh * 0.45), (bx + sway, y - hh),
-                      (bx + ww * 0.35 + sway * 0.5, y - hh * 0.5), (bx + ww / 2, y)]
-            L.blob(tongue, col, 2.2 if layer == 0 else 0, n=5)
+        sc = 1.0 - layer * 0.3
+        for bx, ph, hk, wk in tongues:
+            flick = 0.65 + 0.35 * abs(math.sin(t * (5 + hk * 3) + ph)) + 0.12 * math.sin(t * 17 + ph * 2)
+            hh = h * sc * hk * flick
+            ww = w / n * 1.5 * sc * wk
+            sway = math.sin(t * 6 + ph) * ww * 0.4
+            tongue = [(bx - ww / 2, y), (bx - ww * 0.42 + sway * 0.2, y - hh * 0.35), (bx - ww * 0.1 + sway * 0.7, y - hh * 0.75),
+                      (bx + sway, y - hh), (bx + ww * 0.2 + sway * 0.6, y - hh * 0.62), (bx + ww * 0.45 + sway * 0.2, y - hh * 0.3), (bx + ww / 2, y)]
+            L.blob(tongue, col, 2.0 if layer == 0 else 0, n=5)
     if embers:
-        for i in range(8):
-            ph = ((t * 0.7) + i / 8 + rng.random()) % 1.0
-            ex = x + rng.uniform(-w / 2, w / 2) + math.sin(t * 3 + i) * 10
-            ey = y - h * 0.6 - ph * h * 1.6
+        for i in range(10):
+            ph = ((t * 0.7) + i / 10 + rng.random()) % 1.0
+            ex = x + rng.uniform(-w / 2, w / 2) + math.sin(t * 3 + i) * 12
+            ey = y - h * 0.6 - ph * h * 1.8
             r = 3 * (1 - ph) + 1
             L.ellipse((ex - r, ey - r, ex + r, ey + r), (255, 200, 90), 0, a=int(255 * (1 - ph)))
 

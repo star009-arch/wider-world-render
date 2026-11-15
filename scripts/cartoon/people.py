@@ -79,6 +79,8 @@ class Person:
     gait: str = "gallop"                 # gallop | walk (mounts), pace (camel)
     creature: str = ""                   # camel
     load: bool = True
+    head_k: float = 1.0                  # head size (adult documentary proportions ~0.66 with height ~1.28: about 5 heads tall)
+    eye_k: float = 1.0                   # eye size (smaller, more natural eyes for adult historical cast)
 
 
 WORLDS: dict = {}
@@ -159,7 +161,7 @@ def head_sprite(person: Person, face, kq, u):
     shaded_ell(d, cx + k * 0.12 * u, cy + 0.1 * u, R * (1 - 0.07 * abs(k)), R * 1.05, p.skin, 1 if k >= 0 else -1)
     fx = cx + k * 0.65 * u
     # face
-    eyes(d, fx, cy + 0.05 * u, u, face, k, gap=0.52, w=0.3, h=0.36, iris=(40, 28, 20))
+    eyes(d, fx, cy + 0.05 * u, u, face, k, gap=0.52, w=0.3 * p.eye_k, h=0.36 * p.eye_k, iris=(40, 28, 20))
     if p.kohl and face.blink < 0.6:                                              # black kohl line extended to the temple
         for side in (-1, 1):
             if abs(k) > 0.85 and side * k < 0:
@@ -447,7 +449,7 @@ def head_sprite2(person: Person, face, kq, u):
             d.arc([x - 0.35 * u, cy + 0.35 * u, x + 0.35 * u, cy + 1.05 * u], 200 if side < 0 else 270, 270 if side < 0 else 340, fill=shade(p.skin, 0.72),
                   width=3)
             d.arc([x - 0.25 * u, cy + 0.12 * u, x + 0.25 * u, cy + 0.42 * u], 20, 160, fill=shade(p.skin, 0.75), width=2)
-    eyes(d, fx, cy + 0.05 * u, u, face, k, gap=0.52, w=0.3, h=0.36, iris=(40, 28, 20) if p.skin[0] < 230 else (70, 90, 120))
+    eyes(d, fx, cy + 0.05 * u, u, face, k, gap=0.52, w=0.3 * p.eye_k, h=0.36 * p.eye_k, iris=(40, 28, 20) if p.skin[0] < 230 else (70, 90, 120))
     if p.brows_thick and face.blink < 0.6:
         for side in (-1, 1):
             if abs(k) > 0.85 and side * k < 0:
@@ -647,9 +649,10 @@ def draw2(person: Person, p, s=1.0, flip=False, view=0.6):
     if person.shield and "back" in hands:
         _shield(d, person.shield, hands["back"][0], hands["back"][1] - 0.3 * u, u, f, person.shield_col, person.shield_charge)
     hang = round(lean + p.head * f)
-    spr, ox_, oy_ = head_sprite2(person, p.face, round(k * 10), round(u, 2))
+    hu = u * person.head_k
+    spr, ox_, oy_ = head_sprite2(person, p.face, round(k * 10), round(hu, 2))
     spr, (ox_, oy_) = rot_sprite(spr, (ox_, oy_), hang)
-    hdx, hdy = _rot(0, -1.75 * u, hang)
+    hdx, hdy = _rot(0, -1.75 * hu, hang)
     im.alpha_composite(spr, (int(neck[0] + hdx - ox_), int(neck[1] + hdy - oy_)))
     arm(fr_sh, p.sh_l, p.el_l, False, p.prop_l or person.prop)
     return _finish(im, gx, gy, p, f)
