@@ -49,8 +49,12 @@ TW["nair_v2"] = replace(TW["nair"], bracelets=True, tiraz=True, earrings=True, s
 TW["nair2_v2"] = replace(TW["nair2"], bracelets=True, tiraz=True, sash=True, garment_col2=(176, 40, 36), build=1.12, **ADULT)
 TW["nair3_v2"] = replace(TW["nair3"], bracelets=True, tiraz=True, earrings=True, sash=True, garment_col2=(30, 90, 70), build=1.08, **ADULT)
 TW["ramayyan_v2"] = replace(TW["ramayyan"], bracelets=True, tiraz=True, build=1.15, **ADULT)
-TW["voc_v2"] = replace(TW["voc_soldier"], build=1.1, **ADULT)
-TW["voc2_v2"] = replace(TW["voc_soldier2"], build=1.15, **ADULT)
+TW["voc_v2"] = replace(TW["voc_soldier"], build=1.1, flags=("kit",), **ADULT)
+TW["voc2_v2"] = replace(TW["voc_soldier2"], build=1.15, flags=("kit",), **ADULT)
+TW["nair4_v2"] = replace(TW["nair"], bracelets=True, tiraz=True, earrings=True, cloak="shawl", cloak_col=(244, 241, 232), cloak_trim=(212, 170, 64),
+                         shield_col=(150, 44, 36), garment_col2=(212, 170, 64), skin=(140, 92, 60), build=1.05, **ADULT)
+TW["nair5_v2"] = replace(TW["nair2"], bracelets=True, sash=True, garment_col2=(40, 70, 120), skin=(160, 108, 72), beard="full2",
+                         beard_col=(30, 26, 24), build=1.15, **ADULT)
 TW["delannoy_v2"] = replace(TW["delannoy"], build=1.08, **ADULT)
 
 M.CLIPS.update({
@@ -196,10 +200,90 @@ def smoke_bank(L: Layer, t, y, x0, x1, density=1.0, seed=2, col=(214, 206, 196),
 
 
 # ================================================================================================ shots
+def banana(L: Layer, x, y, s, t, seed=0):
+    rng = random.Random(seed)
+    L.line([(x, y), (x + 4 * s, y - 70 * s)], (110, 120, 60), 9 * s)
+    for i in range(6):
+        a = -math.pi / 2 + (i - 2.5) * 0.5 + 0.06 * math.sin(t * 1.4 + i + seed)
+        ln = rng.uniform(60, 95) * s
+        bx, by = x + 4 * s, y - 70 * s
+        tip = (bx + math.cos(a) * ln, by + math.sin(a) * ln * 0.8 + ln * 0.25)
+        mid = ((bx + tip[0]) / 2, (by + tip[1]) / 2)
+        nx, ny = -(tip[1] - by) / ln * 16 * s, (tip[0] - bx) / ln * 16 * s
+        L.poly([(bx, by), (mid[0] + nx, mid[1] + ny), tip, (mid[0] - nx * 0.6, mid[1] - ny * 0.6)], (86, 132, 56) if i % 2 else (70, 112, 46), 1.8)
+        L.line([(bx, by), tip], (150, 170, 90), 1.2)
+
+
+def palm_belt(seed, x0, x1, y0, rows=((0.55, 0.42, 34), (0.8, 0.22, 26), (1.0, 0.08, 20))):
+    """Palms in three depth rows: (size, haze, spacing) far to near, irregular spacing, heights and leans."""
+    rng = random.Random(seed)
+    out = []
+    for r, (sz, hz, sp) in enumerate(rows):
+        x = x0 + rng.uniform(0, sp * 3)
+        while x < x1:
+            out.append((x, y0 + r * 22 + rng.uniform(-6, 8), rng.uniform(150, 290) * sz, rng.uniform(-0.2, 0.2), rng.randint(0, 999), hz, r))
+            x += sp * rng.uniform(2.2, 5.0) * (1 + r * 0.5)
+    return out
+
+
+def draw_belt(f, t, belt, extra=None):
+    for r in (0, 1, 2):
+        L = Layer()
+        for px, py, h, lean, sd, hz, rr in belt:
+            if rr != r:
+                continue
+            A.palm(L, px, py, h, t, lean=lean, seed=sd, leaf=mix(PALM, (120, 140, 70), 0.15 * (2 - r)), ink=1.6 + 0.4 * r)
+        if extra and r == 2:
+            extra(L)
+        f.alpha_composite(A.haze(L.out(), SKY_MID, [0.42, 0.22, 0.08][r]))
+
+
+def ground_shadows(L: Layer, belt, ground_y=None, k=0.95):
+    """Long afternoon shadows of the palms on the ground, falling away from the sun (to the left)."""
+    for px, py, h, lean, sd, hz, rr in belt:
+        if rr == 0:
+            continue
+        gy = py if ground_y is None else ground_y
+        tip = (px - h * k, gy + h * 0.10)
+        L.shade_poly([(px - 5, gy), (px + 5, gy), (tip[0] + 4, tip[1]), (tip[0] - 4, tip[1])], (60, 50, 70), 70)
+        L.ellipse((tip[0] - h * 0.32, tip[1] - h * 0.05, tip[0] + h * 0.18, tip[1] + h * 0.06), (60, 50, 70), 0, a=60)
+
+
+def ripples(L: Layer, box, seed=0, col=SAND):
+    rng = random.Random(seed)
+    x0, y0, x1, y1 = box
+    for i in range(70):
+        x, y = rng.uniform(x0, x1), rng.uniform(y0, y1)
+        w = rng.uniform(30, 90) * (0.5 + (y - y0) / max(1, y1 - y0))
+        L.d.arc([(x - w) * S, (y - 6) * S, (x + w) * S, (y + 6) * S], 200, 340, fill=shade(col, 0.86) + (90,), width=2 * S)
+        L.d.arc([(x - w) * S, (y - 4) * S, (x + w) * S, (y + 8) * S], 200, 340, fill=light(col, 0.12) + (60,), width=1 * S)
+
+
+@lru_cache(maxsize=2)
+def sun_shafts(sun=SUN, n=6, seed=3):
+    rng = random.Random(seed)
+    m = Image.new("L", (W // 2, H // 2), 0)
+    d = ImageDraw.Draw(m)
+    sx, sy = sun[0] / 2, sun[1] / 2
+    for i in range(n):
+        a = math.radians(rng.uniform(112, 150))
+        w = rng.uniform(0.03, 0.07)
+        L_ = 1400
+        p1 = (sx + math.cos(a - w) * L_, sy + math.sin(a - w) * L_)
+        p2 = (sx + math.cos(a + w) * L_, sy + math.sin(a + w) * L_)
+        d.polygon([(sx, sy), p1, p2], fill=int(rng.uniform(26, 46)))
+    m = m.filter(ImageFilter.GaussianBlur(14)).resize((W, H), Image.BILINEAR)
+    out = Image.new("RGBA", (W, H), (255, 232, 180, 0))
+    out.putalpha(m)
+    return out
+
+
 class Base:
     dur = 6.0
 
     def __init__(self):
+        M.CUR_PLATE = "colachel_v2"                                    # characters cast shadows away from the sun (to the left)
+        M.SUN_FROM_RIGHT.add("colachel_v2")
         self.perf = []
         self.static = None
         self.setup()
@@ -208,6 +292,8 @@ class Base:
         pass
 
     def grade(self, f, t):
+        f = f.convert("RGBA")
+        f.alpha_composite(sun_shafts())
         return A.grade2(f, sun=SUN, t=t)
 
 
@@ -238,7 +324,10 @@ class ShotA(Base):
         L.poly([(-40, 600), (760, 590), (700, 640), (-40, 660)], SAND_WET, 0)
         A.gradient_rect(L, (0, 780, W, H), SAND, shade(SAND, 0.82))
         A.ground_texture(L, (0, 640, W, H), SAND, n=300, seed=4, a=110)
-        g = A.texturize(L.out(), tex(2, 50), 0.16)
+        ripples(L, (0, 680, W, H), seed=2)
+        self.belt = palm_belt(1, 760, 1960, 600)
+        ground_shadows(L, self.belt)
+        g = A.texturize(L.out(), tex(2, 50), 0.2)
         s.alpha_composite(g)
         V_ = Layer()                                                   # the village among the palms
         for x, w_ in ((900, 70), (1010, 60), (1500, 74), (1610, 60), (1760, 66)):
@@ -251,6 +340,11 @@ class ShotA(Base):
         self.palms = sorted([(x + rng.uniform(-20, 20), 610 + rng.uniform(-6, 30), rng.uniform(170, 230), rng.uniform(-0.1, 0.14), i)
                              for i, x in enumerate(range(780, 1960, 80))], key=lambda q: q[1])
         g = 860
+        main = []                                                     # the main body behind, marching in step (same start, same pace)
+        for i, (dx, dy, key) in enumerate(((0, 0, "nair_v2"), (90, 8, "nair4_v2"), (180, -4, "nair3_v2"), (270, 6, "nair5_v2"),
+                                           (360, -2, "nair_v2"), (450, 4, "nair4_v2"))):
+            main.append(P(f"travancore_1741:{key}", 1500 + dx, g - 130 + dy, 0.82, flip=True, walks=[(0.0, 1200 + dx)]))
+        self.main = main
         self.perf = [P("travancore_1741:nair_v2", 1420, g + 40, 1.25, flip=True, walks=[(0.3, 1120)], acts=[(2.3, "duck", None)],
                        faces=[(0.0, {"brows": -0.8})]),
                      P("travancore_1741:nair3_v2", 1560, g + 10, 1.2, flip=True, walks=[(0.0, 1240)], acts=[(2.35, "duck", None)],
@@ -260,7 +354,7 @@ class ShotA(Base):
                      P("travancore_1741:nair3_v2", 1820, g - 40, 1.0, flip=True, walks=[(0.2, 1500)]),
                      P("travancore_1741:ramayyan_v2", 1760, g + 90, 1.4, flip=True, acts=[(4.6, "signal", None)], faces=[(0.0, {"brows": -0.6})]),
                      P("travancore_1741:voc_v2", 250, 770, 1.0, acts=[(1.0, "aim_fire", None)], props={"prop_l": "musket_aim"}),
-                     P("travancore_1741:voc2_v2", 420, 760, 0.98)]
+                     P("travancore_1741:voc2_v2", 420, 760, 0.98)] + main
 
     def frame(self, t):
         f = self.static.copy()
@@ -269,12 +363,12 @@ class ShotA(Base):
         off = 6 * math.sin(t * 0.9)
         L.line([(-40, 652 + off), (300, 640 + off), (600, 628 + off), (760, 598)], (244, 248, 246), 4, a=220, curve=True)
         f.alpha_composite(L.out())
-        L = Layer()
-        for px, py, h, lean, sd in self.palms:
-            A.palm(L, px, py, h, t, lean=lean, seed=sd, leaf=PALM, ink=2.2)
-        for x in (840, 1100, 1350, 1640, 1900):
-            bush(L, x, 660, 0.9, seed=x)
-        f.alpha_composite(A.haze(L.out(), SKY_MID, 0.1))
+        def extra(L):
+            for x in (840, 1100, 1350, 1640, 1900):
+                bush(L, x, 660, 0.9, seed=x)
+            for x in (980, 1460, 1720):
+                banana(L, x, 650, 1.0, t, seed=x)
+        draw_belt(f, t, self.belt, extra)
         # the stockade (left), gabions, the gun and its flag
         L = Layer()
         log_wall(L, 60, 640, 800, 120, seed=3)
@@ -284,7 +378,7 @@ class ShotA(Base):
         cannon(L, 470, 790, 1.0, recoil=rec, facing=1)
         L.line([(140, 690), (140, 520)], INK, 4)
         V._flag(L, 144, 520, 90, 56, t * 1.2, [(176, 40, 40), (246, 242, 230), (40, 70, 140)], ink=2.4)
-        f.alpha_composite(L.out())
+        f.alpha_composite(A.texturize(L.out(), tex(6, 18), 0.22))
         D.paint_all(f, t, self.perf)
         fx = Layer()
         FX.muzzle(fx, 590, 742, t, 2.0, f=1, wind=(-16, -10), size=2.2, seed=3)                        # the gun fires
@@ -321,12 +415,10 @@ class ShotB(Base):
         A.gradient_rect(L, (0, 760, W, H), SAND, shade(SAND, 0.8))
         A.ground_texture(L, (0, 640, W, H), SAND, n=260, seed=7, a=110)
         s.alpha_composite(A.texturize(L.out(), tex(3, 50), 0.16))
-        rng = random.Random(4)
-        self.palms = sorted([(x + rng.uniform(-30, 30), 610 + rng.uniform(-6, 26), rng.uniform(180, 240), rng.uniform(-0.1, 0.14), i)
-                             for i, x in enumerate(range(-40, 1960, 110))], key=lambda q: q[1])
+        self.belt = palm_belt(4, -40, 1960, 600)
         L = Layer()
         log_wall(L, -40, 1960, 760, 150, seed=5)                        # far wall (the land side, facing the grove)
-        s_wall = L.out()
+        s_wall = A.texturize(L.out(), tex(8, 16), 0.2)
         self.static = s
         self.wall = s_wall
         g = 930
@@ -338,15 +430,19 @@ class ShotB(Base):
             if i % 2:
                 p.key = "travancore_1741:voc2_v2"
                 p.__post_init__()
-        self.perf = self.line + [P("travancore_1741:delannoy_v2", 400, g + 40, 1.85, acts=[(0.6, "shout", None), (v - 0.4, "shout", None)],
-                                   faces=[(0.0, {"brows": -0.6})], props={"prop_l": "sword"})]
+        v2 = v + 1.5                                                  # the rear rank fires while the front rank reloads
+        self.rear = [P("travancore_1741:voc2_v2" if i % 2 == 0 else "travancore_1741:voc_v2", 820 + i * 250, g - 90 - i * 8, 1.55,
+                       acts=[(0.5 + i * 0.07, "brace", None), (v2 - 0.95 + i * 0.03, "aim_fire", None)], props={"prop_l": "musket_aim"},
+                       faces=[(0.0, {"brows": -0.5})]) for i in range(3)]
+        self.V2 = v2
+        self.line[2].acts = self.line[2].acts + [(4.6, "flinch", None)]
+        self.perf = self.rear + self.line + [P("travancore_1741:delannoy_v2", 400, g + 40, 1.85,
+                                               acts=[(0.6, "shout", None), (v - 0.4, "shout", None), (v2 - 0.4, "shout", None)],
+                                               faces=[(0.0, {"brows": -0.6})], props={"prop_l": "sword"})]
 
     def frame(self, t):
         f = self.static.copy()
-        L = Layer()
-        for px, py, h, lean, sd in self.palms:
-            A.palm(L, px, py, h, t, lean=lean, seed=sd, leaf=PALM, ink=2.2)
-        f.alpha_composite(A.haze(L.out(), SKY_MID, 0.12))
+        draw_belt(f, t, self.belt)
         f.alpha_composite(self.wall)
         fx0 = Layer()
         FX.fire(fx0, 160, 760, 80, 60, t, seed=4)                       # a store fire smouldering in the corner
@@ -358,6 +454,11 @@ class ShotB(Base):
             tf = self.VOLLEY + i * 0.03
             mx, my = D.muzzle_point(p, tf)
             FX.muzzle(fx, mx, my, t, tf, f=1, wind=(-22, -6), size=1.5, seed=i + 1)
+        for i, p in enumerate(self.rear):
+            tf = self.V2 + i * 0.03
+            mx, my = D.muzzle_point(p, tf)
+            FX.muzzle(fx, mx, my, t, tf, f=1, wind=(-22, -6), size=1.3, seed=i + 7)
+        FX.dust(fx, 1700, 690, t, 4.5, 2.0, (150, 110, 70))              # a Travancore ball splinters the wall top
         if t > self.VOLLEY:
             smoke_bank(fx, t - self.VOLLEY, 640, 600, 1960, density=1.2, a=160)
         f.alpha_composite(fx.out())
@@ -366,7 +467,7 @@ class ShotB(Base):
         for x in (1700, 1780, 1860):
             gabion(L, x, 1040, 40, 70)
         log_wall(L, -40, 1660, 1130, 270, seed=12)                        # the low inner rampart in the foreground (hides legs)
-        f.alpha_composite(L.out())
+        f.alpha_composite(A.texturize(L.out(), tex(7, 16), 0.22))
         return self.grade(f, t)
 
 
@@ -385,10 +486,10 @@ class ShotC(Base):
             r = rng.uniform(20, 50) * (y / 800)
             L.ellipse((x - r, y - r * 0.25, x + r, y + r * 0.25), mix(LATERITE, (150, 140, 84), rng.uniform(0.3, 0.7)), 0)
         A.ground_texture(L, (0, 640, W, H), (150, 140, 84), n=300, seed=9, a=120)
-        s.alpha_composite(A.texturize(L.out(), tex(4, 50), 0.18))
+        self.belt = palm_belt(5, -40, 1960, 610)
+        ground_shadows(L, self.belt, k=1.1)
+        s.alpha_composite(A.texturize(L.out(), tex(4, 50), 0.22))
         self.static = s
-        self.back = sorted([(x + rng.uniform(-20, 20), 620 + rng.uniform(0, 30), rng.uniform(200, 260), rng.uniform(-0.1, 0.1), i)
-                            for i, x in enumerate(range(-40, 1960, 90))], key=lambda q: q[1])
         g = 900
         self.shooters = [P("travancore_1741:nair2_v2", 1180, g - 30, 1.5, flip=True, acts=[(0.5, "aim_fire", None), (2.8, "reload", None)],
                            props={"prop_l": "matchlock_aim"}, faces=[(0.0, {"brows": -0.8})]),
@@ -401,16 +502,18 @@ class ShotC(Base):
             P("travancore_1741:nair_v2", 2250, g + 80, 1.8, flip=True, walks=[(1.6, 1300)], speed=1.3, acts=[(4.2, "charge", None)],
               faces=[(0.0, {"brows": -0.9})]),
             P("travancore_1741:nair3_v2", 980, g - 70, 1.3, flip=True, acts=[(3.0, "duck", None)])]
+        for i, (dx, key) in enumerate(((0, "nair4_v2"), (110, "nair_v2"), (220, "nair5_v2"), (330, "nair4_v2"), (440, "nair3_v2"))):
+            self.perf.append(P(f"travancore_1741:{key}", 1700 + dx, g - 170 + (i % 2) * 10, 0.95, flip=True, walks=[(0.0, 1250 + dx)]))
         self.trunks = [(1100, g - 20, 360), (1480, g + 20, 400)]       # cover trunks the shooters stand behind
 
     def frame(self, t):
         f = self.static.copy()
-        L = Layer()
-        for px, py, h, lean, sd in self.back:
-            A.palm(L, px, py, h, t, lean=lean, seed=sd, leaf=PALM, ink=2.2)
-        for x in range(0, 1960, 240):
-            bush(L, x + 60, 690, 1.0, seed=x + 3)
-        f.alpha_composite(A.haze(L.out(), SKY_MID, 0.16))
+        def extra(L):
+            for x in range(0, 1960, 240):
+                bush(L, x + 60, 690, 1.0, seed=x + 3)
+            for x in (300, 760, 1640):
+                banana(L, x, 680, 1.1, t, seed=x)
+        draw_belt(f, t, self.belt, extra)
         fxb = Layer()                                                   # the stockade far away on the left, smoking
         log_wall(fxb, -40, 380, 700, 60, seed=2)
         smoke_bank(fxb, t + 4, 640, -40, 420, density=0.8, a=140)
@@ -425,6 +528,7 @@ class ShotC(Base):
             mx, my = D.muzzle_point(p, tf)
             FX.muzzle(fx, mx, my, t, tf, f=-1, wind=(10, -10), size=1.4, seed=int(tf * 10))
         FX.dust(fx, 1020, 930, t, 3.0, 2.6, (150, 120, 80))              # a company musket ball strikes near them
+        FX.dust(fx, 1100, 640, t, 4.1, 1.6, (170, 120, 80))              # and another splinters the bark of their cover
         f.alpha_composite(fx.out())
         L = Layer()
         bush(L, 1880, 1080, 2.2, col=(30, 60, 28), seed=7)
@@ -447,14 +551,16 @@ class ShotD(Base):
         s.alpha_composite(A.texturize(L.out(), tex(5, 50), 0.16))
         L = Layer()
         log_wall(L, -40, 1960, 720, 150, seed=8)
-        s.alpha_composite(L.out())
+        s.alpha_composite(A.texturize(L.out(), tex(9, 16), 0.2))
         self.static = s
         b = self.BLAST
         self.perf = [P("travancore_1741:voc_v2", 420, 960, 1.8, acts=[(b + 0.05, "flinch", None), (b + 1.8, "point", None)],
                        faces=[(b, {"brows": 0.8, "mouth": "o"})]),
                      P("travancore_1741:voc2_v2", 1420, 990, 1.85, flip=True, acts=[(b + 0.1, "cower", None)], faces=[(b, {"brows": 0.9})]),
                      P("travancore_1741:delannoy_v2", 1700, 950, 1.75, flip=True, acts=[(b + 0.12, "flinch", None), (b + 1.5, "shout", None)],
-                       faces=[(b, {"brows": 0.7})], props={"prop_l": "sword"})]
+                       faces=[(b, {"brows": 0.7})], props={"prop_l": "sword"}),
+                     P("travancore_1741:voc_v2", 2050, 900, 1.5, flip=True, walks=[(b + 0.8, 1250)], speed=1.6, faces=[(b, {"brows": 0.8})]),
+                     P("travancore_1741:voc2_v2", 160, 905, 1.5, walks=[(b + 1.2, 560)], speed=1.5, faces=[(b, {"brows": 0.8})])]
 
     def frame(self, t):
         f = self.static.copy()

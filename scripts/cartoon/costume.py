@@ -845,8 +845,17 @@ def garment(d, kind, hx, hy, top, sw, u, k, f, c1, c2, c3, hem, flags=(), skin=(
             if "officer" in fl:
                 band(d, (c + 0.85 * sw, top + 0.15 * u), (c - 0.8 * sw, hy - 0.5 * u), 0.36 * u, (170, 24, 48))   # crimson sash, left shoulder
             else:
-                band(d, (c + 0.85 * sw, top + 0.15 * u), (c - 0.85 * sw, hy - 0.25 * u), 0.3 * u, BUFF)             # buff shoulder belt
-                d.rectangle([hx - sw * 0.9, hy - 0.62 * u, hx + sw * 0.9, hy - 0.4 * u], fill=BUFF, outline=LINE, width=3)
+                belt = WHITE if "kit" in fl else BUFF
+                band(d, (c + 0.85 * sw, top + 0.15 * u), (c - 0.85 * sw, hy - 0.25 * u), 0.3 * u, belt)             # shoulder belt
+                if "kit" in fl:                                                   # 1740s infantry kit: crossed belts, cartridge box, bayonet
+                    band(d, (c - 0.85 * sw, top + 0.15 * u), (c + 0.85 * sw, hy - 0.25 * u), 0.3 * u, belt)
+                    bx = hx - f * sw * 0.95
+                    d.rounded_rectangle([bx - 0.42 * u, hy - 0.75 * u, bx + 0.42 * u, hy - 0.05 * u], radius=4, fill=(26, 24, 26), outline=LINE, width=3)
+                    ell(d, bx, hy - 0.42 * u, 0.15 * u, 0.15 * u, (214, 176, 80), w=2)          # brass badge on the box flap
+                    sx = hx + f * sw * 0.8
+                    d.line([(sx, hy - 0.4 * u), (sx - f * 0.25 * u, hy + 1.5 * u)], fill=LINE, width=int(0.3 * u) + 4)
+                    d.line([(sx, hy - 0.4 * u), (sx - f * 0.25 * u, hy + 1.5 * u)], fill=(60, 44, 32), width=int(0.3 * u))   # bayonet scabbard
+                d.rectangle([hx - sw * 0.9, hy - 0.62 * u, hx + sw * 0.9, hy - 0.4 * u], fill=belt, outline=LINE, width=3)
         else:
             for i in range(6):
                 ell(d, c - 0.62 * u, top + 0.55 * u + i * 0.42 * u, 0.07 * u, 0.07 * u, (226, 194, 96), w=2)
