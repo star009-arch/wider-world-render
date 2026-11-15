@@ -43,7 +43,7 @@ jobs:
       - name: coastlines (Natural Earth 50m, public domain)
         run: |
           curl -sSL -o ne.zip https://naciscdn.org/naturalearth/50m/cultural/ne_50m_admin_0_countries.zip
-          mkdir -p data/geo/naturalearth/ne_50m_admin_0_countries && unzip -q ne.zip -d data/geo/naturalearth/ne_50m_admin_0_countries
+          mkdir -p data/geo/naturalearth/ne_50m_admin_0_countries && unzip -oq ne.zip -d data/geo/naturalearth/ne_50m_admin_0_countries
       - name: kit (encrypted)
         env:
           KIT_KEY: ${{ secrets.KIT_KEY }}
