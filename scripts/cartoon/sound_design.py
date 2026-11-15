@@ -292,7 +292,7 @@ def full(module, film, out):
     graph = ";".join([
         "[0:a]aresample=48000,aformat=channel_layouts=stereo[film]", "[1:a]anull[fx]", "[2:a]anull[key]",
         f"[fx][key]{DUCK}[duck]",
-        f"[film][duck]amix=inputs=2:normalize=0:duration=first,{{LN}},alimiter=limit=0.89,atrim=0:{total:.2f}[a]"])
+        f"[film][duck]amix=inputs=2:normalize=0:duration=first,{{LN}},volume=-1.5dB,alimiter=limit=0.8:attack=1:release=40,atrim=0:{total:.2f}[a]"])
     K.two_pass_loudnorm([ff, "-nostdin", "-y", "-loglevel", "error"], ["-i", str(film), "-i", str(layer), "-i", str(key)], graph,
                         ["-map", "0:v", "-map", "[a]", "-c:v", "copy", "-c:a", "aac", "-b:a", "192k", "-ar", "48000",
                          "-map_metadata", "0", "-movflags", "+faststart", str(out)])

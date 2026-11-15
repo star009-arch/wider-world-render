@@ -269,7 +269,8 @@ def shots():
                      fx=[timeline([("1707", "Aurangzeb dies"), ("after", "Mughal power|weakens"), ("1700s", "regional rulers|grow stronger")], 0.4, 1.6, y=380)]))
     L = ["S01"]
     out.append(scene("s06_powers", "m_india", [P("quill", 1700, G, 1.5, flip=True)], L, follow=False, world=BEN, gestures=False,
-                     fx=[pin("m_india", 73.86, 18.52, "Marathas", 2.6), pin("m_india", 76.64, 12.3, "Mysore", 3.6),
+                     cam=[(0.0, 1.0, 0.5, 0.5), (13.0, 1.0, 0.5, 0.5)],              # map held still so every label stays clear of the subtitles
+                     fx=[pin("m_india", 73.86, 18.52, "Marathas", 2.6), pin("m_india", 76.64, 13.0, "Mysore", 3.6),
                          pin("m_india", 88.27, 24.18, "Bengal", 4.5)]))
     L = ["S02"]
     out.append(scene("s06_player", "plate:e_calcutta",

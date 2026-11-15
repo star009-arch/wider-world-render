@@ -21,6 +21,7 @@ AIR_OPEN = {"s02_steppe": ("m_steppe_dawn_air", "THE MONGOLIAN STEPPE · 1100s")
             "s05_ruin": ("m_bukhara_air", "")}
 import motions as M  # noqa: E402
 import life as LIFE  # noqa: E402
+LIFE.LIFE["m_caravan"]["keys"] = ["merchant", "camel_walk", "scholar", "rider"]     # no two identical figures side by side
 import scene as SC  # noqa: E402
 import sets as S  # noqa: E402
 from scene import Shot, ease  # noqa: E402
