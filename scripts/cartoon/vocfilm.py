@@ -850,7 +850,7 @@ def mix(parts_dir, out, music=None):
     filt.append(f"[voxa][duck]amix=inputs=2:normalize=0,atrim=0:{total:.2f},volume=-1.5dB,alimiter=limit=0.8[aout]")
     (work / "filter.txt").write_text(";\n".join(filt), encoding="utf-8")
     r = subprocess.run([ff, "-y", "-loglevel", "error", "-i", str(video)] + inputs +
-                   ["-filter_complex_script", str(work / "filter.txt"), "-map", "0:v", "-map", "[aout]", "-c:v", "copy", "-c:a", "aac", "-b:a", "192k",
+                   ["-/filter_complex", str(work / "filter.txt"), "-map", "0:v", "-map", "[aout]", "-c:v", "copy", "-c:a", "aac", "-b:a", "192k",
                     "-shortest", str(out)], capture_output=True, text=True)
     if r.returncode:
         raise SystemExit(r.stderr[-3000:])
