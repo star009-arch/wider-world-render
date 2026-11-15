@@ -111,15 +111,18 @@ def main(module, folder):
     # 2. opening and pacing
     first = min(t0 for nm, lid, t0 in K.CUES if nm == shots[0].name) if K.CUES else 99
     check("voice starts within 0.5 s", first <= 0.5, f"first line at {first:.2f}s")
+    import motions as MM
     fast = []                                                                    # leg cycles faster than a natural gait flicker at 30 fps
     for s_ in shots:
         for a_ in s_.actors:
             if getattr(a_, "walks", None) and hasattr(a_, "pp"):
-                hz = a_.pp.cadence * a_.pp.speed * a_.speed
+                hz = MM.gait_rate(a_) * MM.gait_slow(a_)
                 if hz > 2.6:
                     fast.append(f"{s_.name}:{a_.key} {hz:.1f}/s")
     check("walk and gallop cycles at a natural rate (no flicker)", not fast, ", ".join(sorted(set(fast))[:6]))
-    import motions as MM
+    nod = sorted({f"{s_.name}:{a_.key.split(':')[-1]} {MM.head_hz(a_):.1f}/s" for s_ in shots for a_ in s_.actors
+                  if getattr(a_, "walks", None) and hasattr(a_, "pp") and getattr(a_, "mounted", False) and MM.head_hz(a_) > 1.6})
+    check("riders and horses: heads nod calmly (at most 1.6 times a second)", not nod, ", ".join(nod[:6]))
     feet = []                                                                    # characters' feet must stand above the subtitle strip
     for s_ in shots:
         for frac in (0.1, 0.5, 0.9):
@@ -408,7 +411,8 @@ def main(module, folder):
     try:
         import life as LF
         elig = [s_ for s_ in shots if s_.bg.startswith("plate:") and s_.bg[6:] in LF.LIFE and not getattr(s_, "no_life", False)]
-        thin = [s_.name for s_ in elig if not any(getattr(a_, "bg_extra", False) for a_ in s_.actors)]
+        thin = [s_.name for s_ in elig if not any(getattr(a_, "bg_extra", False) for a_ in s_.actors)
+                and sum(1 for a_ in s_.actors if ":" in getattr(a_, "key", "")) < 3]      # 3+ period people in the cast also count as alive
         used_life = any(getattr(a_, "bg_extra", False) for s_ in shots for a_ in s_.actors)
         if used_life or strict:                                                  # serious scenes (no_life) are empty on purpose
             check("places are alive: most town/camp/dock shots have background people", used_life and len(thin) <= 0.4 * max(1, len(elig)),

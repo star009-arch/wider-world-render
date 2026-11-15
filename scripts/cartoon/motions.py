@@ -225,6 +225,7 @@ class Performer:
                 self.pp = replace(DEFAULT, stride=7.0 if gallop else 3.4, lift=0.5, bounce=0.0, arm=3.0 if gallop else 6.0, lean=0.0,
                                   cadence=0.9 if gallop else 0.75)             # ~2 strides/s: a real gallop, no flicker at 30 fps
                 self.shw = 4.6 if per.creature else 4.2
+                self.mounted = True
             self._plan()
             return
         if USE_V3 and self.key in H3.KEYS:                                  # v3 hosts: leg length straight from their build
@@ -305,7 +306,7 @@ class Performer:
         feet = [-pp.stance, pp.stance]                                      # (back, front) foot x relative to hip, u
         lift = [0.0, 0.0]
         if w > 0:
-            cyc = dist / pp.stride                                          # gait cycles walked
+            cyc = dist / pp.stride * gait_slow(self)                        # gait cycles shown (capped at a calm, natural rate)
             ph = cyc * 2 * math.pi
             for i, off in enumerate((0.5, 0.0)):                            # back leg (r) half a cycle out of phase
                 fr = (cyc + off) % 1.0
@@ -322,7 +323,10 @@ class Performer:
             drop = 2 * L - math.sqrt(max(0.0, (2 * L * 0.997) ** 2 - reach ** 2))   # stance leg nearly straight
             base["y"] = -drop - pp.bounce * (0.5 + 0.5 * math.cos(4 * math.pi * cyc)) * w
             base["lean"] = pp.lean * w
-            base["head"] += -2.5 * math.cos(4 * math.pi * cyc - 0.6) * w   # head lags the body (follow-through)
+            if getattr(self, "mounted", False):                           # riders and animals: one gentle nod per stride
+                base["head"] += -1.2 * math.cos(2 * math.pi * cyc - 0.6) * w
+            else:
+                base["head"] += -2.5 * math.cos(4 * math.pi * cyc - 0.6) * w   # head lags the body (follow-through)
             swing = pp.arm * w
             base["sh_l"] = 6 - swing * math.sin(ph - 0.35)                  # arms counter the legs, lagging a little
             base["sh_r"] = 6 + swing * math.sin(ph - 0.35)
@@ -383,6 +387,27 @@ class Performer:
 # Stage: the bottom of the frame belongs to subtitles. Ground lines below STAGE_Y0 are compressed upwards so a character
 # standing at the front (y ~1040) has its feet at ~860, and front characters shrink slightly so they keep their place in the
 # set's perspective (those further back hardly change). Thumbnails switch it off (STAGE_ON = False).
+GAIT_CAP = {True: 1.4, False: 2.2}      # most leg cycles per second: riders/animals, people on foot
+
+
+def gait_rate(p):
+    """Leg cycles per second this performer would make at its travel speed (before the cap)."""
+    return p.pp.cadence * p.pp.speed * p.speed
+
+
+def gait_slow(p):
+    """Factor that slows the leg/body cycle when the travel speed would make it flicker (the figure still covers the ground)."""
+    r = gait_rate(p)
+    cap = GAIT_CAP[bool(getattr(p, "mounted", False))]
+    return min(1.0, cap / r) if r > 0 else 1.0
+
+
+def head_hz(p):
+    """Head nods per second while moving."""
+    shown = gait_rate(p) * gait_slow(p)
+    return shown if getattr(p, "mounted", False) else 2 * shown
+
+
 STAGE_ON = True
 LIGHT_MATCH = True          # characters take on the set's light: colour tint, brightness and light-wrapped edges
 
