@@ -836,7 +836,7 @@ def mix(parts_dir, out, music=None):
         labels.append(f"[s{k}]")
         k += 1
     filt.append("".join(labels[:nv]) + f"amix=inputs={nv}:normalize=0[vox]")
-    filt.append("[vox]asplit=2[voxa][voxb]")
+    filt.append(f"[vox]apad=whole_dur={total:.2f},asplit=2[voxa][voxb]")          # keep the bed alive after the last line
     filt.append("".join(labels[nv:]) + f"amix=inputs={len(labels) - nv}:normalize=0[fx]")
     if music and Path(music).exists():
         inputs += ["-stream_loop", "-1", "-i", str(music)]
