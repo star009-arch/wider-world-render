@@ -29,7 +29,8 @@ from scene import Shot, ease, fx_label  # noqa: E402
 ROOT = Path(__file__).resolve().parents[2]
 EP = ROOT / "projects/tiny-empires/ep01"
 VOICE = Path(os.environ.get("TE_VOICE", "D:/Temp/cartoon/ep01/voice"))
-LINES = {ln["id"]: ln for ln in json.loads((EP / "lines.json").read_text(encoding="utf-8"))["lines"]}
+LINES_FILE = VOICE / "lines.json" if (VOICE / "lines.json").exists() else EP / "lines.json"      # the kit carries the current script
+LINES = {ln["id"]: ln for ln in json.loads(LINES_FILE.read_text(encoding="utf-8"))["lines"]}
 DUR = json.loads((VOICE / "durations.json").read_text()) if (VOICE / "durations.json").exists() else {}
 CUES: list = []
 GAP, LEAD, TAIL = 0.35, 0.45, 0.6

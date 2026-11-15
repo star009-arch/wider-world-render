@@ -31,7 +31,8 @@ GOLD = (255, 214, 120)
 
 K.EP = K.ROOT / "projects/tiny-empires/ep02"
 K.VOICE = Path(os.environ.get("TE_VOICE", "D:/Temp/cartoon/ep02/voice"))
-K.LINES = {ln["id"]: ln for ln in json.loads((K.EP / "lines.json").read_text(encoding="utf-8"))["lines"]}
+K.LINES_FILE = K.VOICE / "lines.json" if (K.VOICE / "lines.json").exists() else K.EP / "lines.json"
+K.LINES = {ln["id"]: ln for ln in json.loads(K.LINES_FILE.read_text(encoding="utf-8"))["lines"]}
 K.DUR = json.loads((K.VOICE / "durations.json").read_text()) if (K.VOICE / "durations.json").exists() else {}
 K.MAPS.update({"m_ca": (50, 32, 76, 46), "m_europe": (8, 38, 62, 60), "m_eurasia": (-12, 8, 146, 68), "m_levant": (29, 27, 41, 37)})
 for k in ("m_ca", "m_europe", "m_eurasia", "m_levant"):
