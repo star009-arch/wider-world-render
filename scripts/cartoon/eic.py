@@ -17,7 +17,9 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import ep01 as K  # noqa: E402
-K.PUNCH = {"E04", "E09", "E11", "E24", "E25", "E37", "E38", "C04", "C08"}        # punchlines and reactions (close-up + listeners react)
+K.PUNCH = {"E04", "E09", "E11", "E24", "E25", "E37", "E38", "C04", "C08", "J02", "J04"}        # punchlines and reactions (close-up + listeners react)
+SERIOUS = {"f1_rains", "f2_tax", "f2_relief", "s10_wars_b", "f3_toll", "f4_debate", "f5_regions", "f6_ready", "f7_act", "s10_mysore", "s10_wars", "s10_1857", "s10_1857b",
+           "s11_close", "s06_capture"}                                         # sober scenes: no jokes, still camera, no passers-by
 import fxlib as FX  # noqa: E402
 import motions as M  # noqa: E402
 import life as LIFE  # noqa: E402
@@ -43,7 +45,7 @@ def E(world, key, x, ground=1000, s=1.5, **kw):
 def scene(*a, **kw):
     """Engine scene + a slow push-in on any still shot."""
     sh = K.scene(*a, **kw)
-    if kw.get("follow", True) is False and kw.get("cam") is None:
+    if kw.get("follow", True) is False and kw.get("cam") is None and a[0] not in SERIOUS:    # serious scenes hold still
         sh.camkeys = [(0.0, 1.0, 0.5, 0.5), (sh.dur, 1.045, 0.5, 0.5)]
     return sh
 
@@ -179,6 +181,8 @@ def shots():
                      [E(LON, "queen", 900, 960, 1.6, faces=[(0, {"mouth": "smile"})], acts=[(1.2, "present", None)]),
                       E(LON, "smythe", 520, 1000, 1.4), E(LON, "merchant", 1250, 1000, 1.4, flip=True), P("quill", 1720, G, 1.6, flip=True)],
                      L, world=LON, fx=[label("QUEEN ELIZABETH I GRANTS THE CHARTER", 760, 100, 0.3, 54, GOLD)]))
+    L = ["J01", "J02"]
+    out.append(scene("s02_name", "plate:e_whitehall", [P("pike", 1250, G, 1.8), P("zed", 1650, G, 1.6, flip=True)], L, world=LON))
     L = ["E08", "E09"]
     out.append(scene("s02_monopoly", "m_world", [P("zed", 1700, G, 1.6, flip=True)], L, follow=False, world=LON,
                      fx=[pin("m_world", -0.1, 51.5, "London", 0.4), pin("m_world", 18.4, -34.4, "Cape of Good Hope", 1.0),
@@ -222,6 +226,10 @@ def shots():
                      [E(MUG, "jahangir", 960, 900, 1.6, faces=[(0, {"mouth": "smile"})]), E(MUG, "courtier", 560, 1000, 1.3), E(MUG, "guard", 1300, 1000, 1.3, flip=True),
                       E(MUG, "roe", -200, 1000, 1.4, walks=[(0.3, 760)], speed=1.5, acts=[(3.0, "present", None)]), P("quill", 1720, G, 1.6, flip=True)],
                      L, world=MUG, fx=[label("EMPEROR JAHANGIR · AJMER, 1616", 960, 90, 0.4, 56, GOLD), caption("Sir Thomas Roe, ambassador", 2.0)]))
+    L = ["J03", "J04"]
+    out.append(scene("s04_coach", "plate:e_ajmer_court",
+                     [E(MUG, "jahangir", 960, 900, 1.6, faces=[(0, {"mouth": "smile"})]), P("pike", 1380, G, 1.8), P("quill", 1720, G, 1.6, flip=True)],
+                     L, world=MUG))
     L = ["E21"]
     out.append(scene("s04_posts", "m_india", [P("penny", 1700, G, 1.5, flip=True)], L, follow=False, world=MUG,
                      fx=[pin("m_india", 72.83, 21.17, "Surat 1613", 0.3), pin("m_india", 80.27, 13.08, "Madras 1639", 1.6),
@@ -259,12 +267,19 @@ def shots():
     L = ["E26"]
     out.append(scene("s06_1707", "card", [P("penny", 1720, G, 1.6, flip=True)], L, follow=False, world=BEN,
                      fx=[timeline([("1707", "Aurangzeb dies"), ("after", "Mughal power|weakens"), ("1700s", "regional rulers|grow stronger")], 0.4, 1.6, y=380)]))
+    L = ["S01"]
+    out.append(scene("s06_powers", "m_india", [P("quill", 1700, G, 1.5, flip=True)], L, follow=False, world=BEN, gestures=False,
+                     fx=[pin("m_india", 73.86, 18.52, "Marathas", 2.6), pin("m_india", 76.64, 12.3, "Mysore", 3.6),
+                         pin("m_india", 88.27, 24.18, "Bengal", 4.5)]))
+    L = ["S02"]
+    out.append(scene("s06_player", "plate:e_calcutta",
+                     [*FX.people(BEN, ["csepoy"] * 4, 260, 1000, 150, 1.15), P("penny", 1700, G, 1.6, flip=True)], L, world=BEN, gestures=False))
     L = ["E27", "E28"]
     out.append(scene("s06_siraj", "plate:e_murshidabad",
                      [E(BEN, "nawab", 900, 960, 1.7, faces=[(0, {"mouth": "smirk"}), (at(L, 1), {"brows": -1.0, "mouth": "frown"})], acts=[(at(L, 1) + 0.3, "fold", None)]),
                       E(BEN, "sepoy", 500, 1000, 1.3), P("atlas", 1700, G, 1.7, flip=True)],
                      L, world=BEN, fx=[label("SIRAJ UD-DAULAH · NAWAB OF BENGAL, 1756", 960, 90, 0.4, 54, GOLD)]))
-    L = ["E29", "E30", "E31"]
+    L = ["E29"]
     sw = at(L, 0) + 1.0
     out.append(scene("s06_capture", "plate:e_calcutta",
                      [E(BEN, "nawab", -300, 960, 1.5, walks=[(sw - 1.5, 820)], speed=2.0, acts=[(sw + 0.4, "celebrate", None)]),
@@ -302,7 +317,10 @@ def shots():
                      L, follow=False, world=BEN, fx=[label("PLASSEY · 23 JUNE 1757", 960, 100, 0.4, 76, GOLD)]))
     L = ["E40"]
     out.append(scene("s08_numbers", "card", [P("atlas", 1720, G, 1.6, flip=True)], L, follow=False, world=BEN, fx=[K.bars(3000, 50000, 0.6)]))
-    L = ["E41", "E42"]
+    L = ["J05", "J06"]
+    out.append(scene("s08_odds", "plate:e_plassey", [P("pike", 1250, G, 1.8, faces=[(0, {"brows": 1.0, "mouth": "worried"})]),
+                                                       P("penny", 1700, G, 1.6, flip=True)], L, world=BEN, gestures=False))
+    L = ["E41"]
     out.append(scene("s08_rain", "plate:plassey_rain",
                      [P("pike", 520, 1040, 1.9, faces=[(0, {"brows": 1.0, "mouth": "worried"})], acts=[(0.3, "cower", 1.0)])], L, world=BEN,
                      under=[K.PL_cannon(330, M.stage(1000)[0], False), K.PL_tarp(470, M.stage(1060)[0], 640, 0.5),
@@ -339,10 +357,47 @@ def shots():
     L = ["E49", "E50"]
     out.append(scene("s09_tax", "plate:e_allahabad", [P("zed", 1300, G, 1.8, flip=True), P("penny", 1700, G, 1.6, flip=True)], L, world=BEN,
                      fx=[K.coins_flow(300, 700, 1100, 760, 0.3, at(L, 1) + 2)]))
+    L = ["S03"]
+    out.append(scene("s09_silver", "plate:e_calcutta", [P("zed", 1500, G, 1.7, flip=True)], L, follow=False, world=BEN, gestures=False))
+    L = ["S04"]
+    out.append(scene("s09_nabobs", "plate:e_london", [P("quill", 1500, G, 1.6, flip=True)], L, follow=False, world=LON, gestures=False))
+    # ---- the famine of 1770: sober, still, no jokes
+    L = ["F01"]
+    out.append(scene("f1_rains", "plate:e_hooghly", [P("penny", 1500, G, 1.6, flip=True, faces=[(0, {"brows": 0.6, "mouth": "worried"})])], L, follow=False, world=BEN, gestures=False))
+    L = ["F02"]
+    out.append(scene("f2_tax", "plate:e_murshidabad", [P("quill", 1500, G, 1.6, flip=True, faces=[(0, {"brows": 0.6, "mouth": "worried"})])], L, follow=False, world=BEN, gestures=False))
+    L = ["F03"]
+    out.append(scene("f2_relief", "plate:e_calcutta", [P("quill", 1500, G, 1.6, flip=True, faces=[(0, {"brows": 0.6, "mouth": "worried"})])], L, follow=False, world=BEN, gestures=False))
+    L = ["F04"]
+    out.append(scene("f3_toll", "card", [P("penny", 1500, G, 1.6, flip=True, faces=[(0, {"brows": 0.6, "mouth": "worried"})])], L, follow=False, world=BEN, gestures=False))
+    L = ["F05"]
+    out.append(scene("f4_debate", "card", [P("quill", 1500, G, 1.6, flip=True, faces=[(0, {"brows": 0.6, "mouth": "worried"})])], L, follow=False, world=BEN, gestures=False))
+    L = ["F06"]
+    out.append(scene("f5_regions", "m_india", [P("quill", 1700, G, 1.5, flip=True, faces=[(0, {"brows": 0.6, "mouth": "worried"})])], L, follow=False, world=BEN, gestures=False,
+                     fx=[pin("m_india", 85.14, 25.6, "Bihar", 0.6), pin("m_india", 88.27, 24.18, "Bengal", 1.6)]))
+    L = ["F07"]
+    out.append(scene("f6_ready", "plate:e_hooghly", [P("penny", 1500, G, 1.6, flip=True, faces=[(0, {"brows": 0.6, "mouth": "worried"})])], L, follow=False, world=BEN, gestures=False))
+    L = ["F08"]
+    out.append(scene("f7_act", "plate:e_london", [P("zed", 1500, G, 1.6, flip=True, faces=[(0, {"brows": 0.6, "mouth": "worried"})])], L, follow=False, world=LON, gestures=False,
+                     fx=[label("LONDON · 1773 · THE REGULATING ACT", 760, 110, 8.0, 54, GOLD)]))
     # ---- 9. what happened next
     L = ["E51"]
     out.append(scene("s10_century", "card", [P("penny", 1720, G, 1.6, flip=True)], L, follow=False, world=BEN,
                      fx=[timeline([("1757", "Plassey:|Bengal"), ("1764–65", "Buxar and|the diwani"), ("1818–56", "most of the|subcontinent")], 0.5, 2.2, y=380)]))
+    L = ["R01"]
+    out.append(scene("s10_mysore", "m_india", [P("atlas", 1700, G, 1.5, flip=True, faces=[(0, {"brows": 0.6, "mouth": "worried"})])], L, follow=False, world=BEN, gestures=False,
+                     fx=[pin("m_india", 76.68, 12.42, "Seringapatam 1799", 2.0)]))
+    L = ["R02"]
+    a_ = scene("s10_wars", "m_india", [P("quill", 1700, G, 1.5, flip=True, faces=[(0, {"brows": 0.6, "mouth": "worried"})])], L, follow=False, world=BEN, gestures=False,
+               fx=[pin("m_india", 73.86, 18.52, "Marathas 1818", 1.0), pin("m_india", 74.35, 31.55, "Punjab 1849", 7.0)])
+    out += split(a_, 11.0, "plate:e_plassey", name="s10_wars_b", camkeys=[(0.0, 1.0, 0.5, 0.5), (9.0, 1.0, 0.5, 0.5)])
+    L = ["R03"]
+    out.append(scene("s10_1857", "m_india", [P("penny", 1700, G, 1.5, flip=True, faces=[(0, {"brows": 0.6, "mouth": "worried"})])], L, follow=False, world=BEN, gestures=False,
+                     fx=[pin("m_india", 77.7, 28.98, "Meerut", 3.0, dx=-190), pin("m_india", 77.2, 28.6, "Delhi", 8.2), pin("m_india", 80.33, 26.45, "", 9.0),
+                         pin("m_india", 80.95, 26.85, "Lucknow", 9.8), pin("m_india", 78.57, 25.45, "Jhansi", 10.6, dx=-150),
+                         label("1857", 420, 110, 0.4, 76, GOLD)]))
+    L = ["R04"]
+    out.append(scene("s10_1857b", "plate:e_plassey", [P("quill", 1500, G, 1.6, flip=True, faces=[(0, {"brows": 0.6, "mouth": "worried"})])], L, follow=False, world=BEN, gestures=False))
     L = ["E52"]
     out.append(scene("s10_end", "card", [P("quill", 1720, G, 1.6, flip=True)], L, follow=False, world=BEN,
                      fx=[timeline([("1857–58", "great uprising;|Crown takes over"), ("1874", "Company|dissolved")], 0.5, 2.6, y=380)]))
@@ -350,15 +405,21 @@ def shots():
     L = ["E53"]
     out.append(scene("s11_payoff", "plate:e_hooghly", [P("atlas", 1700, G, 1.7, flip=True)], L, follow=False, world=BEN,
                      cam=[(0.0, 1.15, 0.4, 0.5), (5.0, 1.0, 0.5, 0.5)], fx=[caption("from spices... to an empire... to closing down", 0.4)]))
-    L = ["E54"]
+    L = ["Z01", "Z02"]
+    out.append(scene("s11_close", "plate:e_hooghly", [P("penny", 1400, G, 1.7, flip=True, faces=[(0, {"brows": 0.6, "mouth": "worried"})])], L, follow=False, world=BEN, gestures=False))
+    L = ["Z03"]
     a_ = scene("s11_outro", "plate:e_hooghly",
-               [P(k, 300 + i * 330, G, 1.6, flip=i > 2, faces=[(0, {"mouth": "grin"})], acts=[(0.4 + i * 0.12, "cheer", None)])
-                for i, k in enumerate(["atlas", "penny", "quill", "zed", "pike"])], L, lead=0.2, follow=False, world=BEN)
+               [P(k, 300 + i * 330, G, 1.6, flip=i > 2) for i, k in enumerate(["atlas", "penny", "quill", "zed", "pike"])],
+               L, lead=0.2, follow=False, world=BEN, gestures=False)
     out += split(a_, 2.4, "plate:india", fx=[FX.next_time(0.3, "THE LOST CITIES OF THE INDUS")], name="s11_next")
     out[-1].dur += 0.8
     out.append(Shot("s12_endcard", 3.5, "endcard", world=BEN,
                     actors=[P(k, 360 + i * 300, 1030, 1.4, acts=[(0.3 + i * 0.12, "cheer" if k != "quill" else "hold_up", None)])
                             for i, k in enumerate(["penny", "atlas", "quill", "zed", "pike"])]))
+    SC.STILL |= SERIOUS
+    for sh in out:
+        if sh.name in SERIOUS:
+            sh.no_life = True
     return LIFE.add(out)                                                      # people going about their day behind the action
 
 

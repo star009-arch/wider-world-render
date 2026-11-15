@@ -34,10 +34,10 @@ CUTS = {
     "eic": {
         "title": ["HOW A COMPANY", "TOOK OVER INDIA"],
         "ep": "Episode 03",
-        "lines": ["E01", "E03", "E04", "E06", "E08", "E12", "E19", "C02", "C04", "E23", "E24", "E25", "E28", "E29", "E35", "E37", "E39",
-                  "E41", "E43", "E45", "E48", "E50"],
+        "lines": ["E01", "E03", "E04", "E06", "E08", "E12", "E19", "C02", "E23", "E28", "E35", "E39",
+                  "E41", "E43", "E45", "E48", "E50", "F01", "F04", "Z01", "Z02"],
         "chapters": {"E01": "The hook", "E06": "London, 1600", "E12": "Spices", "E19": "Mughal India", "C02": "The cloth craze",
-                     "E23": "A shop with an army", "E28": "Siraj and Calcutta", "E35": "The secret deal", "E39": "Plassey", "E45": "The traders become rulers"},
+                     "E23": "A shop with an army", "E28": "Siraj and Calcutta", "E35": "The secret deal", "E39": "Plassey", "E45": "The traders become rulers", "F01": "The famine of 1770", "Z01": "What it became"},
     },
     "ep03": {
         "title": ["HOW THE EGYPTIANS BUILT", "THE GREAT PYRAMIDS"],
@@ -60,7 +60,7 @@ CUTS.update({
     "ep02_c3": _clip("ep02", "Episode 02", 3, "The caravan that started a war", ["THE CARAVAN THAT", "STARTED A WAR"], ["M23", "M24", "M25", "M26", "M27"]),
     "eic_c1": _clip("eic", "Episode 03", 1, "From spices to rulers", ["FROM SPICES", "TO RULERS"], ["E01", "E02", "E03", "E04", "E05"]),
     "eic_c2": _clip("eic", "Episode 03", 2, "The cloth craze", ["THE CLOTH CRAZE", "THAT BUILT AN EMPIRE"], ["C01", "C02", "C03", "C04", "C05"]),
-    "eic_c3": _clip("eic", "Episode 03", 3, "Plassey in the rain", ["PLASSEY,", "23 JUNE 1757"], ["E39", "E40", "E41", "E42", "E43", "E44"]),
+    "eic_c3": _clip("eic", "Episode 03", 3, "Plassey in the rain", ["PLASSEY,", "23 JUNE 1757"], ["E39", "E40", "J05", "J06", "E41", "E43", "E44"]),
 })
 
 

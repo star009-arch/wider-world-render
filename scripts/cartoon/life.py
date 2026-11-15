@@ -16,6 +16,9 @@ S_REF = 0.95             # scale of an ordinary person standing on the cast's li
 # set: world, people keys, horizon (screen y where the ground meets the distance), band of screen y they may stand in,
 #      x range, number of groups
 LIFE = {
+    "giza_later":    dict(world="egypt_ok", keys=["worker", "woman", "scribe", "worker2"], horizon=600, band=(665, 778), xr=(100, 1820), groups=3),
+    "memphis":       dict(world="egypt_ok", keys=["woman", "worker", "baker", "child", "scribe"], horizon=600, band=(705, 780), xr=(300, 1500), groups=3,
+                          taper=(880, 2.2, 900, 2.9)),
     "m_steppe_dawn": dict(world="mongol_1200", keys=["rider", "rider2", "archer", "merchant", "borte"], horizon=545, band=(610, 770), xr=(60, 1860), groups=5),
     "m_karakorum":   dict(world="mongol_1200", keys=["merchant", "scholar", "rubruck", "rider", "archer"], horizon=570, band=(712, 775), xr=(60, 1860), groups=4),
     "m_bukhara":     dict(world="mongol_1200", keys=["merchant", "scholar", "governor", "merchant"], horizon=585, band=(625, 770), xr=(260, 1840), groups=4),
@@ -52,8 +55,32 @@ def _world_y(ys):
     return ys if ys <= M.STAGE_Y0 else M.STAGE_Y0 + (ys - M.STAGE_Y0) / M.STAGE_KY
 
 
-def _scale(ys, horizon):
-    return max(0.14, round(S_REF * (ys - horizon) / (FRONT - horizon) / 0.04) * 0.04)
+def _scale(ys, horizon, sref=S_REF):
+    return max(0.14, round(sref * (ys - horizon) / (FRONT - horizon) / 0.04) * 0.04)
+
+
+_WALLS: dict = {}
+
+
+def _blocked(plate, x, ys):
+    """True if a screen point lies on a wall/embankment marked for this set in floors.json."""
+    if plate not in _WALLS:
+        import json
+        from pathlib import Path
+        try:
+            fl = json.loads((Path(__file__).parent / "floors.json").read_text(encoding="utf-8"))
+            _WALLS[plate] = fl.get(plate, {}).get("walls", [])
+        except Exception:
+            _WALLS[plate] = []
+    for poly in _WALLS[plate]:
+        inside, n = False, len(poly)
+        for i in range(n):
+            (x1, y1), (x2, y2) = poly[i], poly[(i + 1) % n]
+            if (y1 > ys) != (y2 > ys) and x < (x2 - x1) * (ys - y1) / (y2 - y1) + x1:
+                inside = not inside
+        if inside:
+            return True
+    return False
 
 
 def add(shots, enabled=True):
@@ -61,7 +88,7 @@ def add(shots, enabled=True):
     if not enabled:
         return shots
     for sh in shots:
-        if not sh.bg.startswith("plate:") or sh.bg[6:] not in LIFE:
+        if not sh.bg.startswith("plate:") or sh.bg[6:] not in LIFE or getattr(sh, "no_life", False):
             continue
         cfg = LIFE[sh.bg[6:]]
         rnd = _Rand(sum(map(ord, sh.name)) * 7919)
@@ -76,7 +103,7 @@ def add(shots, enabled=True):
         while len(placed) < cfg["groups"] and tries < 80:
             tries += 1
             ys = y0 + (y1 - y0) * rnd.r() ** 1.6                                 # more groups far away than near
-            s = _scale(ys, cfg["horizon"])
+            s = _scale(ys, cfg["horizon"], cfg.get("sref", S_REF))
             gx = x0 + (x1 - x0) * rnd.r()
             if "taper" in cfg:                                                   # a street that narrows into the distance
                 vl, kl, vr, kr = cfg["taper"]
@@ -87,6 +114,8 @@ def add(shots, enabled=True):
                 continue
             if any(abs(gx - px) < 260 * max(s, ps) + 40 and abs(ys - py) < 28 for px, py, ps in placed):
                 continue                                                         # groups never line up in a row
+            if any(_blocked(sh.bg[6:], gx + dx_, ys) for dx_ in (-width, 0, width)):
+                continue                                                         # never on a wall or embankment
             placed.append((gx, ys, s))
             kind = rnd.pick(["pair", "walker", "pair", "trio", "walker"])
             ground = _world_y(ys)

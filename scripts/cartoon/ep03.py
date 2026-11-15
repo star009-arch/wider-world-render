@@ -21,9 +21,8 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 import ep01 as K  # noqa: E402
 import motions as M  # noqa: E402
 import scene as SC  # noqa: E402
-M.LIGHT_MATCH = False                                                            # Episode 1 is published: keep its look exactly
-SC.LIVE_CAM = False
-K.REACT = False
+import life as LIFE  # noqa: E402
+K.PUNCH = {"G04", "G12", "G17", "G24", "G30", "Y08", "G41", "Z05"}                       # upgraded 15 Nov with Episodes 2 and 3 (owner: all three)
 from scene import Shot, ease  # noqa: E402
 
 M.set_world("egypt_ok")
@@ -739,7 +738,7 @@ def shots():
     out.append(Shot("s10_endcard", 3.5, "endcard",
                     actors=[P(k, 360 + i * 300, 1030, 1.4, acts=[(0.3 + i * 0.12, "cheer" if k != "quill" else "hold_up", None)])
                             for i, k in enumerate(["penny", "atlas", "quill", "zed", "pike"])]))
-    return out
+    return LIFE.add(out)                                                      # people going about their day behind the action
 
 
 K.shots = shots

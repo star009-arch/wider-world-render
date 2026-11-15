@@ -15,7 +15,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import ep01 as K  # noqa: E402
-K.PUNCH = {"M04", "M09", "M16", "M17", "M26", "M32", "X06", "X07", "M38"}        # punchlines and reactions (close-up + listeners react)
+K.PUNCH = {"M04", "M09", "M16", "M17", "M26", "M32", "X06", "X07", "M38", "N02", "N04", "N06", "N08", "N10"}        # punchlines and reactions (close-up + listeners react)
 AIR_OPEN = {"s02_steppe": ("m_steppe_dawn_air", "THE MONGOLIAN STEPPE · 1100s"), "s04_jin": ("m_zhongdu_air", "THE JIN DYNASTY · NORTHERN CHINA"),
             "s07_karakorum": ("m_karakorum_air", "KARAKORUM · THE MONGOL CAPITAL"), "s08_hulagu": ("m_baghdad_air", "BAGHDAD · SEAT OF THE ABBASID CALIPHS"),
             "s05_ruin": ("m_bukhara_air", "")}
@@ -204,6 +204,8 @@ def shots():
     out.append(scene("s02_ger", "plate:m_ger_inside",
                      [E("hoelun", 600, 1000, 1.4), E("temujin_boy", 760, 1000, 1.1), P("atlas", 1360, G, 1.7, flip=True)],
                      L, follow=False, fx=[caption("a ger: a round felt tent you can pack onto a cart", 2.0)]))
+    L = ["N07", "N08"]
+    out.append(scene("s02_ger_b", "plate:m_ger_inside", [P("pike", 1150, G, 1.8), P("atlas", 1370, G, 1.7, flip=True)], L))
     L = ["M08", "M09"]
     out.append(scene("s02_temujin", "plate:m_steppe_dawn",
                      [E("hoelun", 500, 1000, 1.4, faces=[(0, {"mouth": "worried"})]), E("temujin_boy", 720, 1000, 1.1, faces=[(0, {"brows": 1.0, "mouth": "worried"})]),
@@ -227,6 +229,9 @@ def shots():
                      fx=[FX.bars(0.6, [("Mongols (perhaps)", 1.0, (200, 70, 50)), ("Jin China", 40.0, (90, 120, 170))], unit="")], follow=False))
     L = ["M13"]
     out.append(scene("s03_tens", "card", [P("zed", 1720, G, 1.6, flip=True)], L, fx=[decimal(0.3)], follow=False))
+    L = ["N01", "N02"]
+    out.append(scene("s03_general", "plate:m_steppe_dawn",
+                     [*riders(120, 1010, 3, 240, 1.0), P("pike", 1250, G, 1.8), P("quill", 1700, G, 1.6, flip=True)], L))
     L = ["M14"]
     out.append(scene("s03_remounts", "plate:m_steppe_dawn",
                      [*riders(-900, 1000, 3, 300, 1.15, walk=(0.0, 2400), speed=1.8), *FX.people(W_, ["rider2_mounted"] * 3, -700, 1040, 260, 1.0, walk=(0.0, 2200),
@@ -254,6 +259,8 @@ def shots():
     out.append(scene("s04_siege", "plate:m_zhongdu",
                      [*riders(200, 1030, 3, 200, 1.1), P("atlas", 1400, G, 1.7, flip=True, acts=[(0.6, "shrug", None)]), E("jin_official", 980, 1000, 1.3)],
                      L, fx=[caption("engineers recruited from conquered lands: siege engines", at(L, 1) + 1.0)]))
+    L = ["N03", "N04"]
+    out.append(scene("s04_hire", "plate:m_zhongdu", [E("jin_official", 820, 1000, 1.3), P("pike", 1250, G, 1.8), P("zed", 1650, G, 1.6, flip=True)], L))
     L = ["M22"]
     out.append(scene("s04_zhongdu", "plate:m_zhongdu", [P("quill", 1720, G, 1.6, flip=True)], L, follow=False,
                      fx=[label("ZHONGDU · 1215", 760, 110, 0.4, 70, GOLD), caption("today its ruins lie inside Beijing", 9.0)]))
@@ -345,13 +352,15 @@ def shots():
     out.append(scene("s09_kublai", "plate:m_dadu_hall", [E("kublai", 820, 1000, 1.8, faces=[(0, {"mouth": "grin"})], acts=[(1.0, "present", None)]),
                                                        P("penny", 1720, G, 1.6, flip=True)],
                      L, follow=False, fx=[label("KUBLAI KHAN · YUAN DYNASTY, 1271", 760, 100, 0.4, 56, GOLD)]))
-    L = ["X08"]
-    out.append(scene("s09_money", "card", [P("zed", 1720, G, 1.6, flip=True)], L, fx=[paper_money(0.5)], follow=False))
+    L = ["X08", "N05", "N06"]
+    out.append(scene("s09_money", "card", [P("pike", 1420, G, 1.8), P("zed", 1720, G, 1.6, flip=True)], L, fx=[paper_money(0.5)], follow=False))
     L = ["X09"]
     out.append(scene("s09_marco", "plate:m_dadu_hall",
                      [E("kublai", 1100, 1000, 1.6, flip=True), E("marco", -200, 1000, 1.5, walks=[(0.3, 700)], speed=1.5, acts=[(3.0, "present", None)]),
                       P("quill", 1720, G, 1.6, flip=True)],
                      L, fx=[label("MARCO POLO", 700, 300, 1.5, 52, GOLD), caption("how much is true? historians still debate", 8.0)]))
+    L = ["N09", "N10", "N11"]
+    out.append(scene("s09_marco_b", "plate:m_dadu_hall", [E("marco", 760, 1000, 1.5), P("zed", 1400, G, 1.6), P("quill", 1720, G, 1.6, flip=True)], L))
     L = ["M40"]
     out.append(scene("s09_size", "card", [P("zed", 1720, G, 1.6, flip=True)], L, follow=False,
                      fx=[FX.bars(0.8, [("Mongols (peak)", 23.5, (200, 70, 50)), ("North America", 24.7, (90, 120, 170))], unit="{:.1f}M km²", maxw=760)]))
