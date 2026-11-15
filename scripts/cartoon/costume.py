@@ -370,7 +370,7 @@ def hat(d, kind, cx, cy, R, u, k, c1=None, c2=None, jewel=False):
 
 
 # ================================================================================================ hair
-HAIR = {"mongol", "jurchen", "braids", "short", "bob", "tonsure", "queue", "red_curls", "long", "hidden", "boy_mongol"}
+HAIR = {"mongol", "jurchen", "braids", "short", "bob", "tonsure", "queue", "red_curls", "long", "hidden", "boy_mongol", "kudumi", "bun"}
 
 
 def hair_back(d, kind, cx, cy, R, u, k, col):
@@ -406,6 +406,15 @@ def hair_back(d, kind, cx, cy, R, u, k, col):
             a = math.pi * (0.9 + 1.2 * i / 9)
             x, y = cx + 1.3 * R * math.cos(a), cy - 0.45 * R + 1.05 * R * math.sin(a)
             d.arc([x - 0.25 * R, y - 0.25 * R, x + 0.25 * R, y + 0.25 * R], 0, 300, fill=shade(col, 0.7), width=3)
+    elif kind == "kudumi":                                                        # Kerala: long hair tied in a knot on the front-left of the head
+        x = cx + f * 0.55 * R
+        y = cy - 1.0 * R
+        ell(d, cx, cy - 0.35 * R, 1.08 * R, 0.95 * R, col)
+        ell(d, x, y, 0.42 * R, 0.36 * R, col)
+    elif kind == "bun":                                                           # hair gathered in a bun at the back
+        x = cx - f * 0.85 * R
+        ell(d, cx, cy - 0.35 * R, 1.08 * R, 0.95 * R, col)
+        ell(d, x, cy - 0.2 * R, 0.42 * R, 0.42 * R, col)
     elif kind == "long":
         d.rounded_rectangle([cx - 1.2 * R - OUT, cy - 1.1 * R - OUT, cx + 1.2 * R + OUT, cy + 2.2 * R + OUT], radius=0.6 * R, fill=LINE)
         d.rounded_rectangle([cx - 1.2 * R, cy - 1.1 * R, cx + 1.2 * R, cy + 2.2 * R], radius=0.6 * R, fill=col)
@@ -425,9 +434,11 @@ def hair_front(d, kind, cx, cy, R, u, k, col, skin, hatted=False):
                       fill=col, outline=LINE)                                     # forelock to the eyebrows
     elif kind == "jurchen" and not hatted:
         d.chord([cx - 0.98 * R, cy - 1.0 * R, cx + 0.98 * R, cy + 0.3 * R], 190, 350, fill=shade(skin, 0.88))
-    elif kind in ("short", "braids", "queue", "bob", "long") and not hatted:
+    elif kind in ("short", "braids", "queue", "bob", "long", "kudumi", "bun") and not hatted:
         d.chord([cx - 1.1 * R - OUT, cy - 1.15 * R - OUT, cx + 1.1 * R + OUT, cy + 0.3 * R + OUT], 180, 360, fill=LINE)
         d.chord([cx - 1.1 * R, cy - 1.15 * R, cx + 1.1 * R, cy + 0.3 * R], 180, 360, fill=col)
+        if kind == "kudumi":                                                      # the knot sits high on the front-left
+            ell(d, cx + (1 if k >= 0 else -1) * 0.55 * R, cy - 1.18 * R, 0.42 * R, 0.34 * R, col)
         if kind == "bob":
             d.rectangle([cx - 1.05 * R, cy - 0.65 * R, cx + 1.05 * R, cy - 0.42 * R], fill=col)
         elif kind == "long":
@@ -960,6 +971,17 @@ def prop(d, kind, x, y, u, f):
             poly(d, [(hx_ - f * 0.02 * u, hy_ + 0.3 * u), (hx_ - f * 1.6 * u, hy_ + 0.6 * u), (hx_ - f * 0.05 * u, hy_ + 1.0 * u)], (217, 169, 46), w=3)
         elif kind == "spear_i":
             ell(d, hx_ - f * 0.02 * u, hy_ + 0.35 * u, 0.2 * u, 0.25 * u, (170, 40, 40), w=3)
+    elif kind in ("musket_aim", "matchlock_aim"):                              # levelled at the shoulder, pointing forward
+        a, b = (x - f * 1.9 * u, y + 0.35 * u), (x + f * 4.6 * u, y - 0.45 * u)
+        d.line([a, b], fill=LINE, width=int(0.3 * u) + 6)
+        d.line([a, b], fill=(60, 60, 66) if kind == "musket_aim" else (80, 70, 60), width=int(0.3 * u))
+        d.line([(x - f * 2.1 * u, y + 0.55 * u), (x - f * 0.2 * u, y + 0.15 * u)], fill=LINE, width=int(0.66 * u) + 6)
+        d.line([(x - f * 2.1 * u, y + 0.55 * u), (x - f * 0.2 * u, y + 0.15 * u)], fill=(110, 70, 40), width=int(0.6 * u))
+        if kind == "musket_aim":
+            d.line([b, (b[0] + f * 1.6 * u, b[1] - 0.15 * u)], fill=LINE, width=7)
+            d.line([b, (b[0] + f * 1.6 * u, b[1] - 0.15 * u)], fill=(170, 174, 178), width=4)
+        else:
+            d.ellipse([x - f * 0.6 * u - 5, y - 0.1 * u - 5, x - f * 0.6 * u + 5, y - 0.1 * u + 5], fill=(240, 90, 40))
     elif kind in ("musket", "matchlock"):
         a, b = (x - f * 0.35 * u, y + 2.2 * u), (x + f * 0.45 * u, y - 4.8 * u)
         d.line([a, b], fill=LINE, width=int(0.3 * u) + 6)

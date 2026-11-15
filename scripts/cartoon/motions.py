@@ -373,12 +373,15 @@ class Performer:
         pose, flip = self.pose_at(t)
         x, y = self.pos_at(t)
         y, sk = stage(y)                                                    # keep feet above the subtitle strip
+        tile, ax, ay = tile_for(self.key, pose, round(self.scale * sk, 3), flip, self.view)
         if self.shadow and not pose.rot:                                    # soft contact shadow, shrinks as they jump
             k = max(0.35, 1 - max(0.0, pose.y) * 0.25) * sk
             w, h = getattr(self, "shw", 2.6) * self.upx * k, 0.55 * self.upx * k
-            sh = _shadow(int(w), int(h))
-            frame.alpha_composite(sh, (int(x - w), int(y - h)))
-        tile, ax, ay = tile_for(self.key, pose, round(self.scale * sk, 3), flip, self.view)
+            sh = _shadow(int(w * (0.7 if SHADE else 1.0)), int(h * (0.7 if SHADE else 1.0)))
+            frame.alpha_composite(sh, (int(x - sh.width / 2), int(y - sh.height / 2)))
+            if SHADE and CUR_PLATE and not CUR_PLATE.endswith("_inside") and pose.y < 0.3:
+                cs, ox, oy = cast_shadow(tile, ax, ay, self.scale * sk)
+                frame.alpha_composite(cs, (int(x + ox), int(y + oy)))
         if LIGHT_MATCH:
             tile = light_match(tile, frame, int(x - ax), int(y - ay))
         frame.alpha_composite(tile, (int(x - ax), int(y - ay)))
@@ -413,6 +416,68 @@ LIGHT_MATCH = True          # characters take on the set's light: colour tint, b
 
 
 _EDGE: dict = {}
+_FORM: dict = {}
+_CAST: dict = {}
+SHADE = True                # 2.5D look: form shading on every character and a real cast shadow on the ground
+CUR_PLATE = ""              # set by scene.render_frame: which set is being drawn (for the sun's side)
+SUN_FROM_RIGHT = {"m_steppe_dawn", "m_steppe_dawn_air", "m_karakorum", "m_caravan", "m_mohi", "e_hooghly", "e_surat"}
+
+
+def _sun():
+    """Horizontal direction the light comes from on the current set: +1 from the right, -1 from the left."""
+    return 1.0 if CUR_PLATE in SUN_FROM_RIGHT else -1.0
+
+
+def _form(tile, key):
+    """Per-pixel brightness factor (about 0.72 to 1.2) that makes a flat cut-out read as a rounded form: the silhouette is
+    treated as a soft bump, lit from the sun's side and from above; the lower part falls into shade."""
+    import numpy as np
+    from PIL import ImageFilter
+    k2 = (key, _sun())
+    f = _FORM.get(k2)
+    if f is None:
+        if len(_FORM) > 400:
+            _FORM.clear()
+        al = tile.getchannel("A")
+        r = max(3, int(tile.height * 0.055))
+        h = np.asarray(al.filter(ImageFilter.GaussianBlur(r)), dtype=np.float32) / 255.0
+        gy, gx = np.gradient(h)
+        lit = -(gx * _sun()) * 1.0 + gy * 0.7                                # facing the sun, and facing up
+        m = float(np.abs(lit).max()) or 1.0
+        lit = np.clip(lit / m * 2.2, -1.0, 1.0)
+        core = np.clip(h * 1.4, 0.0, 1.0)                                    # a little brighter in the middle of each form
+        yy = np.linspace(0.0, 1.0, tile.height, dtype=np.float32)[:, None]
+        feet = 1.0 - 0.16 * np.clip((yy - 0.72) / 0.28, 0.0, 1.0)            # ambient shade near the ground
+        f = ((0.93 + 0.06 * core + np.where(lit > 0, 0.20, 0.24) * lit) * feet)[..., None].astype(np.float32)
+        _FORM[k2] = f
+    return f
+
+
+def cast_shadow(tile, ax, ay, scale):
+    """The character's own silhouette laid on the ground, stretched away from the sun (replaces the round blob shadow).
+    Returns (image, offset x, offset y) relative to the feet point."""
+    from PIL import ImageFilter
+    key = (id(tile), tile.size, _sun())
+    c = _CAST.get(key)
+    if c is None:
+        if len(_CAST) > 400:
+            _CAST.clear()
+        w, h = tile.size
+        body = tile.getchannel("A").crop((0, 0, w, max(2, min(h, int(ay)))))  # everything above the feet
+        hh = max(2, int(body.height * 0.2))
+        flat = body.resize((w, hh), Image.BILINEAR)
+        shear = -_sun() * 0.95 * body.height / max(1, hh)                    # the head lands far to the side away from the sun
+        pad = int(abs(shear) * hh) + 8
+        canvas = Image.new("L", (w + 2 * pad, hh + 8), 0)
+        canvas.paste(flat, (pad, 4))
+        k = shear
+        sh = canvas.transform(canvas.size, Image.AFFINE, (1, k, -k * (hh + 4), 0, 1, 0), Image.BILINEAR)
+        sh = sh.filter(ImageFilter.GaussianBlur(max(2, hh // 10))).point(lambda v: int(v * 0.5))
+        img = Image.new("RGBA", sh.size, (16, 11, 8, 0))
+        img.putalpha(sh)
+        c = (img, -(ax + pad), -(hh + 4))
+        _CAST[key] = c
+    return c
 
 
 def light_match(tile, frame, x0, y0):
@@ -440,6 +505,8 @@ def light_match(tile, frame, x0, y0):
         edge = np.asarray(Image.fromarray(e.astype(np.uint8)).filter(ImageFilter.GaussianBlur(2)), dtype=np.float32)[..., None] / 255.0
         _EDGE[key] = edge
     rgb = a[..., :3] * k * 0.88 + amb * 0.12
+    if SHADE:                                                                # volume: lit side brighter, far side and feet darker
+        rgb = rgb * _form(tile, key)
     rgb = rgb * (1 - 0.35 * edge) + amb * 0.35 * edge
     out = np.dstack([np.clip(rgb, 0, 255), a[..., 3:]]).astype(np.uint8)
     return Image.fromarray(out, "RGBA")

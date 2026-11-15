@@ -315,7 +315,7 @@ def draw(person: Person, p, s=1.0, flip=False, view=0.6):
     spr, (ox, oy) = rot_sprite(spr, (ox, oy), hang)
     hdx, hdy = _rot(0, -1.75 * u, hang)
     im.alpha_composite(spr, (int(neck[0] + hdx - ox), int(neck[1] + hdy - oy)))
-    arm(fr_sh, p.sh_l, p.el_l, False, person.prop or p.prop_l)
+    arm(fr_sh, p.sh_l, p.el_l, False, p.prop_l or person.prop)
     bb = im.getbbox() or (0, 0, 2, 2)
     x0, y0 = max(0, bb[0] - 4), max(0, bb[1] - 4)
     out = im.crop((x0, y0, min(Wt, bb[2] + 4), min(Ht, bb[3] + 4)))
@@ -651,7 +651,7 @@ def draw2(person: Person, p, s=1.0, flip=False, view=0.6):
     spr, (ox_, oy_) = rot_sprite(spr, (ox_, oy_), hang)
     hdx, hdy = _rot(0, -1.75 * u, hang)
     im.alpha_composite(spr, (int(neck[0] + hdx - ox_), int(neck[1] + hdy - oy_)))
-    arm(fr_sh, p.sh_l, p.el_l, False, person.prop or p.prop_l)
+    arm(fr_sh, p.sh_l, p.el_l, False, p.prop_l or person.prop)
     return _finish(im, gx, gy, p, f)
 
 

@@ -1,0 +1,92 @@
+name: voc
+on:
+  workflow_dispatch:
+    inputs:
+      parts:
+        description: number of parallel render machines
+        default: '20'
+      kit_tag:
+        default: te-voc-demo-kit-v1
+      out_tag:
+        default: te-voc-demo-v1
+permissions:
+  contents: write
+jobs:
+  plan:
+    runs-on: ubuntu-latest
+    outputs:
+      parts: ${{ steps.p.outputs.parts }}
+    steps:
+      - id: p
+        run: python3 -c "import json;print('parts='+json.dumps(list(range(1,${{ inputs.parts }}+1))))" >> "$GITHUB_OUTPUT"
+  render:
+    needs: plan
+    runs-on: windows-latest
+    strategy:
+      fail-fast: true
+      max-parallel: 20
+      matrix:
+        part: ${{ fromJson(needs.plan.outputs.parts) }}
+    defaults:
+      run:
+        shell: bash
+    env:
+      GH_TOKEN: ${{ github.token }}
+      TE_VOICE: ${{ github.workspace }}/work/voice
+      TE_SFX: ${{ github.workspace }}/work/sfx
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: pip install -q imageio-ffmpeg pyshp pillow numpy
+      - name: coastlines (Natural Earth 50m, public domain)
+        run: |
+          curl -sSL -o ne.zip https://naciscdn.org/naturalearth/50m/cultural/ne_50m_admin_0_countries.zip
+          mkdir -p data/geo/naturalearth/ne_50m_admin_0_countries && unzip -q ne.zip -d data/geo/naturalearth/ne_50m_admin_0_countries
+      - name: kit (encrypted)
+        env:
+          KIT_KEY: ${{ secrets.KIT_KEY }}
+        run: |
+          mkdir -p work && gh release download "${{ inputs.kit_tag }}" -p kit.enc -D work -R "$GITHUB_REPOSITORY"
+          openssl enc -d -aes-256-cbc -pbkdf2 -iter 200000 -in work/kit.enc -out work/kit.tar -pass env:KIT_KEY
+          tar -xf work/kit.tar -C work && rm work/kit.enc work/kit.tar
+      - run: python scripts/cartoon/vocfilm.py render ${{ matrix.part }}/${{ inputs.parts }} out
+      - uses: actions/upload-artifact@v4
+        with:
+          name: part-${{ matrix.part }}
+          path: out/*.mp4
+          retention-days: 3
+          compression-level: 0
+  mix:
+    needs: render
+    runs-on: windows-latest
+    defaults:
+      run:
+        shell: bash
+    env:
+      GH_TOKEN: ${{ github.token }}
+      TE_VOICE: ${{ github.workspace }}/work/voice
+      TE_SFX: ${{ github.workspace }}/work/sfx
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: pip install -q imageio-ffmpeg pyshp pillow numpy
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: part-*
+          merge-multiple: true
+          path: parts
+      - env:
+          KIT_KEY: ${{ secrets.KIT_KEY }}
+        run: |
+          mkdir -p work film && gh release download "${{ inputs.kit_tag }}" -p kit.enc -D work -R "$GITHUB_REPOSITORY"
+          openssl enc -d -aes-256-cbc -pbkdf2 -iter 200000 -in work/kit.enc -out work/kit.tar -pass env:KIT_KEY
+          tar -xf work/kit.tar -C work && rm work/kit.enc work/kit.tar
+          ls parts
+          python scripts/cartoon/vocfilm.py mix parts film/film.mp4 work/music.mp3
+          openssl enc -aes-256-cbc -pbkdf2 -iter 200000 -salt -in film/film.mp4 -out film.enc -pass env:KIT_KEY
+          gh release view "${{ inputs.out_tag }}" -R "$GITHUB_REPOSITORY" >/dev/null 2>&1 || gh release create "${{ inputs.out_tag }}" -R "$GITHUB_REPOSITORY" --title "${{ inputs.out_tag }}" --notes "Encrypted film."
+          gh release upload "${{ inputs.out_tag }}" film.enc --clobber -R "$GITHUB_REPOSITORY"
