@@ -163,18 +163,33 @@ def wide_static():
     return s
 
 
-class Formation:
-    """A block of soldiers in ranks and files that marches in step (shared poses) and can halt."""
+NAIR_FRONT = ["travancore_1741:nair_v2", "travancore_1741:nair4_v2"]                      # shields and swords lead
+NAIR_BACK = ["travancore_1741:nair3_v2", "travancore_1741:nair2_v2", "travancore_1741:nair3_v2", "travancore_1741:nair5_v2"]  # spears, matchlocks
 
-    def __init__(self, key, x0, y0, files, ranks, dx, dy, scale, walk_to, t0=0.0, flip=True, speed=1.0, halt_acts=None, keys=None):
+
+class Formation:
+    """A block in files (along the march) and ranks (across it) that marches in step, steps off rank by rank, and
+    whose leading files react to fire (flinch, duck) at the given times."""
+
+    def __init__(self, key, x0, y0, files, ranks, dx, dy, scale, walk_to, t0=0.0, flip=True, speed=1.0, halt_acts=None, keys=None,
+                 react=()):
         self.members = []
         for r in range(ranks):
             for c in range(files):
-                k = keys[(r * files + c) % len(keys)] if keys else key
+                if keys:
+                    k = keys[(r * files + c) % len(keys)]
+                elif key:
+                    k = key
+                else:
+                    k = (NAIR_FRONT if c < 2 else NAIR_BACK)[(r + c) % (2 if c < 2 else 4)]
                 x = x0 + c * dx + r * dy * 0.6
                 y = y0 + r * dy
-                self.members.append(P(k, x, y, scale * (1 + r * 0.03), flip=flip, walks=[(t0, x - (x0 - walk_to))], speed=speed,
-                                      acts=halt_acts or []))
+                acts = list(halt_acts or [])
+                for tr in react:
+                    if c < 2:
+                        acts.append((tr + 0.05 * r, "flinch" if (r + c) % 3 else "duck", None))
+                self.members.append(P(k, x, y, scale * (1 + r * 0.03), flip=flip, walks=[(t0 + 0.06 * r, x - (x0 - walk_to))], speed=speed,
+                                      acts=acts))
 
 
 def paint_band(f, t, people, y0, y1):
@@ -182,18 +197,23 @@ def paint_band(f, t, people, y0, y1):
 
 
 class Wide:
-    dur = 8.0
+    dur = 7.6
     TOFF = 0.0
     LABELS = True
+    ZOOM = None
+    VOLLEYS = (5.4, 8.1)                                               # the camp fires on the leading block (wide-shot time)
 
     def __init__(self):
         M.CUR_PLATE = "colachel_v2"
         M.SUN_FROM_RIGHT.add("colachel_v2")
-        nk = ["travancore_1741:nair_v2", "travancore_1741:nair4_v2", "travancore_1741:nair3_v2", "travancore_1741:nair5_v2"]
-        self.blockA = Formation(None, 1640, 650, 7, 4, 17, 13, 0.19, 1330, keys=nk)                 # along the track to the gate
-        self.blockB = Formation(None, 1560, 870, 7, 3, 19, 14, 0.22, 1200, t0=0.6, keys=nk)         # through the southern grove
-        self.blockC = Formation(None, 1520, 330, 9, 2, 15, 10, 0.15, 1120, t0=0.3, keys=nk)         # along the treeline to the beach
-        self.cmd = P("travancore_1741:ramayyan_v2", 1790, 730, 0.24, flip=True, walks=[(0.0, 1480)])
+        self.blockA = Formation(None, 1600, 640, 8, 5, 16, 12, 0.18, 1290, react=self.VOLLEYS)   # along the track to the gate
+        self.blockB = Formation(None, 1540, 860, 8, 4, 18, 13, 0.21, 1190, t0=0.6)                # through the southern grove
+        self.blockC = Formation(None, 1500, 330, 10, 2, 14, 10, 0.15, 1110, t0=0.3)               # along the treeline towards the beach
+        self.blockD = Formation(None, 1830, 470, 6, 3, 15, 11, 0.16, 1700, t0=1.5, speed=0.6)     # the reserve
+        self.blockE = Formation(None, 1450, 215, 10, 2, 13, 8, 0.12, 1000, t0=0.0)                # a column down the beach, cutting the sea side
+        self.cmd = P("travancore_1741:ramayyan_v2", 1790, 740, 0.24, flip=True, walks=[(0.0, 1500)])
+        self.retinue = [P("travancore_1741:nair4_v2", 1820, 748, 0.22, flip=True, walks=[(0.0, 1530)]),
+                        P("travancore_1741:nair_v2", 1812, 730, 0.22, flip=True, walks=[(0.0, 1522)])]
         defenders = []
         for i, (x, y, tx) in enumerate(((700, 600, 1000), (740, 560, 1010), (660, 590, 985), (800, 600, 1005), (620, 560, 990),
                                         (860, 560, 970), (900, 600, 995))):
@@ -209,7 +229,8 @@ class Wide:
         self.palms.sort(key=lambda q: q[1])
 
     def people(self):
-        return self.blockA.members + self.blockB.members + self.blockC.members + [self.cmd] + self.def_
+        return (self.blockA.members + self.blockB.members + self.blockC.members + self.blockD.members + self.blockE.members
+                + [self.cmd] + self.retinue + self.def_)
 
     def frame(self, t):
         T = t + self.TOFF
@@ -226,6 +247,13 @@ class Wide:
         VS.smoke_plume(fx, 610, 600, T, n=5, col=(170, 164, 160), rise=10, drift=-6, size=8, seed=2, a=200)   # cooking fire
         f.alpha_composite(fx.out())
         ppl = self.people()
+        fxv = Layer()                                                    # the camp's volleys: flashes and smoke along the land-side wall
+        a_, b_ = CAMP[3], CAMP[4]
+        for tv in self.VOLLEYS:
+            for j in range(6):
+                k = 0.1 + j * 0.15
+                x, y = a_[0] + (b_[0] - a_[0]) * k + 6, a_[1] + (b_[1] - a_[1]) * k - 20
+                FX.muzzle(fxv, x, y, T, tv + j * 0.03, f=1, wind=(10, -6), size=0.32, seed=j)
         bands = [0, 400, 600, 700, 800, 900, 2000]
         for y0, y1 in zip(bands, bands[1:]):
             L = Layer()
@@ -238,6 +266,7 @@ class Wide:
                 L = Layer()
                 stakes_ring(L, front=True, t=T)
                 f.alpha_composite(L.out())
+                f.alpha_composite(fxv.out())
         if self.LABELS:
             fr = f
             if t > 0.6:
@@ -248,17 +277,28 @@ class Wide:
                 x, y = self.cmd.pos_at(T)
                 VF.label(fr, "Ramayyan", x + 10, y - 70, a=VF.fade(t, 4.6, 99), size=24)
             VF.label(fr, "Colachel, 1741", 960, 60, a=VF.fade(t, 0.2, 99), size=40)
-        else:
+        elif self.ZOOM is None:
             VF.label(f, "The land side is cut off", 960, 60, a=VF.fade(t, 0.4, 99), size=40)
-        k = 1 + 0.07 * (t / self.dur) if self.LABELS else 1.07 - 0.05 * (t / self.dur)
-        cx, cy = 1000, 600
+        if self.ZOOM:
+            k, (cx, cy) = self.ZOOM[0] + 0.04 * t / self.dur, self.ZOOM[1]
+        else:
+            k = 1 + 0.07 * (t / self.dur) if self.LABELS else 1.07 - 0.05 * (t / self.dur)
+            cx, cy = 1000, 600
         f = f.crop((int(cx - cx / k), int(cy - cy / k), int(cx + (W - cx) / k), int(cy + (H - cy) / k))).resize((W, H), Image.LANCZOS)
         return B.Base.grade(None, f, t)
 
 
+class WideMid(Wide):
+    """Back to the wider battle after the volley: smoke along the palisade, the leading Travancore block flinches."""
+    dur = 3.0
+    TOFF = 7.6
+    LABELS = False
+    ZOOM = (1.32, (1180, 640))
+
+
 class WideEnd(Wide):
     dur = 3.0
-    TOFF = 9.0
+    TOFF = 11.0
     LABELS = False
 
     def frame(self, t):
@@ -269,7 +309,7 @@ class WideEnd(Wide):
 # ------------------------------------------------------------------------------------------------ medium and close shots
 class Take(B.ShotB):
     """Defenders run to their places behind the palisade; the officer points them on."""
-    dur = 3.4
+    dur = 2.8
     VOLLEY = 99.0
 
     def setup(self):
@@ -289,7 +329,7 @@ class Take(B.ShotB):
 
 class Order(B.Base):
     """Close-up: the officer gives the order to fire."""
-    dur = 1.4
+    dur = 1.2
 
     def setup(self):
         sb = B.ShotB()
@@ -307,7 +347,7 @@ class Order(B.Base):
 
 
 class Volley(B.ShotB):
-    dur = 3.4
+    dur = 3.0
     VOLLEY = 0.7
 
     def setup(self):
@@ -325,7 +365,7 @@ class Volley(B.ShotB):
 class React(B.ShotC):
     """Travancore's line comes under fire, goes to cover behind an earth bank and returns fire; a second body
     moves along the treeline to outflank the camp."""
-    dur = 5.0
+    dur = 4.2
     HIT = 0.9
 
     def setup(self):
@@ -334,9 +374,18 @@ class React(B.ShotC):
         nk = ["nair_v2", "nair4_v2", "nair3_v2", "nair5_v2", "nair_v2", "nair4_v2"]
         self.line = []
         for i, k in enumerate(nk):
-            x = 1150 + i * 120
+            x = 1080 + i * 150
+            react = "flinch" if i in (1, 3) else ("duck" if i == 4 else "crouch")
+            acts = [(self.HIT + 0.04 * i, react, 0.0 if react != "crouch" else None)]
+            if react != "crouch":
+                acts.append((self.HIT + 0.04 * i + 0.9, "crouch", None))
             self.line.append(P(f"travancore_1741:{k}", x + 260, g + (i % 2) * 16, 1.45, flip=True, walks=[(0.0, x)],
-                               acts=[(self.HIT + 0.1 + i * 0.05, "crouch", None)], faces=[(0.0, {"brows": -0.8})]))
+                               acts=acts, faces=[(0.0, {"brows": -0.8}), (self.HIT, {"brows": 0.6, "mouth": "o"}),
+                                                 (self.HIT + 1.0, {"brows": -0.9, "mouth": "X"})]))
+        for i in range(4):                                             # spearmen behind, spears up
+            x = 1300 + i * 170
+            self.line.append(P("travancore_1741:nair3_v2", x + 260, g - 110, 1.2, flip=True, walks=[(0.0, x)],
+                               acts=[(self.HIT + 0.2 + 0.05 * i, "duck", None)], faces=[(0.0, {"brows": -0.8})]))
         self.shoot = [P("travancore_1741:nair2_v2", 1240, g - 10, 1.45, flip=True, acts=[(self.HIT + 0.2, "crouch", None), (2.1, "crouch_fire", None)],
                         props={"prop_l": "matchlock_aim"}, faces=[(0.0, {"brows": -0.9})]),
                       P("travancore_1741:nair5_v2", 1500, g + 6, 1.45, flip=True, acts=[(self.HIT + 0.25, "crouch", None), (2.6, "crouch_fire", None)],
@@ -379,7 +428,7 @@ class React(B.ShotC):
         return self.grade(f, t)
 
 
-TIMELINE = [(Wide, [("D09", 0.4)]), (Take, []), (Order, []), (Volley, []), (React, []), (WideEnd, [])]
+TIMELINE = [(Wide, [("D09", 0.4)]), (Take, []), (Order, []), (Volley, []), (WideMid, []), (React, []), (WideEnd, [])]
 
 
 def starts():
@@ -399,7 +448,10 @@ B._CACHE.clear()
 def sound_plan():
     st, total = starts()
     S_ = {cls.__name__: s for (cls, _), s in zip(TIMELINE, st)}
-    ev = [("@surf", 0.0, -20, Wide.dur), ("wind_steppe_1.wav", 0.0, -28, total), ("@surf", S_["WideEnd"], -22, WideEnd.dur)]
+    ev = [("@surf", 0.0, -20, Wide.dur), ("wind_steppe_1.wav", 0.0, -28, total), ("@surf", S_["WideEnd"], -22, WideEnd.dur),
+          ("@surf", S_["WideMid"], -22, WideMid.dur)]
+    ev += [("@musket", S_["Wide"] + 5.4 + j * 0.05, -16, None) for j in range(3)]
+    ev += [("@musket", S_["WideMid"] + (8.1 - 7.6) + j * 0.05, -12, None) for j in range(4)]
     ev += [("@musket", S_["Volley"] + Volley.VOLLEY + i * 0.03, -7, None) for i in range(4)]
     ev += [("@musket", S_["Volley"] + 2.1 + i * 0.03, -8, None) for i in range(3)]
     ev += [("@splash", S_["React"] + React.HIT + k * 0.04, -14, None) for k in range(4)]
