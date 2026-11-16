@@ -406,11 +406,9 @@ def hair_back(d, kind, cx, cy, R, u, k, col):
             a = math.pi * (0.9 + 1.2 * i / 9)
             x, y = cx + 1.3 * R * math.cos(a), cy - 0.45 * R + 1.05 * R * math.sin(a)
             d.arc([x - 0.25 * R, y - 0.25 * R, x + 0.25 * R, y + 0.25 * R], 0, 300, fill=shade(col, 0.7), width=3)
-    elif kind == "kudumi":                                                        # Kerala: long hair tied in a knot on the front-left of the head
-        x = cx + f * 0.55 * R
-        y = cy - 1.0 * R
-        ell(d, cx, cy - 0.35 * R, 1.08 * R, 0.95 * R, col)
-        ell(d, x, y, 0.42 * R, 0.36 * R, col)
+    elif kind == "kudumi":                                                        # Kerala munkudumi: short hair, knot at the front side
+        d.chord([cx - 1.04 * R - 3, cy - 1.06 * R - 3, cx + 1.04 * R + 3, cy + 0.2 * R + 3], 180, 360, fill=LINE)
+        d.chord([cx - 1.04 * R, cy - 1.06 * R, cx + 1.04 * R, cy + 0.2 * R], 180, 360, fill=col)
     elif kind == "bun":                                                           # hair gathered in a bun at the back
         x = cx - f * 0.85 * R
         ell(d, cx, cy - 0.35 * R, 1.08 * R, 0.95 * R, col)
@@ -437,13 +435,16 @@ def hair_front(d, kind, cx, cy, R, u, k, col, skin, hatted=False):
     elif kind in ("short", "braids", "queue", "bob", "long", "kudumi", "bun") and not hatted:
         d.chord([cx - 1.1 * R - OUT, cy - 1.15 * R - OUT, cx + 1.1 * R + OUT, cy + 0.3 * R + OUT], 180, 360, fill=LINE)
         d.chord([cx - 1.1 * R, cy - 1.15 * R, cx + 1.1 * R, cy + 0.3 * R], 180, 360, fill=col)
-        if kind == "kudumi":                                                      # the knot sits high on the front-left
-            ell(d, cx + (1 if k >= 0 else -1) * 0.55 * R, cy - 1.18 * R, 0.42 * R, 0.34 * R, col)
+        if kind == "kudumi":                                                      # the knot hangs at the front side of the forehead
+            fs = 1 if k >= 0 else -1
+            kx, ky = cx + fs * 0.62 * R, cy - 0.78 * R
+            ell(d, kx, ky, 0.3 * R, 0.24 * R, col)
+            d.line([(kx - fs * 0.05 * R, ky + 0.2 * R), (kx + fs * 0.18 * R, ky + 0.42 * R)], fill=col, width=max(4, int(0.14 * R)))
         if kind == "bob":
             d.rectangle([cx - 1.05 * R, cy - 0.65 * R, cx + 1.05 * R, cy - 0.42 * R], fill=col)
         elif kind == "long":
             d.line([(fx, cy - 1.12 * R), (fx, cy - 0.55 * R)], fill=shade(col, 0.6), width=3)
-        else:
+        elif kind != "kudumi":
             d.polygon([(fx - 0.6 * R, cy - 0.5 * R), (fx + 0.1 * R, cy - 0.95 * R), (fx + 0.75 * R, cy - 0.42 * R)], fill=col)
         if kind == "queue":                                                       # side rolls
             for side in (-1, 1):
@@ -872,6 +873,8 @@ def garment(d, kind, hx, hy, top, sw, u, k, f, c1, c2, c3, hem, flags=(), skin=(
         d.line([(c, hy - 0.5 * u), (c + 0.1 * u, hemy - 0.1 * u)], fill=shade(c1, 0.7), width=4)
         d.arc([c - 0.7 * u, hy - 0.4 * u, c + 0.7 * u, hy + 0.6 * u], 20, 160, fill=shade(c1, 0.7), width=3)
         d.rectangle([hx - sw * 0.88, hy - 0.8 * u, hx + sw * 0.88, hy - 0.55 * u], fill=shade(c1, 0.9), outline=LINE, width=3)
+        if "kasavu" in fl:
+            d.line([(hx - sw * 0.92, hemy - 0.12 * u), (hx + sw * 0.92, hemy - 0.12 * u)], fill=(212, 170, 64), width=max(4, int(0.16 * u)))
         if "shawl" in fl:
             poly(d, [(c + 0.5 * sw, top), (c + 0.9 * sw, top + 0.1 * u), (c - 0.6 * sw, hy - 0.6 * u), (c - 0.9 * sw, hy - 0.9 * u)], c2, w=4)
 
@@ -910,6 +913,12 @@ def cloak(d, kind, hx, hy, top, sw, u, k, f, col, trim, hem):
             poly(d, pts, col)
             d.line([(c + side * 0.42 * u, top + 0.1 * u), (c + side * 0.6 * u, hy - 0.25 * u)], fill=trim, width=max(4, int(0.16 * u)))
             d.line([(hx + side * sw * 1.0, hy - 0.22 * u), (c + side * 0.55 * u, hy - 0.22 * u)], fill=trim, width=max(4, int(0.16 * u)))
+    elif kind == "melmundu":                                                      # Kerala upper cloth over one shoulder, kasavu border
+        pts = [(hx + f * sw * 0.95, top + 0.05 * u), (hx + f * sw * 0.35, top + 0.0 * u), (hx - f * sw * 0.9, hy - 0.9 * u),
+               (hx - f * sw * 0.75, hy - 0.3 * u)]
+        poly(d, pts, col, w=4)
+        d.line([pts[1], pts[2]], fill=trim, width=max(4, int(0.12 * u)))
+        d.line([pts[0], pts[3]], fill=trim, width=max(4, int(0.12 * u)))
     elif kind == "shawl":
         poly(d, [(hx - sw * 1.0, top + 0.1 * u), (hx + sw * 1.0, top + 0.1 * u), (hx + sw * 0.95, top + 0.8 * u), (hx - sw * 0.95, top + 0.8 * u)], col, w=4)
         for side in (-1, 1):

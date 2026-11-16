@@ -219,6 +219,7 @@ class S07Atlas(MapShot):                   # 4.2 Atlas walks onto the map; the r
     def frame(self, t):
         f, pj = self.mapframe(t)
         d = ImageDraw.Draw(f)
+        F.keepout(d, (0, 600, 470, 1080))                              # Atlas stands bottom-left
         h, a = F.route(d, pj, R1, min(1.0, t / 5.6))
         F.ship_icon(d, h[0], h[1], a, t, 1.3)
         for n, ll, dy in (("Amsterdam", (4.9, 52.4), -34), ("Cape of Good Hope", (18.4, -34.3), 40)):
@@ -518,7 +519,7 @@ class S18Quill(Shot):
     part = 0
 
     def setup(self):
-        self.perf = [P("quill", 330, 1010, 2.5, lips=lips("D14", 0.3 - self.part), acts=[(5.6 - self.part, "headshake", None)]
+        self.perf = [P("quill", 1700, 1010, 2.5, flip=True, lips=lips("D14", 0.3 - self.part), acts=[(5.6 - self.part, "headshake", None)]
                        if not self.part else [(0.6, "point", None)])]
 
     def frame(self, t):
@@ -527,6 +528,7 @@ class S18Quill(Shot):
         f = img.copy()
         f.alpha_composite(F.sea_waves(BB2, T))
         d = ImageDraw.Draw(f)
+        F.keepout(d, (1480, 560, 1920, 1080), (1130, 130, 1470, 270))   # Quill (right) and the FIRST?/RARE banner
         x, y = pj(77.27, 8.18)
         F.dot(d, x, y, T, 0.2)
         F.label(d, "Colachel 1741", x + 10, y - 44, 44)

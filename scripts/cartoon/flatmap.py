@@ -107,9 +107,45 @@ def font(size):
     return ImageFont.truetype(FONT, size)
 
 
+def keepout(d, *rects):
+    """Areas labels must not cover on this frame (hosts standing on the map, banners). Stored on the frame's Draw object."""
+    if not hasattr(d, "_boxes"):
+        d._boxes = []
+    d._boxes.extend(rects)
+
+
+def _hit(b, boxes, pad=6):
+    return any(not (b[2] + pad < o[0] or o[2] + pad < b[0] or b[3] + pad < o[1] or o[3] + pad < b[1]) for o in boxes)
+
+
+OVERLAPS = []                                                       # the QC guard reads this: labels that could not be placed clear
+
+
 def label(d, text, x, y, size=40, a=1.0, color=(250, 240, 214)):
-    d.text((x, y), text, font=font(size), fill=color + (int(255 * a),), anchor="mm",
-           stroke_width=max(3, size // 9), stroke_fill=INK + (int(255 * a),))
+    """A map label that never overlaps another label or a keep-out area on the same frame: if its place is taken it
+    moves to the nearest free spot (down, up, then sideways). Same arguments as before."""
+    if not hasattr(d, "_boxes"):
+        d._boxes = []
+    fo = font(size)
+    sw = max(3, size // 9)
+    bb = d.textbbox((x, y), text, font=fo, anchor="mm", stroke_width=sw)
+    h = bb[3] - bb[1] + 6
+    w = bb[2] - bb[0] + 6
+    best = None
+    for dx, dy in ((0, 0), (0, h), (0, -h), (0, 2 * h), (0, -2 * h), (w * 0.6, 0), (-w * 0.6, 0), (0, 3 * h), (0, -3 * h),
+                   (w * 0.6, -h), (w * 0.6, -2 * h), (w * 1.1, 0), (w * 1.1, -h), (w * 1.1, -2 * h), (-w * 1.1, -h)):
+        b2 = (bb[0] + dx, bb[1] + dy, bb[2] + dx, bb[3] + dy)
+        if b2[0] < 4 or b2[2] > W - 4 or b2[1] < 4 or b2[3] > H - 150:   # stay on screen and clear of the subtitle band
+            continue
+        if not _hit(b2, d._boxes):
+            best = (dx, dy, b2)
+            break
+    if best is None:
+        OVERLAPS.append(text)
+        best = (0, 0, bb)
+    dx, dy, b2 = best
+    d._boxes.append(b2)
+    d.text((x + dx, y + dy), text, font=fo, fill=color + (int(255 * a),), anchor="mm", stroke_width=sw, stroke_fill=INK + (int(255 * a),))
 
 
 def ease(v):

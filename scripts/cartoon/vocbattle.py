@@ -49,12 +49,18 @@ TW["nair_v2"] = replace(TW["nair"], bracelets=True, tiraz=True, earrings=True, s
 TW["nair2_v2"] = replace(TW["nair2"], bracelets=True, tiraz=True, sash=True, garment_col2=(176, 40, 36), build=1.12, **ADULT)
 TW["nair3_v2"] = replace(TW["nair3"], bracelets=True, tiraz=True, earrings=True, sash=True, garment_col2=(30, 90, 70), build=1.08, **ADULT)
 TW["ramayyan_v2"] = replace(TW["ramayyan"], bracelets=True, tiraz=True, build=1.15, **ADULT)
+KER = dict(beard="moustache", beard_col=(22, 20, 20), earrings=True, tilak=True, flags=("kasavu",))
+
+TW["ramayyan_v2"] = replace(TW["ramayyan_v2"], cloak="melmundu", cloak_col=(244, 241, 232), cloak_trim=(212, 170, 64), chain=True)
 TW["voc_v2"] = replace(TW["voc_soldier"], build=1.1, flags=("kit",), **ADULT)
 TW["voc2_v2"] = replace(TW["voc_soldier2"], build=1.15, flags=("kit",), **ADULT)
-TW["nair4_v2"] = replace(TW["nair"], bracelets=True, tiraz=True, earrings=True, cloak="shawl", cloak_col=(244, 241, 232), cloak_trim=(212, 170, 64),
-                         shield_col=(150, 44, 36), garment_col2=(212, 170, 64), skin=(140, 92, 60), build=1.05, **ADULT)
+TW["nair4_v2"] = replace(TW["nair"], bracelets=True, tiraz=True, earrings=True, cloak="melmundu", cloak_col=(244, 241, 232), cloak_trim=(212, 170, 64),
+                         shield_col=(150, 44, 36), garment_col2=(212, 170, 64), skin=(140, 92, 60), build=1.05, beard="moustache",
+                         beard_col=(22, 20, 20), tilak=True, flags=("kasavu",), **ADULT)
 TW["nair5_v2"] = replace(TW["nair2"], bracelets=True, sash=True, garment_col2=(40, 70, 120), skin=(160, 108, 72), beard="full2",
                          beard_col=(30, 26, 24), build=1.15, **ADULT)
+for _k in ("nair_v2", "nair2_v2", "nair3_v2", "ramayyan_v2", "nair5_v2"):
+    TW[_k] = replace(TW[_k], **{k: v for k, v in KER.items() if not (_k == "nair5_v2" and k in ("beard", "beard_col"))})
 TW["delannoy_v2"] = replace(TW["delannoy"], build=1.08, **ADULT)
 
 M.CLIPS.update({

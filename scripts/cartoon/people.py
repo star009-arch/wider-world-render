@@ -456,7 +456,9 @@ def head_sprite2(person: Person, face, kq, u):
                 continue
             ex = fx + side * 0.52 * u * (1 - 0.5 * abs(k))
             d.line([(ex - 0.32 * u, cy - 0.42 * u), (ex + 0.32 * u, cy - 0.45 * u)], fill=(40, 30, 26), width=int(0.16 * u))
-    if p.tilak:
+    if p.tilak and "kasavu" in p.flags:                                          # Kerala: sandal-paste (chandanam) mark, pale, vertical
+        d.rounded_rectangle([fx - 0.06 * u, cy - 0.8 * u, fx + 0.06 * u, cy - 0.38 * u], radius=3, fill=(236, 214, 160))
+    elif p.tilak:
         d.rounded_rectangle([fx - 0.07 * u, cy - 0.75 * u, fx + 0.07 * u, cy - 0.35 * u], radius=3, fill=(200, 40, 40))
     ell(d, fx + k * 0.45 * u, cy + 0.55 * u, 0.17 * u, 0.15 * u, shade(p.skin, 0.88), w=3)
     if p.beard in K.BEARDS:

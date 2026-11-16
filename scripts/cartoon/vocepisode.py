@@ -81,8 +81,8 @@ VW["banda_man_v2"] = replace(VW["banda_man"], **AD)
 VW["banda_man2_v2"] = replace(VW["banda_man2"], **AD)
 VW["banda_woman_v2"] = replace(VW["banda_woman"], **AD)
 TW["marthanda"] = replace(TW["ramayyan"], name="Marthanda Varma, Maharaja of Travancore", skin=(150, 100, 66), beard="moustache", chain=True,
-                          earrings=True, bracelets=True, tiraz=True, cloak="shawl", cloak_col=(244, 241, 232), cloak_trim=(212, 170, 64),
-                          prop="", build=1.12, **AD)
+                          earrings=True, bracelets=True, tiraz=True, cloak="melmundu", cloak_col=(244, 241, 232), cloak_trim=(212, 170, 64),
+                          tilak=True, flags=("kasavu",), pearls=True, prop="", build=1.12, **AD)
 TW["envoy"] = replace(TW["delannoy"], name="Company envoy", prop="scroll", hair_col=(220, 216, 210), **AD)
 TW["valckenier"] = replace(TW["delannoy"], name="Governor-General (1740)", hair="queue", hair_col=(226, 222, 216), headwear="none",
                            garment_col=(40, 36, 40), flags=(), prop="", build=1.12, **AD)
@@ -177,6 +177,10 @@ class MapShot:
         f = img.copy()
         f.alpha_composite(F.sea_waves(self.bb, t))
         d = ImageDraw.Draw(f)
+        for p_ in self.perf:                                              # labels keep clear of hosts standing on the map
+            x_, y_ = p_.pos_at(t)
+            s_ = p_.scale
+            F.keepout(d, (x_ - 90 * s_, y_ - 230 * s_, x_ + 90 * s_, y_))
         self.draw(f, d, pj, t)
         M.CUR_PLATE = ""
         D.paint_all(f, t, self.perf)
@@ -775,7 +779,7 @@ S4 = [
 ]
 
 S5 = [
-    ("L", "S5L01", [(0, C(Shot, set_name="banda_harbour", label="Jayakarta, 1619", under=fire_town, perf=lambda c: [P(VK + "coen", 1500, 1000, 2.2, flip=True,
+    ("L", "S5L01", [(0, C(Shot, set_name="colachel_camp", label="Jayakarta, Java, 1619", under=fire_town, perf=lambda c: [P(VK + "coen", 1500, 960, 2.2, flip=True,
                                                                                                                      faces=[(0.0, {"brows": -0.4})])])),
                     ("built", C(Shot, set_name="batavia", under=build_batavia, perf=lambda c: [P(VK + "banda_man_v2", 300 + i * 300, 940, 1.6, walks=[(0.3 * i, 500 + i * 300)],
                                                                                             props={"prop_l": "bale"}) for i in range(4)])),
@@ -878,7 +882,8 @@ S9 = [
     ("L", "S9L04", [(0, C(Shot, set_name="banda_quay", tint=((120, 60, 40), 0.15), perf=lambda c: [
         P("atlas", 400, 940, 2.0, faces=[(0.0, {"look": 0.6})]), P("zed", 620, 940, 2.0), P("penny", 960, 940, 2.1, lips=lip(c, "S9L04"), acts=[(0.6, "present", None)]),
         P("quill", 1300, 950, 2.0, flip=True), P("pike", 1560, 940, 2.0, flip=True, acts=[(3.0, "nod", None)])]))]),
-    ("P", 3.5, [(0, C(TitleCard, sub="The Company That Had Its Own Army"))]),
+    ("L", "S9L05", [(0, C(TitleCard, sub="Next time: the Cholas, an empire of the sea"))]),
+    ("P", 3.0, [(0, C(TitleCard, sub="The Company That Had Its Own Army"))]),
 ]
 
 SEGMENTS = S1 + S2 + S3 + S4 + S5 + S6 + S7 + S8 + S9
@@ -1027,6 +1032,35 @@ class _T:
     pass
 
 
+def line_start(lid):
+    for s, d, fac, ctx, v in plan():
+        if v and v[0][0] == lid:
+            return s
+    raise KeyError(lid)
+
+
+def sound_plan():
+    """Ambience beds and battle effects. Guns and blasts sit well under the voice (owner: audible but not loud)."""
+    ev = [("wind_steppe_1.wav", 0.0, -30, total())]
+    s_land = line_start("S6L08")
+    s_siege = line_start("S6L10")
+    s_blast = line_start("S6L11")
+    after_wide = s_siege + LEAD + DUR["S6L10"] + GAP                          # battery 4.0, take 2.6, volley 3.0, supplies 3.0
+    ev += [("@surf", s_land, -22, s_blast - s_land), ("fire_crackle_1.wav", s_blast, -20, line_start("S6L13") - s_blast)]
+    ev += [("@splash", s_land + t0, -20, None) for t0 in (2.3, 2.9, 3.5, 4.3)]
+    ev += [("hammer_chisel_1.wav", line_start("S6L09") + t0, -22, None) for t0 in (0.55, 1.75, 2.95)]
+    ev += [("@musket", s_siege + 5.4 + j * 0.05, -22, None) for j in range(3)]               # the camp fires in the wide view
+    ev += [("@explosion", after_wide + t0, -22, None) for t0 in (1.2, 2.6)]                   # Travancore's siege guns
+    v0 = after_wide + 4.0 + 2.6
+    ev += [("@musket", v0 + 0.7 + j * 0.03, -18, None) for j in range(4)]                      # the company volley
+    ev += [("@musket", v0 + 2.1 + j * 0.03, -19, None) for j in range(3)]
+    ev += [("@explosion", s_blast + 1.7, -14, None)]                                          # the powder store
+    drill = [s for s, d, fac, ctx, v in plan() if s > line_start("S6L14") and not v][0]
+    ev += [("@musket", drill + 4.2 + j * 0.05, -22, None) for j in range(3)]
+    ev += [("water_river_1.wav", 0.0, -24, 30.0), ("crowd_work_1.wav", line_start("S1L02"), -26, 10.0)]
+    return ev
+
+
 def mix_film(parts, out, music=None):
     import subprocess
     import imageio_ffmpeg
@@ -1034,7 +1068,7 @@ def mix_film(parts, out, music=None):
     for start, dur, fac, ctx, voices in plan():
         entries.append((_T, dur, voices))
     VF.TIMELINE = entries
-    VF.sound_plan = lambda: [("@surf", 0.0, -24, 40.0), ("wind_steppe_1.wav", 0.0, -30, total())]
+    VF.sound_plan = sound_plan
     VF.mix(parts, out, music)
     loud = Path(out).with_name("film_loud.mp4")
     subprocess.run([imageio_ffmpeg.get_ffmpeg_exe(), "-y", "-loglevel", "error", "-i", str(out), "-c:v", "libx264", "-crf", "21", "-preset", "medium",
