@@ -78,16 +78,22 @@ class Set2:
             i += 1
         s.alpha_composite(A.texturize(A.haze(L.out(), (200, 200, 196), 0.18), _tex(31, 30), 0.14))
         G = Layer()
-        G.poly([(-40, 600), (1960, 600), (1960, 660), (-40, 660)], hexc("#CDB891"), 2.4)          # quay edge
-        A.gradient_rect(G, (0, 660, W, H), hexc("#5E7366"), shade(hexc("#5E7366"), 0.7))          # harbour water
+        A.gradient_rect(G, (0, 600, W, 640), hexc("#5E7366"), shade(hexc("#5E7366"), 0.85))        # a strip of harbour behind
+        G.poly([(-40, 640), (1960, 640), (1960, 780), (-40, 780)], hexc("#CDB891"), 2.4)          # the cobbled quay people stand on
+        for i in range(60):
+            x = (i * 97) % 1960
+            y = 660 + (i * 37) % 110
+            G.ellipse((x - 18, y - 6, x + 18, y + 6), shade(hexc("#CDB891"), 0.93), 0)
+        G.poly([(-40, 780), (1960, 780), (1960, 800), (-40, 800)], (110, 96, 80), 2.0)            # quay edge
+        A.gradient_rect(G, (0, 800, W, H), hexc("#5E7366"), shade(hexc("#5E7366"), 0.7))          # harbour water in front
         s.alpha_composite(G.out())
         self.static = s
-        self.water = (660, H)
-        self.floor_y = 650
+        self.water = (800, H)
+        self.floor_y = 740
 
     def _a_amsterdam(self, t, f):
         L = Layer()
-        A.water_band(L, 670, H, t, hexc("#5E7366"), rows=8, speed=8, density=1.2)
+        A.water_band(L, 806, H, t, hexc("#5E7366"), rows=6, speed=8, density=1.2)
         f.alpha_composite(L.out())
 
     # ------------------------------------------------------------------ Dutch interior
@@ -179,19 +185,24 @@ class Set2:
             i += 1
         s.alpha_composite(A.texturize(L.out(), _tex(34, 30), 0.12))
         G = Layer()
-        G.poly([(-40, 640), (1960, 640), (1960, 690), (-40, 690)], (196, 180, 150), 2.4)
-        A.gradient_rect(G, (0, 690, W, H), hexc("#5C6B4A"), shade(hexc("#5C6B4A"), 0.7))
+        G.poly([(-40, 640), (1960, 640), (1960, 680), (-40, 680)], (196, 180, 150), 2.4)          # far quay under the houses
+        A.gradient_rect(G, (0, 680, W, 760), hexc("#5C6B4A"), shade(hexc("#5C6B4A"), 0.8))        # the canal
+        G.poly([(-40, 760), (1960, 760), (1960, H + 20), (-40, H + 20)], (188, 170, 138), 2.4)    # the near street people stand on
+        for i in range(80):
+            x = (i * 131) % 1960
+            y = 790 + (i * 53) % 270
+            G.ellipse((x - 22, y - 7, x + 22, y + 7), shade((188, 170, 138), 0.93), 0)
         s.alpha_composite(G.out())
         if dusk:
             s = Image.blend(s.convert("RGB"), Image.new("RGB", s.size, (60, 40, 50)), 0.25).convert("RGBA")
         self.static = s
-        self.floor_y = 680
+        self.floor_y = 900
 
     def _a_batavia(self, t, f):
         L = Layer()
-        A.water_band(L, 700, H, t, hexc("#5C6B4A"), rows=7, speed=6, density=1.2)
+        A.water_band(L, 686, 756, t, hexc("#5C6B4A"), rows=3, speed=6, density=1.2)
         for x in (60, 1880):
-            A.palm(L, x, 660, 300, t, lean=0.1 if x < 900 else -0.1, seed=x, leaf=(62, 110, 52))
+            A.palm(L, x, 800, 380, t, lean=0.1 if x < 900 else -0.1, seed=x, leaf=(62, 110, 52))
         f.alpha_composite(L.out())
 
     # ------------------------------------------------------------------ open ocean

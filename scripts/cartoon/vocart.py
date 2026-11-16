@@ -347,8 +347,8 @@ def texturize(im, tex, strength=0.14):
 _GRAIN = {}
 
 
-def grade2(frame, sun=(1600, 240), t=0.0, sat=1.18, contrast=1.12, warm=(255, 214, 150), cool=(40, 70, 110), vignette=0.38, grain=0.035,
-           glow=0.30):
+def grade2(frame, sun=(1600, 240), t=0.0, sat=1.24, contrast=1.22, warm=(255, 214, 150), cool=(40, 70, 110), vignette=0.20, grain=0.012,
+           glow=0.20):
     """Cinematic finish v2: sun bloom, contrast S-curve, saturation, split toning (warm highlights / cool shadows),
     vignette and fine film grain (changes every frame)."""
     import numpy as np

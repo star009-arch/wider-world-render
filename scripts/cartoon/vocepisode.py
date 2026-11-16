@@ -46,6 +46,22 @@ from vocart import INK, Layer, W, H, S, mix, shade, light  # noqa: E402
 
 VOICE = VF.VOICE
 FPS = 24
+_P_ORIG = D.P
+
+
+def _P_sized(key, x, ground, scale=1.0, flip=False, **kw):
+    """Owner review 16 Nov: characters were too large; documentary framing shows the place around them."""
+    if scale > 4.0:
+        scale *= 0.72
+    elif scale > 2.0:
+        scale *= 0.75
+    return _P_ORIG(key, x, ground, scale, flip=flip, **kw)
+
+
+D.P = _P_sized
+VF.P = _P_sized
+B.P = _P_sized
+B3.P = _P_sized
 LEAD, GAP = 0.25, 0.45
 P = D.P
 WORDS = json.loads((VOICE / "words.json").read_text(encoding="utf-8"))
@@ -167,7 +183,7 @@ class MapShot:
         if self.label:
             VF.label(f, self.label, a=VF.fade(t, 0.3, 999), size=40)
         f = camera(f, t, self.cam, self.dur)
-        return A.grade2(f, sun=(1600, 200), t=t, sat=1.05, contrast=1.04, glow=0.12, vignette=0.25)
+        return A.grade2(f, sun=(1600, 200), t=t, sat=1.12, contrast=1.14, glow=0.08, vignette=0.15)
 
 
 class Custom:
@@ -209,6 +225,25 @@ def lip(ctx, line_id):
 
 def host(key, x, ground, scale, line_id, acts=None, flip=False, props=None, faces=None):
     return lambda ctx: [P(key, x, ground, scale, flip=flip, lips=lip(ctx, line_id), acts=acts or [], props=props or {}, faces=faces or [])]
+
+
+class TitleCard:
+    """Opening/closing title: the channel name and what the episode is about (owner review 16 Nov)."""
+
+    def __init__(self, ctx=None, sub="How the Dutch Built a Global Trading Empire"):
+        self.sub = sub
+
+    def frame(self, t):
+        s = get_set("banda_harbour")
+        f = s.frame(t + 20, lambda fr, tt: V.place(fr, tt, 980, 736, L=680, facing=-1)).convert("RGBA")
+        a = VF.fade(t, 0.2, 999, 0.5)
+        f.alpha_composite(Image.new("RGBA", f.size, (20, 16, 12, int(110 * a))))
+        d = ImageDraw.Draw(f)
+        d.text((960, 440), "TINY EMPIRES", font=font(110), fill=(250, 236, 200, int(255 * a)), anchor="mm", stroke_width=7,
+               stroke_fill=INK + (int(255 * a),))
+        b = VF.fade(t, 0.6, 999, 0.5)
+        d.text((960, 570), self.sub, font=font(58), fill=(255, 220, 150, int(255 * b)), anchor="mm", stroke_width=5, stroke_fill=INK + (int(255 * b),))
+        return A.grade2(f, sun=(380, 560), t=t)
 
 
 # ------------------------------------------------------------------------------------------------ custom drawings
@@ -683,7 +718,7 @@ S1 = [
         P(VK + "merchant_v2", 420, 980, 1.8), P(VK + "merchant2_v2", 1500, 980, 1.8, flip=True, acts=[(1.6, "double_take", None)]),
         P(VK + "coen", 1000, 1000, 1.9, acts=[(1.0, "present", None)])]))]),
     ("L", "S1L04", [(0, Wd(VF.S06Penny))]),
-    ("P", 2.6, [(0, Wd(VF.S19End))]),
+    ("P", 3.2, [(0, C(TitleCard))]),
 ]
 
 S2 = [
@@ -843,7 +878,7 @@ S9 = [
     ("L", "S9L04", [(0, C(Shot, set_name="banda_quay", tint=((120, 60, 40), 0.15), perf=lambda c: [
         P("atlas", 400, 940, 2.0, faces=[(0.0, {"look": 0.6})]), P("zed", 620, 940, 2.0), P("penny", 960, 940, 2.1, lips=lip(c, "S9L04"), acts=[(0.6, "present", None)]),
         P("quill", 1300, 950, 2.0, flip=True), P("pike", 1560, 940, 2.0, flip=True, acts=[(3.0, "nod", None)])]))]),
-    ("P", 3.0, [(0, Wd(VF.S19End))]),
+    ("P", 3.5, [(0, C(TitleCard, sub="The Company That Had Its Own Army"))]),
 ]
 
 SEGMENTS = S1 + S2 + S3 + S4 + S5 + S6 + S7 + S8 + S9
@@ -977,7 +1012,7 @@ def render_part(i, n, outdir):
     outdir.mkdir(parents=True, exist_ok=True)
     out = outdir / f"part_{i:02d}.mp4"
     proc = subprocess.Popen([imageio_ffmpeg.get_ffmpeg_exe(), "-y", "-loglevel", "error", "-f", "rawvideo", "-pix_fmt", "rgb24", "-s", f"{W}x{H}",
-                             "-r", str(FPS), "-i", "-", "-c:v", "libx264", "-pix_fmt", "yuv420p", "-crf", "18", "-preset", "medium", "-g", str(FPS),
+                             "-r", str(FPS), "-i", "-", "-c:v", "libx264", "-pix_fmt", "yuv420p", "-crf", "20", "-preset", "medium", "-g", str(FPS),
                              str(out)], stdin=subprocess.PIPE)
     for k in range(a, b):
         proc.stdin.write(frame_at(k / FPS).tobytes())
@@ -1002,7 +1037,8 @@ def mix_film(parts, out, music=None):
     VF.sound_plan = lambda: [("@surf", 0.0, -24, 40.0), ("wind_steppe_1.wav", 0.0, -30, total())]
     VF.mix(parts, out, music)
     loud = Path(out).with_name("film_loud.mp4")
-    subprocess.run([imageio_ffmpeg.get_ffmpeg_exe(), "-y", "-loglevel", "error", "-i", str(out), "-c:v", "copy", "-af", "loudnorm=I=-14:TP=-1.5:LRA=11",
+    subprocess.run([imageio_ffmpeg.get_ffmpeg_exe(), "-y", "-loglevel", "error", "-i", str(out), "-c:v", "libx264", "-crf", "21", "-preset", "medium",
+                    "-pix_fmt", "yuv420p", "-movflags", "+faststart", "-af", "loudnorm=I=-14:TP=-1.5:LRA=11",
                     "-ar", "48000", "-c:a", "aac", "-b:a", "192k", str(loud)], check=True)
     print(loud)
 
