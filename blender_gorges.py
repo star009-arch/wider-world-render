@@ -123,12 +123,28 @@ def terrain(g, name, sub=1400):
     hs = nt.nodes.new("ShaderNodeHueSaturation")
     hs.inputs["Saturation"].default_value = 1.1
     nt.links.new(ic.outputs["Color"], hs.inputs["Color"])
-    nt.links.new(hs.outputs["Color"], b.inputs["Base Color"])
+    vn = nt.nodes.new("ShaderNodeTexNoise")                                # tree-crown colour variation
+    vn.inputs["Scale"].default_value = 2500.0
+    vn.inputs["Detail"].default_value = 4.0
+    ramp = nt.nodes.new("ShaderNodeMapRange")
+    ramp.inputs["To Min"].default_value = 0.72
+    ramp.inputs["To Max"].default_value = 1.18
+    nt.links.new(vn.outputs["Fac"], ramp.inputs["Value"])
+    mul = nt.nodes.new("ShaderNodeMix")
+    mul.data_type = "RGBA"
+    mul.blend_type = "MULTIPLY"
+    mul.inputs["Factor"].default_value = 1.0
+    cv = nt.nodes.new("ShaderNodeCombineColor")
+    for k in ("Red", "Green", "Blue"):
+        nt.links.new(ramp.outputs["Result"], cv.inputs[k])
+    nt.links.new(hs.outputs["Color"], mul.inputs["A"])
+    nt.links.new(cv.outputs["Color"], mul.inputs["B"])
+    nt.links.new(mul.outputs["Result"], b.inputs["Base Color"])
     b.inputs["Roughness"].default_value = 0.92
     nz = nt.nodes.new("ShaderNodeTexNoise")                                # fine canopy grain
     nz.inputs["Scale"].default_value = 900.0
     bump = nt.nodes.new("ShaderNodeBump")
-    bump.inputs["Strength"].default_value = 0.25
+    bump.inputs["Strength"].default_value = 0.45
     nt.links.new(nz.outputs["Fac"], bump.inputs["Height"])
     nt.links.new(bump.outputs["Normal"], b.inputs["Normal"])
     o.data.materials.append(m)
@@ -143,18 +159,14 @@ def water_material(name="water"):
     b.inputs["Base Color"].default_value = (0.11, 0.17, 0.13, 1)          # silty green Yangtze water
     b.inputs["Roughness"].default_value = 0.07
     b.inputs["IOR"].default_value = 1.33
-    wv = nt.nodes.new("ShaderNodeTexWave")
-    wv.inputs["Scale"].default_value = 140.0
-    wv.inputs["Distortion"].default_value = 6.0
+    tc = nt.nodes.new("ShaderNodeTexCoord")
     nz = nt.nodes.new("ShaderNodeTexNoise")
-    nz.inputs["Scale"].default_value = 300.0
-    mx = nt.nodes.new("ShaderNodeMath")
-    mx.operation = "ADD"
-    nt.links.new(wv.outputs["Fac"], mx.inputs[0])
-    nt.links.new(nz.outputs["Fac"], mx.inputs[1])
+    nz.inputs["Scale"].default_value = 1800.0
+    nz.inputs["Detail"].default_value = 6.0
+    nt.links.new(tc.outputs["Object"], nz.inputs["Vector"])
     bump = nt.nodes.new("ShaderNodeBump")
-    bump.inputs["Strength"].default_value = 0.06
-    nt.links.new(mx.outputs["Value"], bump.inputs["Height"])
+    bump.inputs["Strength"].default_value = 0.025
+    nt.links.new(nz.outputs["Fac"], bump.inputs["Height"])
     nt.links.new(bump.outputs["Normal"], b.inputs["Normal"])
     return m
 
@@ -207,16 +219,16 @@ def sky(sun_el, sun_rot, strength=1.0):
     st.air_density = 1.2
     st.sun_disc = False
     nt.links.new(st.outputs["Color"], bg.inputs["Color"])
-    bg.inputs["Strength"].default_value = 0.2 * strength
+    bg.inputs["Strength"].default_value = 0.32 * strength
     bpy.ops.object.light_add(type="SUN")
     s = bpy.context.active_object
-    s.data.energy = 3.2
+    s.data.energy = 4.5
     s.data.color = (1.0, 0.86, 0.68) if sun_el < 20 else (1.0, 0.95, 0.88)
     s.data.angle = math.radians(1.5)
     s.rotation_euler = (math.radians(90 - sun_el), 0, math.radians(sun_rot + 180))
 
 
-def haze(start, depth, color=(0.62, 0.68, 0.74)):
+def haze(start, depth, color=(0.70, 0.76, 0.86)):
     """Aerial perspective from the mist pass (cheap, no volumes)."""
     sc = bpy.context.scene
     sc.view_layers[0].use_pass_mist = True
@@ -232,7 +244,7 @@ def haze(start, depth, color=(0.62, 0.68, 0.74)):
     mix.inputs[2].default_value = (*color, 1)
     mul = nt.nodes.new("CompositorNodeMath")
     mul.operation = "MULTIPLY"
-    mul.inputs[1].default_value = 0.75
+    mul.inputs[1].default_value = 0.5
     nt.links.new(rl.outputs["Mist"], mul.inputs[0])
     nt.links.new(mul.outputs["Value"], mix.inputs["Fac"])
     nt.links.new(rl.outputs["Image"], mix.inputs[1])
