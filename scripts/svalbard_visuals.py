@@ -175,7 +175,7 @@ def film_frame(name="diagram_archive_film", dur=12.0):
         if t > 3.0:
             b = int(255 * min(1, (t - 3.0) / 0.6))
             d.text((W / 2, 140), "Data written on film as dense, QR-like patterns", font=font(44, "b"), fill=TEXT[:7] + f"{b:02x}", anchor="mm")
-            d.text((W / 2, 940), "readable with light and a lens", font=font(34), fill="#c9d6e2" + f"{b:02x}", anchor="mm")
+            d.text((W / 2, 940), "in principle, readable with light and a camera", font=font(34), fill="#c9d6e2" + f"{b:02x}", anchor="mm")
         d.text((1700, 1030), "Illustration", font=font(22), fill="#c9d6e2" + f"{int(a * 0.8):02x}", anchor="mm")
     card_frames(name, dur, fn)
 
@@ -196,7 +196,8 @@ ALL = {
     "chart_passes": lambda: counter_card("chart_passes", 9.0, lambda g: f"{round(14 * g)} passes a day",
                                          "of a polar-orbiting satellite, all visible from Svalbard", "", ""),
     "chart_trawler": lambda: counter_card("chart_trawler", 9.0, lambda g: f"{round(140 * g)}+",
-                                          "times a Russian trawler crossed the cable", "as reported by NRK; the owners deny involvement", ""),
+                                          "crossings of the cable by one Russian trawler (NRK)",
+                                          "more than a dozen before the damage; no link established; owners deny involvement", ""),
 }
 
 if __name__ == "__main__":

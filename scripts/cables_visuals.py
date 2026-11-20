@@ -467,7 +467,10 @@ def chart_bandwidth(name="chart_bandwidth", dur=11.0):
 def counter_card(name, dur, value_fn, big, small, source):
     def fn(t, d):
         a = int(255 * min(1, t / 0.6))
-        d.text((W / 2, H * 0.44), value_fn(ease((t - 0.5) / 1.8)), font=font(150, "b"), fill=HILITE + f"{a:02x}", anchor="mm")
+        # the number waits until the cross-dissolve into the card is over (~1 s), then counts up: no "about 0" mid-fade
+        an = int(255 * min(1, max(0.0, (t - 1.0) / 0.3)))
+        if an:
+            d.text((W / 2, H * 0.44), value_fn(0.15 + 0.85 * ease((t - 1.0) / 1.6)), font=font(150, "b"), fill=HILITE + f"{an:02x}", anchor="mm")
         d.text((W / 2, H * 0.44 + 120), big, font=font(48, "b"), fill=TEXT + f"{a:02x}", anchor="mm")
         if small:
             d.text((W / 2, H * 0.44 + 190), small, font=font(32), fill="#c9d6e2" + f"{a:02x}", anchor="mm")

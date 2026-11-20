@@ -135,16 +135,10 @@
      "caption": ""
     },
     {
-     "kind": "still",
-     "src": "still_esa_svalbard_mosaic_2024.jpg",
-     "in": 0,
-     "w": 6.0,
-     "credit": "",
-     "zoom": 1.15,
-     "focus": [
-      0.45,
-      0.55
-     ]
+     "kind": "vis",
+     "src": "map_svalbard_location",
+     "in": 6,
+     "w": 6.0
     },
     {
      "kind": "still",
@@ -315,15 +309,12 @@
      "move": "drift"
     },
     {
-     "kind": "still",
-     "src": "still_vault_exterior_tefre.jpg",
-     "in": 0,
+     "kind": "clip",
+     "src": "clip_nasa_seed_vault_exterior.mp4",
+     "in": 75,
      "w": 6.0,
      "credit": "",
-     "focus": [
-      0.5,
-      0.5
-     ]
+     "caption": ""
     },
     {
      "kind": "clip",
@@ -533,14 +524,11 @@
     },
     {
      "kind": "still",
-     "src": "still_svalsat_noaa_post0266.jpg",
+     "src": "still_svalsat_rostad_06.jpg",
      "in": 0,
      "w": 5.0,
      "credit": "",
-     "focus": [
-      0.5,
-      0.5
-     ]
+     "aspect": "fit"
     },
     {
      "kind": "clip",
@@ -628,7 +616,8 @@
      "focus": [
       0.5,
       0.5
-     ]
+     ],
+     "caption": "Cable ship (illustrative)"
     },
     {
      "kind": "3d",
@@ -643,7 +632,8 @@
      "in": 0,
      "w": 5.0,
      "credit": "",
-     "move": "drift"
+     "move": "drift",
+     "caption": "Cable ship (illustrative)"
     },
     {
      "kind": "clip",
@@ -788,6 +778,21 @@
      "in": 90,
      "w": 8.0,
      "credit": "3D reconstruction"
+    }
+   ]
+  },
+  {
+   "id": "s11b",
+   "lead": 0.6,
+   "tail": 1.2,
+   "shots": [
+    {
+     "kind": "clip",
+     "src": "clip_nasa_land_ice_aerial.mp4",
+     "in": 90,
+     "w": 6.0,
+     "credit": "",
+     "caption": ""
     }
    ]
   },
