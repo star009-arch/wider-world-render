@@ -1,0 +1,1018 @@
+{
+ "out_name": "three_gorges",
+ "scenes": [
+  {
+   "id": "s01",
+   "lead": 0.2,
+   "tail": 0.8,
+   "shots": [
+    {
+     "kind": "clip",
+     "src": "clip_cns_2021_three_gorges_project.webm",
+     "in": 175,
+     "w": 5.0,
+     "credit": "",
+     "caption": "",
+     "vf": "crop=iw*0.72:ih*0.72:iw*0.12:ih*0.16"
+    },
+    {
+     "kind": "still",
+     "src": "dam_three_gorges_dam_2015_07_25.jpg",
+     "in": 0,
+     "w": 3.5,
+     "credit": "",
+     "focus": [
+      0.5,
+      0.45
+     ]
+    },
+    {
+     "kind": "still",
+     "src": "nasa_svs_1998_yangtze_flood.jpg",
+     "in": 0,
+     "w": 4.5,
+     "credit": "",
+     "focus": [
+      0.5,
+      0.5
+     ],
+     "caption": "Yangtze in flood, August 1998 (satellite)"
+    },
+    {
+     "kind": "still",
+     "src": "gorges_wu_shan_gorge_province_of_szechuan.jpg",
+     "in": 0,
+     "w": 3.0,
+     "credit": "",
+     "focus": [
+      0.5,
+      0.5
+     ]
+    },
+    {
+     "kind": "still",
+     "src": "before_badong_old.jpg",
+     "in": 0,
+     "w": 3.0,
+     "credit": "",
+     "focus": [
+      0.5,
+      0.5
+     ],
+     "caption": "Badong, 1999: later submerged"
+    },
+    {
+     "kind": "clip",
+     "src": "clip_tg3d_gorge_rise.mp4",
+     "in": 4,
+     "w": 4.5,
+     "credit": "",
+     "caption": "3D reconstruction from 2000 elevation data, relief exaggerated"
+    },
+    {
+     "kind": "still",
+     "src": "flood2020_flooded_datong_town_tongling_2020.jpg",
+     "in": 0,
+     "w": 3.5,
+     "credit": "",
+     "focus": [
+      0.5,
+      0.5
+     ]
+    },
+    {
+     "kind": "vis",
+     "src": "map_rain_below",
+     "in": 4,
+     "w": 4.5
+    },
+    {
+     "kind": "still",
+     "src": "mouth_modis_mouth_of_the_yangtze.jpg",
+     "in": 0,
+     "w": 4.0,
+     "credit": "",
+     "aspect": "fit"
+    }
+   ]
+  },
+  {
+   "id": "s02",
+   "length": 4.0,
+   "shots": [
+    {
+     "kind": "clip",
+     "src": "clip_cns_2021_three_gorges_project.webm",
+     "in": 3,
+     "w": 1,
+     "credit": "",
+     "caption": "",
+     "vf": "crop=iw*0.72:ih*0.72:iw*0.12:ih*0.16",
+     "title": "THE THREE GORGES DAM",
+     "subtitle": "Built to stop floods. Did it?"
+    }
+   ]
+  },
+  {
+   "id": "s03",
+   "lead": 0.5,
+   "tail": 0.8,
+   "shots": [
+    {
+     "kind": "vis",
+     "src": "map_yangtze",
+     "in": 0,
+     "w": 9.0
+    },
+    {
+     "kind": "still",
+     "src": "gorges_upper_yangtze.jpg",
+     "in": 0,
+     "w": 4.0,
+     "credit": "",
+     "focus": [
+      0.5,
+      0.5
+     ]
+    },
+    {
+     "kind": "still",
+     "src": "historic_dcgraham_yangtze_trackers_pulling_houseboat.jpg",
+     "in": 0,
+     "w": 5.0,
+     "credit": "",
+     "focus": [
+      0.5,
+      0.5
+     ],
+     "caption": "Trackers hauling a boat upriver, 1913"
+    },
+    {
+     "kind": "vis",
+     "src": "chart_floods",
+     "in": 0,
+     "w": 11.0
+    },
+    {
+     "kind": "still",
+     "src": "nasa_svs_1998_yangtze_before.jpg",
+     "in": 0,
+     "w": 3.0,
+     "credit": "",
+     "focus": [
+      0.5,
+      0.5
+     ]
+    },
+    {
+     "kind": "still",
+     "src": "nasa_svs_1998_yangtze_flood.jpg",
+     "in": 0,
+     "w": 4.0,
+     "credit": "",
+     "focus": [
+      0.5,
+      0.5
+     ],
+     "caption": "Before and during the 1998 flood (satellite)"
+    },
+    {
+     "kind": "still",
+     "src": "flood2020_1998_flood_level_plaque_chibi.jpg",
+     "in": 0,
+     "w": 4.0,
+     "credit": "",
+     "focus": [
+      0.5,
+      0.5
+     ],
+     "caption": "1998 high-water mark, Chibi"
+    },
+    {
+     "kind": "clip",
+     "src": "clip_1937_yangtze_gorges.webm",
+     "in": 20,
+     "w": 6.0,
+     "credit": "",
+     "caption": "The gorges in 1937",
+     "aspect": "4:3"
+    }
+   ]
+  },
+  {
+   "id": "s04",
+   "lead": 0.5,
+   "tail": 0.8,
+   "shots": [
+    {
+     "kind": "vis",
+     "src": "chart_argument",
+     "in": 0,
+     "w": 7.0
+    },
+    {
+     "kind": "still",
+     "src": "historic_i_chang_gorge.jpg",
+     "in": 0,
+     "w": 5.0,
+     "credit": "",
+     "focus": [
+      0.5,
+      0.5
+     ],
+     "caption": "Yichang Gorge, 1870s"
+    },
+    {
+     "kind": "vis",
+     "src": "chart_argument",
+     "in": 4.5,
+     "w": 6.0
+    },
+    {
+     "kind": "still",
+     "src": "gorges_tow_path_inside_qutang_gorge.jpg",
+     "in": 0,
+     "w": 5.0,
+     "credit": "",
+     "focus": [
+      0.5,
+      0.5
+     ],
+     "caption": "Towpath in Qutang Gorge, 1980"
+    },
+    {
+     "kind": "still",
+     "src": "gezhouba_gezhouba_downstream_4821.jpg",
+     "in": 0,
+     "w": 5.0,
+     "credit": "",
+     "focus": [
+      0.5,
+      0.5
+     ],
+     "caption": "Gezhouba Dam, Yichang"
+    },
+    {
+     "kind": "vis",
+     "src": "chart_argument",
+     "in": 8.5,
+     "w": 6.0
+    },
+    {
+     "kind": "still",
+     "src": "reservoir_three_gorges_175m.jpg",
+     "in": 0,
+     "w": 5.0,
+     "credit": "",
+     "focus": [
+      0.5,
+      0.5
+     ]
+    },
+    {
+     "kind": "still",
+     "src": "historic_ferry_boats_at_chongqing.jpg",
+     "in": 0,
+     "w": 5.0,
+     "credit": "",
+     "focus": [
+      0.5,
+      0.5
+     ],
+     "caption": "Chongqing, 1987"
+    },
+    {
+     "kind": "still",
+     "src": "historic_near_the_mitan_gorge_upper_yangtsze.jpg",
+     "in": 0,
+     "w": 5.0,
+     "credit": "",
+     "focus": [
+      0.5,
+      0.5
+     ]
+    }
+   ]
+  },
+  {
+   "id": "s05",
+   "lead": 0.5,
+   "tail": 0.8,
+   "shots": [
+    {
+     "kind": "vis",
+     "src": "chart_vote",
+     "in": 0,
+     "w": 11.0
+    },
+    {
+     "kind": "still",
+     "src": "gorges_wu_gorge_2019.jpg",
+     "in": 0,
+     "w": 5.0,
+     "credit": "",
+     "focus": [
+      0.5,
+      0.5
+     ]
+    }
+   ]
+  },
+  {
+   "id": "s06",
+   "lead": 0.5,
+   "tail": 0.8,
+   "shots": [
+    {
+     "kind": "still",
+     "src": "construction_tgp_ship_locksat_yangtse_river.jpg",
+     "in": 0,
+     "w": 5.0,
+     "credit": "",
+     "focus": [
+      0.5,
+      0.5
+     ],
+     "caption": "Ship-lock trench cut into granite, 1996"
+    },
+    {
+     "kind": "still",
+     "src": "nasa_eo_landsat_1987_threegorges.jpg",
+     "in": 0,
+     "w": 5.0,
+     "credit": "",
+     "focus": [
+      0.5,
+      0.5
+     ],
+     "caption": "The dam site, 1987 (Landsat)"
+    },
+    {
+     "kind": "still",
+     "src": "nasa_eo_landsat_2000_threegorges.jpg",
+     "in": 0,
+     "w": 6.0,
+     "credit": "",
+     "focus": [
+      0.5,
+      0.5
+     ],
+     "caption": "2000: the river diverted (Landsat)"
+    },
+    {
+     "kind": "still",
+     "src": "dam_river_closure_dump_truck.jpg",
+     "in": 0,
+     "w": 5.0,
+     "credit": "",
+     "focus": [
+      0.55,
+      0.35
+     ],
+     "zoom": 1.25,
+     "caption": "A closure truck, now on display"
+    },
+    {
+     "kind": "still",
+     "src": "construction_sandouping_site_panorama_2004.jpg",
+     "in": 0,
+     "w": 5.0,
+     "credit": "",
+     "move": "drift"
+    },
+    {
+     "kind": "still",
+     "src": "construction_construction_2002_a.jpg",
+     "in": 0,
+     "w": 5.0,
+     "credit": "",
+     "focus": [
+      0.5,
+      0.5
+     ],
+     "caption": "Construction, 2002"
+    },
+    {
+     "kind": "clip",
+     "src": "clip_tg3d_gorge_rise.mp4",
+     "in": 0,
+     "w": 9.0,
+     "credit": "",
+     "caption": "3D reconstruction from 2000 elevation data, relief exaggerated"
+    },
+    {
+     "kind": "still",
+     "src": "nasa_eo_landsat_2004_threegorges.jpg",
+     "in": 0,
+     "w": 4.0,
+     "credit": "",
+     "focus": [
+      0.5,
+      0.5
+     ],
+     "caption": "2004 (Landsat)"
+    },
+    {
+     "kind": "still",
+     "src": "nasa_eo_landsat_2006_threegorges.jpg",
+     "in": 0,
+     "w": 4.5,
+     "credit": "",
+     "focus": [
+      0.5,
+      0.5
+     ],
+     "caption": "2006 (Landsat)"
+    },
+    {
+     "kind": "still",
+     "src": "dam_three_gorges_dam_october_2016.jpg",
+     "in": 0,
+     "w": 6.0,
+     "credit": "",
+     "move": "drift"
+    }
+   ]
+  },
+  {
+   "id": "s07",
+   "lead": 0.5,
+   "tail": 0.8,
+   "shots": [
+    {
+     "kind": "still",
+     "src": "dam_three_gorges_dam_2015_07_25.jpg",
+     "in": 0,
+     "w": 4.5,
+     "credit": "",
+     "focus": [
+      0.4,
+      0.5
+     ]
+    },
+    {
+     "kind": "vis",
+     "src": "chart_size",
+     "in": 0,
+     "w": 6.0
+    },
+    {
+     "kind": "still",
+     "src": "dam_dam_panorama_yiling_2013.jpg",
+     "in": 0,
+     "w": 5.0,
+     "credit": "",
+     "move": "drift"
+    },
+    {
+     "kind": "vis",
+     "src": "map_reservoir",
+     "in": 0,
+     "w": 7.0
+    },
+    {
+     "kind": "clip",
+     "src": "clip_cns_2021_three_gorges_project.webm",
+     "in": 104,
+     "w": 5.0,
+     "credit": "",
+     "caption": "",
+     "vf": "crop=iw*0.72:ih*0.72:iw*0.12:ih*0.16"
+    },
+    {
+     "kind": "vis",
+     "src": "chart_power",
+     "in": 0,
+     "w": 6.0
+    },
+    {
+     "kind": "still",
+     "src": "dam_three_gorges_dam_yangtze_river_china.jpg",
+     "in": 0,
+     "w": 4.0,
+     "credit": "",
+     "focus": [
+      0.5,
+      0.5
+     ]
+    },
+    {
+     "kind": "vis",
+     "src": "chart_record",
+     "in": 0,
+     "w": 5.5
+    },
+    {
+     "kind": "still",
+     "src": "locks_three_gorges_locks_2016_8.jpg",
+     "in": 0,
+     "w": 5.5,
+     "credit": "",
+     "move": "drift"
+    },
+    {
+     "kind": "still",
+     "src": "locks_three_gorges_lock_1_2016_04.jpg",
+     "in": 0,
+     "w": 4.0,
+     "credit": "",
+     "focus": [
+      0.5,
+      0.5
+     ]
+    },
+    {
+     "kind": "vis",
+     "src": "diagram_locks",
+     "in": 0,
+     "w": 9.0
+    },
+    {
+     "kind": "clip",
+     "src": "clip_cns_2021_three_gorges_project.webm",
+     "in": 144,
+     "w": 5.0,
+     "credit": "",
+     "caption": "",
+     "vf": "crop=iw*0.72:ih*0.72:iw*0.12:ih*0.16"
+    },
+    {
+     "kind": "still",
+     "src": "shiplift_20260518_in_de_scheepslift_van_de_drieklovendam_in_de_yantze.jpg",
+     "in": 0,
+     "w": 4.0,
+     "credit": "",
+     "focus": [
+      0.5,
+      0.35
+     ],
+     "zoom": 1.2
+    }
+   ]
+  },
+  {
+   "id": "s08",
+   "lead": 0.5,
+   "tail": 0.8,
+   "shots": [
+    {
+     "kind": "still",
+     "src": "before_dusk_on_the_yangtze_river.jpg",
+     "in": 0,
+     "w": 4.5,
+     "credit": "",
+     "focus": [
+      0.5,
+      0.5
+     ]
+    },
+    {
+     "kind": "vis",
+     "src": "chart_drowned",
+     "in": 0,
+     "w": 7.0
+    },
+    {
+     "kind": "still",
+     "src": "before_badong_old.jpg",
+     "in": 0,
+     "w": 4.5,
+     "credit": "",
+     "focus": [
+      0.5,
+      0.45
+     ],
+     "caption": "Old Badong, 1999: later submerged"
+    },
+    {
+     "kind": "still",
+     "src": "before_wushan_yangtse.jpg",
+     "in": 0,
+     "w": 4.0,
+     "credit": "",
+     "focus": [
+      0.5,
+      0.5
+     ],
+     "caption": "Old Wushan, 1999: later submerged"
+    },
+    {
+     "kind": "vis",
+     "src": "chart_moved",
+     "in": 0,
+     "w": 6.0
+    },
+    {
+     "kind": "still",
+     "src": "newtowns_badong_new_county_town_2026.jpg",
+     "in": 0,
+     "w": 4.0,
+     "credit": "",
+     "focus": [
+      0.5,
+      0.5
+     ],
+     "caption": "New Badong, 2026"
+    },
+    {
+     "kind": "still",
+     "src": "fengdu_relics_20250522_baiheliang_153905.jpg",
+     "in": 0,
+     "w": 5.0,
+     "credit": "",
+     "focus": [
+      0.5,
+      0.5
+     ],
+     "caption": "Baiheliang carvings, now viewed underwater"
+    },
+    {
+     "kind": "clip",
+     "src": "clip_1937_yangtze_gorges.webm",
+     "in": 45,
+     "w": 5.0,
+     "credit": "",
+     "caption": "A riverside pagoda, 1937",
+     "aspect": "4:3"
+    },
+    {
+     "kind": "still",
+     "src": "reservoir_three_gorges_reservoir_flood_mark.jpg",
+     "in": 0,
+     "w": 6.0,
+     "credit": "",
+     "focus": [
+      0.5,
+      0.5
+     ]
+    },
+    {
+     "kind": "still",
+     "src": "before_soon_to_be_submerged_village_3_gorges_china_10_2002.jpg",
+     "in": 0,
+     "w": 5.0,
+     "credit": "",
+     "aspect": "fit"
+    },
+    {
+     "kind": "still",
+     "src": "newtowns_wanzhou_city_slums.jpg",
+     "in": 0,
+     "w": 4.5,
+     "credit": "",
+     "focus": [
+      0.5,
+      0.5
+     ]
+    },
+    {
+     "kind": "vis",
+     "src": "chart_cost",
+     "in": 0,
+     "w": 8.0
+    }
+   ]
+  },
+  {
+   "id": "s09",
+   "lead": 0.5,
+   "tail": 0.8,
+   "shots": [
+    {
+     "kind": "clip",
+     "src": "clip_tg3d_flood_cycle.mp4",
+     "in": 0,
+     "w": 10.0,
+     "credit": "",
+     "caption": "Flood season: 175 m down to 145 m. 3D reconstruction from 2000 elevation data, relief exaggerated"
+    },
+    {
+     "kind": "clip",
+     "src": "clip_cns_2021_three_gorges_project.webm",
+     "in": 181,
+     "w": 5.0,
+     "credit": "",
+     "caption": "",
+     "vf": "crop=iw*0.72:ih*0.72:iw*0.12:ih*0.16"
+    },
+    {
+     "kind": "vis",
+     "src": "chart_flood2020",
+     "in": 0,
+     "w": 9.0
+    },
+    {
+     "kind": "still",
+     "src": "space_yangtze_dams_spill_water.jpg",
+     "in": 0,
+     "w": 5.0,
+     "credit": "",
+     "focus": [
+      0.5,
+      0.5
+     ],
+     "caption": "Both dams spilling, 30 June 2020 (Landsat)"
+    },
+    {
+     "kind": "still",
+     "src": "dam_spillway_discharge_haze_2009.jpg",
+     "in": 0,
+     "w": 3.0,
+     "credit": "",
+     "focus": [
+      0.5,
+      0.5
+     ]
+    },
+    {
+     "kind": "still",
+     "src": "flood2020_flooded_datong_town_tongling_2020.jpg",
+     "in": 0,
+     "w": 5.0,
+     "credit": "",
+     "focus": [
+      0.5,
+      0.5
+     ],
+     "caption": "Flooding downstream, July 2020"
+    },
+    {
+     "kind": "still",
+     "src": "nasa_eo_modis_2020_poyang_flood.jpg",
+     "in": 0,
+     "w": 5.0,
+     "credit": "",
+     "focus": [
+      0.5,
+      0.5
+     ],
+     "caption": "Poyang Lake in flood, 2020 (satellite)"
+    },
+    {
+     "kind": "vis",
+     "src": "map_rain_below",
+     "in": 0,
+     "w": 11.0
+    },
+    {
+     "kind": "still",
+     "src": "dam_spillway_mist_2008.jpg",
+     "in": 0,
+     "w": 5.0,
+     "credit": "",
+     "focus": [
+      0.6,
+      0.5
+     ]
+    }
+   ]
+  },
+  {
+   "id": "s10",
+   "lead": 0.5,
+   "tail": 0.8,
+   "shots": [
+    {
+     "kind": "still",
+     "src": "gorges_der_jangtsekiang_bei_wushan.jpg",
+     "in": 0,
+     "w": 4.0,
+     "credit": "",
+     "focus": [
+      0.5,
+      0.5
+     ]
+    },
+    {
+     "kind": "still",
+     "src": "mouth_dsc00417_the_yangtze_river_estuary.jpg",
+     "in": 0,
+     "w": 5.0,
+     "credit": "",
+     "focus": [
+      0.5,
+      0.5
+     ],
+     "caption": "The Yangtze estuary, Shanghai"
+    },
+    {
+     "kind": "still",
+     "src": "nasa_eo_modis_2002_yangtze_sediment.jpg",
+     "in": 0,
+     "w": 5.0,
+     "credit": "",
+     "caption": "Mud pouring into the sea, 2002 (satellite)",
+     "aspect": "fit"
+    },
+    {
+     "kind": "vis",
+     "src": "chart_sediment",
+     "in": 0,
+     "w": 11.0
+    },
+    {
+     "kind": "still",
+     "src": "space_earth_from_space_three_gorges_dam_china.jpg",
+     "in": 0,
+     "w": 5.0,
+     "credit": "",
+     "aspect": "fit"
+    },
+    {
+     "kind": "clip",
+     "src": "clip_jiangyin_yangtze_ferry.webm",
+     "in": 0.3,
+     "w": 6.0,
+     "credit": "",
+     "caption": ""
+    },
+    {
+     "kind": "still",
+     "src": "river_the_yangtze_river_beams_in_the_sun_s_glint_and_surrounded_by.jpg",
+     "in": 0,
+     "w": 5.0,
+     "credit": "",
+     "focus": [
+      0.5,
+      0.5
+     ],
+     "caption": "The Yangtze near Wuhan, from the Space Station"
+    },
+    {
+     "kind": "still",
+     "src": "mouth_yangtze_river_delta_modis_2019_03_20.jpg",
+     "in": 0,
+     "w": 6.0,
+     "credit": "",
+     "aspect": "fit"
+    }
+   ]
+  },
+  {
+   "id": "s11",
+   "lead": 0.5,
+   "tail": 0.8,
+   "shots": [
+    {
+     "kind": "clip",
+     "src": "clip_tg3d_gorge_full.mp4",
+     "in": 0,
+     "w": 6.0,
+     "credit": "",
+     "caption": "3D reconstruction from 2000 elevation data, relief exaggerated"
+    },
+    {
+     "kind": "vis",
+     "src": "chart_day",
+     "in": 0,
+     "w": 8.0
+    },
+    {
+     "kind": "still",
+     "src": "dam_dam_and_shiplift_aerial_2025.jpg",
+     "in": 0,
+     "w": 6.0,
+     "credit": "",
+     "focus": [
+      0.5,
+      0.5
+     ]
+    },
+    {
+     "kind": "still",
+     "src": "dam_three_gorges_dam_2014.jpg",
+     "in": 0,
+     "w": 6.0,
+     "credit": "",
+     "focus": [
+      0.5,
+      0.5
+     ]
+    }
+   ]
+  },
+  {
+   "id": "s12",
+   "lead": 0.5,
+   "tail": 1.0,
+   "shots": [
+    {
+     "kind": "still",
+     "src": "locks_three_gorges_locks_2016_4.jpg",
+     "in": 0,
+     "w": 5.0,
+     "credit": "",
+     "focus": [
+      0.5,
+      0.5
+     ]
+    },
+    {
+     "kind": "vis",
+     "src": "map_cascade",
+     "in": 0,
+     "w": 7.0
+    },
+    {
+     "kind": "still",
+     "src": "cascade_wudongde_dam_01.jpg",
+     "in": 0,
+     "w": 4.0,
+     "credit": "",
+     "focus": [
+      0.5,
+      0.5
+     ],
+     "caption": "Wudongde Dam, upstream"
+    },
+    {
+     "kind": "still",
+     "src": "gorges_qutang_gorge_on_changjiang.jpg",
+     "in": 0,
+     "w": 5.0,
+     "credit": "",
+     "focus": [
+      0.5,
+      0.5
+     ]
+    },
+    {
+     "kind": "clip",
+     "src": "clip_tg3d_gorge_rise.mp4",
+     "in": 6,
+     "w": 5.0,
+     "credit": "",
+     "caption": "3D reconstruction from 2000 elevation data, relief exaggerated"
+    },
+    {
+     "kind": "still",
+     "src": "dam_spillways_discharging_2008.jpg",
+     "in": 0,
+     "w": 6.0,
+     "credit": "",
+     "focus": [
+      0.5,
+      0.5
+     ]
+    }
+   ]
+  },
+  {
+   "id": "s12b",
+   "lead": 0.8,
+   "tail": 0.8,
+   "shots": [
+    {
+     "kind": "still",
+     "src": "chongqing_chaotianmen_bridge_chongqing_yangtze_river_dusk_fog_2026_dll.jpg",
+     "in": 0,
+     "w": 1,
+     "credit": "",
+     "move": "drift"
+    }
+   ]
+  },
+  {
+   "id": "s13",
+   "length": 14.0,
+   "shots": [
+    {
+     "kind": "still",
+     "src": "gorges_peak_of_the_three_gorges.jpg",
+     "in": 0,
+     "w": 1,
+     "credit": "",
+     "focus": [
+      0.5,
+      0.45
+     ],
+     "title": "THE WIDER WORLD",
+     "subtitle": "Sources and credits are in the description"
+    }
+   ]
+  }
+ ],
+ "music": [
+  {
+   "file": "music_descent.ogg",
+   "from": 0.0,
+   "until": 230.0,
+   "in": 0.6,
+   "db": -19
+  },
+  {
+   "file": "music_lightless_dawn.mp3",
+   "from": 228.0,
+   "until": 470.0,
+   "in": 0.0,
+   "db": -20
+  },
+  {
+   "file": "music_floating_cities.mp3",
+   "from": 468.0,
+   "until": 9999.0,
+   "in": 0.0,
+   "db": -20
+  }
+ ]
+}
