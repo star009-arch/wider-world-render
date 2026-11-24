@@ -1,0 +1,4 @@
+[
+ {"name": "bedroom_night", "prompt": "cozy New York apartment bedroom at night seen from the doorway, a big double bed with white pillows and a blue blanket in the centre, wooden headboard, nightstand with a lamp and a red digital alarm clock, window with the city skyline and a crescent moon, curtains, wooden floor with a round rug, moonlight and soft lamp glow", "seeds": [11, 12], "w": 768, "h": 1344},
+ {"name": "nyc_street_rain", "prompt": "rainy New York street at dusk, red-brick brownstone buildings with black fire escapes, a deli with a green awning, a subway entrance with green lamps, a bus stop sign, wet pavement with puddles and reflections, a fire hydrant, yellow street lights, empty road in the foreground", "seeds": [21, 22], "w": 768, "h": 1344}
+]

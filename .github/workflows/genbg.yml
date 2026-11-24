@@ -1,0 +1,65 @@
+name: genbg
+on:
+  workflow_dispatch:
+    inputs:
+      jobs:
+        description: jobs file in the repo root (list of {name, prompt, seeds, w, h})
+        default: bg_jobs.json
+      tag:
+        description: release that receives the PNGs
+        default: bg-test-v1
+permissions:
+  contents: write
+jobs:
+  plan:
+    runs-on: ubuntu-latest
+    outputs:
+      idx: ${{ steps.p.outputs.idx }}
+    steps:
+      - uses: actions/checkout@v4
+      - id: p
+        run: python3 -c "import json;n=len(json.load(open('${{ inputs.jobs }}')));print('idx='+json.dumps(list(range(n))))" >> "$GITHUB_OUTPUT"
+  gen:
+    needs: plan
+    runs-on: ubuntu-latest
+    timeout-minutes: 300
+    strategy:
+      fail-fast: false
+      max-parallel: 20
+      matrix:
+        i: ${{ fromJson(needs.plan.outputs.idx) }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: install (CPU torch)
+        run: |
+          pip install -q torch --index-url https://download.pytorch.org/whl/cpu
+          pip install -q diffusers==0.31.0 transformers==4.46.3 accelerate==1.1.1 safetensors huggingface_hub==0.26.2
+      - name: generate
+        env:
+          THREADS: '4'
+          HF_HUB_DISABLE_PROGRESS_BARS: '1'
+        run: python gen_bg.py ${{ inputs.jobs }} out ${{ matrix.i }}
+      - uses: actions/upload-artifact@v4
+        with:
+          name: bg-${{ matrix.i }}
+          path: out/*.png
+          retention-days: 3
+  publish:
+    needs: gen
+    if: always()
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: bg-*
+          merge-multiple: true
+          path: bg
+      - run: |
+          ls -la bg
+          gh release view "${{ inputs.tag }}" -R "$GITHUB_REPOSITORY" >/dev/null 2>&1 || gh release create "${{ inputs.tag }}" -R "$GITHUB_REPOSITORY" --title "${{ inputs.tag }}" --notes "Generated backgrounds (SDXL base 1.0 + SDXL-Lightning, Open RAIL++-M)."
+          gh release upload "${{ inputs.tag }}" bg/*.png --clobber -R "$GITHUB_REPOSITORY"
