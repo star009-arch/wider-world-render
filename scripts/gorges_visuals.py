@@ -204,25 +204,42 @@ def bars(name, dur, title, sub, rows, unit_fn, vmax, foot=""):
     card_frames(name, dur, fn)
 
 
-def timeline6(name, dur, events, title=""):
+def timeline6(name, dur, events, title="", shown=None, already=0, margin=None):
+    """Timeline card. shown = how many events are on this card (rest hidden); the first `already` appear at once
+    (they were revealed on an earlier card), the rest animate in. margin keeps edge labels inside the frame."""
+    n_all = len(events)
+    shown = shown or n_all
+    margin = margin if margin is not None else (330 if n_all <= 3 else 190)
+
     def fn(t, d):
         a = int(255 * min(1, t / 0.6))
         if title:
             d.text((W / 2, 130), title, font=font(52, "b"), fill=TEXT + f"{a:02x}", anchor="mm")
         y = H * 0.48
-        n = len(events)
-        step = 1560 / (n - 1)
-        g = ease((t - 0.4) / (1.0 + 0.9 * n))
-        d.line([(180, y), (180 + 1560 * g, y)], fill="#5d7690" + f"{a:02x}", width=4)
-        for i, (yr, l1, l2) in enumerate(events):
-            x = 180 + i * step
-            b = int(a * ease((t - 0.8 - i * 0.9) / 0.6))
+        span = W - 2 * margin
+        step = span / (n_all - 1)
+        done = (already - 1) / (n_all - 1) if already else 0.0
+        target = (shown - 1) / (n_all - 1)
+        g = done + (target - done) * ease((t - 0.4) / (1.0 + 0.9 * (shown - already)))
+        d.line([(margin, y), (margin + span * g, y)], fill="#5d7690" + f"{a:02x}", width=4)
+        for i, (yr, l1, l2) in enumerate(events[:shown]):
+            x = margin + i * step
+            b = a if i < already else int(a * ease((t - 0.8 - (i - already) * 0.9) / 0.6))
             if b <= 0:
                 continue
             d.ellipse([x - 14, y - 14, x + 14, y + 14], fill=HILITE + f"{b:02x}")
             d.text((x, y - 70), yr, font=font(56, "b"), fill=HILITE + f"{b:02x}", anchor="mm")
-            d.multiline_text((x, y + 40), l1 + ("\n" + l2 if l2 else ""), font=font(27), fill=TEXT + f"{b:02x}", anchor="ma", align="center", spacing=6)
+            d.multiline_text((x, y + 40), l1 + ("\n" + l2 if l2 else ""), font=font(27), fill=TEXT + f"{b:02x}", anchor="ma",
+                             align="center", spacing=6)
     card_frames(name, dur, fn)
+
+
+ARGUMENT = [("1919", "Sun Yat-sen", "imagines a dam"),
+            ("1944", "US engineer", "John Savage surveys"),
+            ("1956", "Mao's poem:", "'walls of stone'"),
+            ("1970", "Gezhouba approved", "as a rehearsal"),
+            ("1988", "Canada-World Bank", "study"),
+            ("1992", "the vote", "")]
 
 
 def floods_card(name="chart_floods", dur=13.0):
@@ -311,7 +328,9 @@ ALL = {
     "map_rain_below": map_rain_below,
     "map_cascade": map_cascade,
     "chart_floods": floods_card,
-    "chart_argument": argument_card,
+    "chart_argument_1": lambda: timeline6("chart_argument_1", 9.0, ARGUMENT, "An eighty-year argument", shown=2),
+    "chart_argument_2": lambda: timeline6("chart_argument_2", 9.0, ARGUMENT, "An eighty-year argument", shown=4, already=2),
+    "chart_argument_3": lambda: timeline6("chart_argument_3", 9.0, ARGUMENT, "An eighty-year argument", shown=6, already=4),
     "chart_vote": vote_card,
     "diagram_locks": locks_diagram,
     "chart_drowned": drowned_card,

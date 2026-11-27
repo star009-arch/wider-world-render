@@ -9,10 +9,10 @@
     {
      "kind": "clip",
      "src": "clip_cns_2021_three_gorges_project.webm",
-     "in": 175,
+     "in": 170.0,
      "w": 5.0,
      "credit": "",
-     "caption": "",
+     "caption": "Three Gorges spillways (archive footage)",
      "vf": "crop=iw*0.72:ih*0.72:iw*0.12:ih*0.16"
     },
     {
@@ -103,7 +103,7 @@
     {
      "kind": "clip",
      "src": "clip_cns_2021_three_gorges_project.webm",
-     "in": 3,
+     "in": 3.2,
      "w": 1,
      "credit": "",
      "caption": "",
@@ -206,7 +206,7 @@
    "shots": [
     {
      "kind": "vis",
-     "src": "chart_argument",
+     "src": "chart_argument_1",
      "in": 0,
      "w": 7.0
     },
@@ -224,8 +224,8 @@
     },
     {
      "kind": "vis",
-     "src": "chart_argument",
-     "in": 4.5,
+     "src": "chart_argument_2",
+     "in": 0,
      "w": 6.0
     },
     {
@@ -254,8 +254,8 @@
     },
     {
      "kind": "vis",
-     "src": "chart_argument",
-     "in": 8.5,
+     "src": "chart_argument_3",
+     "in": 0,
      "w": 6.0
     },
     {
@@ -474,7 +474,7 @@
      "kind": "clip",
      "src": "clip_cns_2021_three_gorges_project.webm",
      "in": 104,
-     "w": 5.0,
+     "w": 4.0,
      "credit": "",
      "caption": "",
      "vf": "crop=iw*0.72:ih*0.72:iw*0.12:ih*0.16"
@@ -531,7 +531,7 @@
      "kind": "clip",
      "src": "clip_cns_2021_three_gorges_project.webm",
      "in": 144,
-     "w": 5.0,
+     "w": 3.5,
      "credit": "",
      "caption": "",
      "vf": "crop=iw*0.72:ih*0.72:iw*0.12:ih*0.16"
@@ -689,10 +689,10 @@
     {
      "kind": "clip",
      "src": "clip_cns_2021_three_gorges_project.webm",
-     "in": 181,
-     "w": 5.0,
+     "in": 176.2,
+     "w": 3.5,
      "credit": "",
-     "caption": "",
+     "caption": "Spillways releasing water (archive footage)",
      "vf": "crop=iw*0.72:ih*0.72:iw*0.12:ih*0.16"
     },
     {
