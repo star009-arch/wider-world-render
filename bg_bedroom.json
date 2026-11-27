@@ -1,37 +1,45 @@
 [
  {
-  "name": "bed_toon",
-  "prompt": "2D cartoon illustration, hand-drawn comic book style, bold dark ink outlines, flat painted colours, animation background art. Front view of a cozy bedroom at night: a double bed facing the camera in the centre, wooden headboard, two white pillows, plain white sheet, small nightstands with lamps on both sides, big window above the bed with a cartoon city skyline and a crescent moon, curtains, wooden floor, rug",
+  "name": "bed_i2i",
+  "prompt": "2D cartoon illustration, hand-drawn comic book style, bold dark ink outlines, flat painted colours, animation background art, cozy bedroom at night, double bed with white pillows, warm lamps, window with a city skyline and moon",
   "seeds": [
-   41
+   51
   ],
+  "init": "bg_init/bed_front_s33.png",
+  "strength": 0.55,
   "w": 768,
   "h": 1344
  },
  {
-  "name": "bed_toon",
-  "prompt": "2D cartoon illustration, hand-drawn comic book style, bold dark ink outlines, flat painted colours, animation background art. Front view of a cozy bedroom at night: a double bed facing the camera in the centre, wooden headboard, two white pillows, plain white sheet, small nightstands with lamps on both sides, big window above the bed with a cartoon city skyline and a crescent moon, curtains, wooden floor, rug",
+  "name": "bed_i2i",
+  "prompt": "2D cartoon illustration, hand-drawn comic book style, bold dark ink outlines, flat painted colours, animation background art, cozy bedroom at night, double bed with white pillows, warm lamps, window with a city skyline and moon",
   "seeds": [
-   42
+   52
   ],
+  "init": "bg_init/bed_front_s33.png",
+  "strength": 0.65,
   "w": 768,
   "h": 1344
  },
  {
-  "name": "bed_toon",
-  "prompt": "2D cartoon illustration, hand-drawn comic book style, bold dark ink outlines, flat painted colours, animation background art. Front view of a cozy bedroom at night: a double bed facing the camera in the centre, wooden headboard, two white pillows, plain white sheet, small nightstands with lamps on both sides, big window above the bed with a cartoon city skyline and a crescent moon, curtains, wooden floor, rug",
+  "name": "bed_i2i",
+  "prompt": "2D cartoon illustration, hand-drawn comic book style, bold dark ink outlines, flat painted colours, animation background art, cozy bedroom at night, double bed with white pillows, warm lamps, window with a city skyline and moon",
   "seeds": [
-   43
+   53
   ],
+  "init": "bg_init/bed_front_s33.png",
+  "strength": 0.75,
   "w": 768,
   "h": 1344
  },
  {
-  "name": "bed_toon",
-  "prompt": "2D cartoon illustration, hand-drawn comic book style, bold dark ink outlines, flat painted colours, animation background art. Front view of a cozy bedroom at night: a double bed facing the camera in the centre, wooden headboard, two white pillows, plain white sheet, small nightstands with lamps on both sides, big window above the bed with a cartoon city skyline and a crescent moon, curtains, wooden floor, rug",
+  "name": "bed_i2i",
+  "prompt": "2D cartoon illustration, hand-drawn comic book style, bold dark ink outlines, flat painted colours, animation background art, cozy bedroom at night, double bed with white pillows, warm lamps, window with a city skyline and moon",
   "seeds": [
-   44
+   54
   ],
+  "init": "bg_init/bed_front_s33.png",
+  "strength": 0.65,
   "w": 768,
   "h": 1344
  }

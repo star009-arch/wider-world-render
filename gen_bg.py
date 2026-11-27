@@ -14,7 +14,8 @@ import time
 from pathlib import Path
 
 import torch
-from diffusers import EulerDiscreteScheduler, StableDiffusionXLPipeline, UNet2DConditionModel
+from diffusers import EulerDiscreteScheduler, StableDiffusionXLImg2ImgPipeline, StableDiffusionXLPipeline, UNet2DConditionModel
+from PIL import Image
 from huggingface_hub import hf_hub_download
 from safetensors.torch import load_file
 
@@ -40,9 +41,15 @@ def main():
     for j in jobs:
         for seed in j.get("seeds", [1]):
             t0 = time.time()
-            img = pipe(prompt=f"{j['prompt']}, {STYLE}", negative_prompt=NEG, num_inference_steps=4, guidance_scale=0,
-                       width=j.get("w", 768), height=j.get("h", 1344), generator=torch.Generator().manual_seed(seed)).images[0]
-            p = out / f"{j['name']}_s{seed}.png"
+            if j.get("init"):                                  # repaint an existing picture: keeps its layout, changes its style
+                i2i = StableDiffusionXLImg2ImgPipeline(**pipe.components)
+                init = Image.open(j["init"]).convert("RGB").resize((j.get("w", 768), j.get("h", 1344)))
+                img = i2i(prompt=f"{j['prompt']}, {STYLE}", image=init, strength=j.get("strength", 0.6), num_inference_steps=8,
+                          guidance_scale=0, generator=torch.Generator().manual_seed(seed)).images[0]
+            else:
+                img = pipe(prompt=f"{j['prompt']}, {STYLE}", negative_prompt=NEG, num_inference_steps=4, guidance_scale=0,
+                           width=j.get("w", 768), height=j.get("h", 1344), generator=torch.Generator().manual_seed(seed)).images[0]
+            p = out / f"{j['name']}_s{seed}{'_st' + str(j.get('strength')) if j.get('init') else ''}.png"
             img.save(p)
             print(f"{p.name}: {time.time() - t0:.0f}s", flush=True)
 
