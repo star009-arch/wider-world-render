@@ -594,7 +594,7 @@
  {
   "dir": "stills",
   "name": "nasa_eo_landsat_1987_threegorges.jpg",
-  "url": "https://assets.science.nasa.gov/content/dam/science/esd/eo/images/imagerecords/7000/7769/threegorges_tm5_1987107_lrg.jpg",
+  "url": "https://github.com/star009-arch/wider-world-render/releases/download/tg-media-mirror/nasa_eo_landsat_1987_threegorges.jpg",
   "sha1": "5ff6be8b858b31d3e9db9120009ae29d374352b1",
   "licence": "Public domain (NASA; no NASA logo, no implied endorsement)",
   "credit": "NASA Earth Observatory / Jesse Allen; Landsat data via UMD GLCF",
@@ -607,7 +607,7 @@
  {
   "dir": "stills",
   "name": "nasa_eo_landsat_2000_threegorges.jpg",
-  "url": "https://assets.science.nasa.gov/content/dam/science/esd/eo/images/imagerecords/7000/7769/threegorges_etm_2000167_lrg.jpg",
+  "url": "https://github.com/star009-arch/wider-world-render/releases/download/tg-media-mirror/nasa_eo_landsat_2000_threegorges.jpg",
   "sha1": "4f169b8c517b39db1e7cf57bf1926a19e33dab04",
   "licence": "Public domain (NASA; no NASA logo, no implied endorsement)",
   "credit": "NASA Earth Observatory / Jesse Allen; Landsat data via UMD GLCF",
@@ -620,7 +620,7 @@
  {
   "dir": "stills",
   "name": "nasa_eo_landsat_2004_threegorges.jpg",
-  "url": "https://assets.science.nasa.gov/content/dam/science/esd/eo/images/imagerecords/7000/7769/threegorges_etm_2004130_lrg.jpg",
+  "url": "https://github.com/star009-arch/wider-world-render/releases/download/tg-media-mirror/nasa_eo_landsat_2004_threegorges.jpg",
   "sha1": "8e3390afc7bb34abba475aa9c0c18d81fdd9aac6",
   "licence": "Public domain (NASA; no NASA logo, no implied endorsement)",
   "credit": "NASA Earth Observatory / Jesse Allen; Landsat data via UMD GLCF",
@@ -633,7 +633,7 @@
  {
   "dir": "stills",
   "name": "nasa_eo_landsat_2006_threegorges.jpg",
-  "url": "https://assets.science.nasa.gov/content/dam/science/esd/eo/images/imagerecords/7000/7769/threegorges_etm_2006311_lrg.jpg",
+  "url": "https://github.com/star009-arch/wider-world-render/releases/download/tg-media-mirror/nasa_eo_landsat_2006_threegorges.jpg",
   "sha1": "8aab247de30d233f71a158eb827af669812bc387",
   "licence": "Public domain (NASA; no NASA logo, no implied endorsement)",
   "credit": "NASA Earth Observatory / Jesse Allen; Landsat data via UMD GLCF",
@@ -646,7 +646,7 @@
  {
   "dir": "stills",
   "name": "nasa_eo_modis_2002_yangtze_sediment.jpg",
-  "url": "https://assets.science.nasa.gov/content/dam/science/esd/eo/images/imagerecords/9000/9428/Yangtze_M2002102_lrg.jpg",
+  "url": "https://github.com/star009-arch/wider-world-render/releases/download/tg-media-mirror/nasa_eo_modis_2002_yangtze_sediment.jpg",
   "sha1": "21a0329f46dcb1c9514ef11d72845be0795fcf24",
   "licence": "Public domain (NASA; no NASA logo, no implied endorsement)",
   "credit": "NASA Earth Observatory / Jacques Descloitres, MODIS Land Rapid Response Team, NASA GSFC",
@@ -659,7 +659,7 @@
  {
   "dir": "stills",
   "name": "nasa_eo_modis_2020_poyang_flood.jpg",
-  "url": "https://assets.science.nasa.gov/content/dam/science/esd/eo/images/imagerecords/146000/146987/poyanglake_tmo_2020166_lrg.jpg",
+  "url": "https://github.com/star009-arch/wider-world-render/releases/download/tg-media-mirror/nasa_eo_modis_2020_poyang_flood.jpg",
   "sha1": "54ab8014bdcb49ad50edc23542d7d2081e3deca9",
   "licence": "Public domain (NASA; no NASA logo, no implied endorsement)",
   "credit": "NASA Earth Observatory / Lauren Dauphin, MODIS data from NASA EOSDIS/LANCE and GIBS/Worldview",
@@ -672,7 +672,7 @@
  {
   "dir": "stills",
   "name": "nasa_svs_1998_yangtze_before.jpg",
-  "url": "https://svs.gsfc.nasa.gov/vis/a000000/a000200/a000249/yangtze_river.jpg",
+  "url": "https://github.com/star009-arch/wider-world-render/releases/download/tg-media-mirror/nasa_svs_1998_yangtze_before.jpg",
   "sha1": "7137557c8c2868595b2cb004d718b113812935f2",
   "licence": "Public domain (NASA; no NASA logo, no implied endorsement)",
   "credit": "NASA/Goddard Space Flight Center Scientific Visualization Studio",
@@ -685,7 +685,7 @@
  {
   "dir": "stills",
   "name": "nasa_svs_1998_yangtze_flood.jpg",
-  "url": "https://svs.gsfc.nasa.gov/vis/a000000/a000200/a000249/yangtze_flood.jpg",
+  "url": "https://github.com/star009-arch/wider-world-render/releases/download/tg-media-mirror/nasa_svs_1998_yangtze_flood.jpg",
   "sha1": "3725180d983659206f57f716d64bf216fe9a72f9",
   "licence": "Public domain (NASA; no NASA logo, no implied endorsement)",
   "credit": "NASA/Goddard Space Flight Center Scientific Visualization Studio",
